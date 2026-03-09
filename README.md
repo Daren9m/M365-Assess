@@ -92,6 +92,36 @@ Install-Module Microsoft.Graph, ExchangeOnlineManagement -Scope CurrentUser
 
 ScubaGear and its 8 dependencies are installed automatically the first time you run that section.
 
+## Platform Support
+
+| Platform | Status |
+|----------|--------|
+| **Windows** | Fully tested |
+| **macOS** | Experimental |
+| **Linux** | Experimental |
+
+M365 Assess is developed and tested on Windows. macOS and Linux are supported by PowerShell 7 but have **not been fully tested** with this tool. The interactive wizard and console output rely on Unicode rendering and terminal features that may behave differently across platforms.
+
+**We'd love help from the community!** If you run into issues on macOS or Linux, please open an issue and include:
+
+1. Your OS and version (e.g., macOS 14.3, Ubuntu 24.04)
+2. PowerShell version (`$PSVersionTable.PSVersion`)
+3. Terminal app (e.g., Terminal.app, iTerm2, GNOME Terminal, Windows Terminal)
+4. The full error message and stack trace
+5. The assessment log file (`_Assessment-Log.txt`) from your output folder, if one was generated
+
+**To submit a bug report:**
+
+```bash
+# From the repo, use the GitHub CLI:
+gh issue create --title "macOS/Linux: <short description>" --body "..."
+
+# Or open an issue directly at:
+# https://github.com/Daren9m/M365-Assess/issues/new
+```
+
+Attach your `_Assessment-Log.txt` by dragging it into the GitHub issue, or paste the relevant error output in a code block.
+
 ## M365 Assessment Suite
 
 The orchestrator (`Invoke-M365Assessment.ps1`) connects to the required services, dispatches collectors across 8 standard sections, and exports CSV reports plus a branded HTML report into a timestamped folder. All operations are strictly read-only (`Get-*` cmdlets only). Failures in one section do not block others.
