@@ -1011,6 +1011,7 @@ $logHeaderLines = @(
     "  Started:  $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
     "  Tenant:   $TenantId"
     "  Cloud:    $M365Environment"
+    "  Domain:   $($script:domainPrefix)"
 )
 $logHeaderLines += @(
     "  Sections: $($Section -join ', ')"
@@ -1221,6 +1222,11 @@ function Connect-RequiredService {
                                 Rename-Item -Path $script:logFilePath -NewName $newLogName -ErrorAction Stop
                                 $script:logFileName = $newLogName
                                 $script:logFilePath = Join-Path -Path $assessmentFolder -ChildPath $newLogName
+
+                                # Update log header with resolved domain prefix
+                                $logContent = Get-Content -Path $script:logFilePath -Raw
+                                $logContent = $logContent -creplace '(?m)(Domain:\s*)(\r?\n)', "`${1}$($script:domainPrefix)`${2}"
+                                Set-Content -Path $script:logFilePath -Value $logContent -Encoding UTF8 -NoNewline
 
                                 Write-AssessmentLog -Level INFO -Message "Renamed output to include tenant domain: $($script:domainPrefix)" -Section $SectionName
                             }
