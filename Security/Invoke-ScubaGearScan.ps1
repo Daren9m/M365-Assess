@@ -14,8 +14,8 @@
     optionally preserves the full native ScubaGear output (HTML report, JSON,
     action plan) in a separate folder.
 .PARAMETER ProductNames
-    One or more M365 product codes to assess. Defaults to all seven products.
-    Valid values: aad, defender, exo, powerplatform, powerbi, sharepoint, teams.
+    One or more M365 product codes to assess. Defaults to all six products.
+    Valid values: aad, defender, exo, powerplatform, sharepoint, teams.
 .PARAMETER Organization
     Tenant domain (e.g. 'contoso.onmicrosoft.com') used for authentication.
 .PARAMETER M365Environment
@@ -36,7 +36,7 @@
 .EXAMPLE
     PS> .\Security\Invoke-ScubaGearScan.ps1 -Organization 'contoso.onmicrosoft.com'
 
-    Runs a full ScubaGear scan of all seven products with interactive auth.
+    Runs a full ScubaGear scan of all six products with interactive auth.
 .EXAMPLE
     PS> .\Security\Invoke-ScubaGearScan.ps1 -ProductNames aad,exo -Organization 'contoso.onmicrosoft.com'
 
@@ -53,8 +53,8 @@
 [CmdletBinding()]
 param(
     [Parameter()]
-    [ValidateSet('aad', 'defender', 'exo', 'powerplatform', 'powerbi', 'sharepoint', 'teams')]
-    [string[]]$ProductNames = @('aad', 'defender', 'exo', 'powerplatform', 'powerbi', 'sharepoint', 'teams'),
+    [ValidateSet('aad', 'defender', 'exo', 'powerplatform', 'sharepoint', 'teams')]
+    [string[]]$ProductNames = @('aad', 'defender', 'exo', 'powerplatform', 'sharepoint', 'teams'),
 
     [Parameter()]
     [string]$Organization,

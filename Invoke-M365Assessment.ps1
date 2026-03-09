@@ -34,7 +34,7 @@
     Windows Authentication Manager (WAM) broker errors on some systems.
 .PARAMETER ScubaProductNames
     ScubaGear product codes to assess. Only used when the ScubaGear section is
-    selected. Defaults to all seven products.
+    selected. Defaults to all six products.
 .PARAMETER M365Environment
     Target cloud environment for all service connections. Commercial and GCC
     use standard endpoints. GCCHigh and DoD use sovereign cloud endpoints.
@@ -94,8 +94,8 @@ param(
     [string]$UserPrincipalName,
 
     [Parameter()]
-    [ValidateSet('aad', 'defender', 'exo', 'powerplatform', 'powerbi', 'sharepoint', 'teams')]
-    [string[]]$ScubaProductNames = @('aad', 'defender', 'exo', 'powerplatform', 'powerbi', 'sharepoint', 'teams'),
+    [ValidateSet('aad', 'defender', 'exo', 'powerplatform', 'sharepoint', 'teams')]
+    [string[]]$ScubaProductNames = @('aad', 'defender', 'exo', 'powerplatform', 'sharepoint', 'teams'),
 
     [Parameter()]
     [ValidateSet('commercial', 'gcc', 'gcchigh', 'dod')]
