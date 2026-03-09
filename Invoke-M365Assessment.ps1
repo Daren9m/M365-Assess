@@ -1804,7 +1804,8 @@ foreach ($sectionName in $Section) {
 $overallEnd = Get-Date
 $overallDuration = $overallEnd - $overallStart
 
-$summaryCsvPath = Join-Path -Path $assessmentFolder -ChildPath '_Assessment-Summary.csv'
+$summarySuffix = if ($script:domainPrefix) { "_$($script:domainPrefix)" } else { '' }
+$summaryCsvPath = Join-Path -Path $assessmentFolder -ChildPath "_Assessment-Summary${summarySuffix}.csv"
 $summaryResults | Export-Csv -Path $summaryCsvPath -NoTypeInformation -Encoding UTF8
 
 # ------------------------------------------------------------------

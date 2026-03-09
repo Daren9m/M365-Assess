@@ -85,7 +85,8 @@ if (-not (Test-Path -Path $AssessmentFolder -PathType Container)) {
     return
 }
 
-$summaryPath = Join-Path -Path $AssessmentFolder -ChildPath '_Assessment-Summary.csv'
+$summaryFile = Get-ChildItem -Path $AssessmentFolder -Filter '_Assessment-Summary*.csv' -ErrorAction SilentlyContinue | Select-Object -First 1
+$summaryPath = if ($summaryFile) { $summaryFile.FullName } else { Join-Path -Path $AssessmentFolder -ChildPath '_Assessment-Summary.csv' }
 if (-not (Test-Path -Path $summaryPath)) {
     Write-Error "Summary CSV not found: $summaryPath"
     return
