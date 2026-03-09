@@ -1950,6 +1950,53 @@ $html = @"
         body.dark-theme .theme-icon-light { display: none; }
 
         /* ----------------------------------------------------------
+           Dark Theme Selector Overrides
+           (CSS variables handle most colors; these fix elements
+            with hardcoded colors or inverted semantics)
+           ---------------------------------------------------------- */
+        body.dark-theme th {
+            background: #1E293B;
+            color: #E2E8F0;
+            border-right-color: rgba(255,255,255,0.08);
+        }
+        body.dark-theme .data-table th:hover { background: #334155; }
+
+        body.dark-theme .badge-complete,
+        body.dark-theme .badge-success { background: #065F46; color: #6EE7B7; }
+        body.dark-theme .badge-failed { background: #7F1D1D; color: #FCA5A5; }
+        body.dark-theme .badge-warning { background: #78350F; color: #FCD34D; }
+        body.dark-theme .badge-info { background: #1E3A5F; color: #93C5FD; }
+        body.dark-theme .badge-skipped { background: #334155; color: #94A3B8; }
+
+        body.dark-theme .fw-cis    { background: #1E3A5F; color: #93C5FD; }
+        body.dark-theme .fw-cis-l2 { background: #1E3A5F; color: #60A5FA; }
+        body.dark-theme .fw-nist   { background: #1E3A5F; color: #93C5FD; }
+        body.dark-theme .fw-csf    { background: #78350F; color: #FCD34D; }
+        body.dark-theme .fw-iso    { background: #064E3B; color: #6EE7B7; }
+        body.dark-theme .fw-stig   { background: #3B0764; color: #C4B5FD; }
+        body.dark-theme .fw-pci    { background: #7F1D1D; color: #FCA5A5; }
+        body.dark-theme .fw-cmmc   { background: #134E4A; color: #5EEAD4; }
+        body.dark-theme .fw-hipaa  { background: #831843; color: #F9A8D4; }
+        body.dark-theme .fw-scuba  { background: #7C2D12; color: #FDBA74; }
+
+        body.dark-theme .cloud-commercial { background: #1E3A5F; color: #93C5FD; border-color: #334155; }
+        body.dark-theme .cloud-gcc { background: #064E3B; color: #6EE7B7; border-color: #334155; }
+        body.dark-theme .cloud-gcchigh { background: #78350F; color: #FCD34D; border-color: #334155; }
+        body.dark-theme .cloud-dod { background: #7F1D1D; color: #FCA5A5; border-color: #334155; }
+
+        body.dark-theme .fw-checkbox.active { background: #3B82F6; color: #ffffff; border-color: #3B82F6; }
+        body.dark-theme .status-fail.active { background: #7F1D1D; color: #FCA5A5; border-color: #991B1B; }
+        body.dark-theme .status-warning.active { background: #78350F; color: #FCD34D; border-color: #92400E; }
+        body.dark-theme .status-review.active { background: #1E3A5F; color: #93C5FD; border-color: #1E40AF; }
+        body.dark-theme .status-pass.active { background: #064E3B; color: #6EE7B7; border-color: #065F46; }
+        body.dark-theme .status-unknown.active { background: #334155; color: #94A3B8; border-color: #475569; }
+
+        body.dark-theme .cis-disclaimer { background: #1E293B; }
+        body.dark-theme .section-advisory code { background: #334155; color: #E2E8F0; }
+
+        body.dark-theme .cover-tenant { color: #60A5FA; }
+
+        /* ----------------------------------------------------------
            Footer
            ---------------------------------------------------------- */
         .report-footer {
