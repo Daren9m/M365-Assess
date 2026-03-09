@@ -273,6 +273,7 @@ The assessment automatically generates a self-contained HTML report (`_Assessmen
 
 **Report features:**
 
+- **Light / Dark mode** — floating toggle button with automatic detection via `prefers-color-scheme`, persisted to `localStorage`. Every element is themed — badges, framework tags, stat cards, table headers, and compliance rows all adapt
 - **Cover page** with M365 Assess branding and tenant name
 - **Organization profile card** — non-collapsible header showing org name, primary domain, creation date, and security defaults status
 - **Executive summary** with section/collector stat cards and issue overview
@@ -284,7 +285,8 @@ The assessment automatically generates a self-contained HTML report (`_Assessmen
 - **Security config highlighting** — Entra, EXO, Defender, SharePoint, and Teams security config tables show color-coded status badges (Pass/Fail/Warning/Review) with row-level tinting
 - **Microsoft Secure Score** — visual stat cards and progress bar showing current score, points earned, and comparison to the M365 global average
 - **Issues & recommendations** with severity badges and remediation guidance
-- **Print-friendly styling** — open in any browser and print to PDF with automatic page breaks
+- **Accessibility** — semantic HTML landmarks (`<header>`, `<main>`, `<footer>`), `scope="col"` on all table headers, focus-visible outlines
+- **Print-friendly styling** — open in any browser and print to PDF with automatic page breaks and repeated table headers
 
 The report generator can also be run standalone to regenerate the HTML from existing CSV data without re-running the assessment:
 
