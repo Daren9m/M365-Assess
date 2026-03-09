@@ -295,8 +295,9 @@ function Show-InteractiveWizard {
         Show-StepHeader -Step 3 -Total 4 -Title 'Authentication Method'
 
         Write-Host '  [1] Interactive login (browser popup)' -ForegroundColor $cNormal
-        Write-Host '  [2] Certificate-based (app-only)' -ForegroundColor $cNormal
-        Write-Host '  [3] Skip connection (already connected)' -ForegroundColor $cNormal
+        Write-Host '  [2] Device code login (choose your browser)' -ForegroundColor $cNormal
+        Write-Host '  [3] Certificate-based (app-only)' -ForegroundColor $cNormal
+        Write-Host '  [4] Skip connection (already connected)' -ForegroundColor $cNormal
         Write-Host ''
         Write-Host '  > ' -ForegroundColor $cPrompt -NoNewline
         $authInput = Read-Host
@@ -311,6 +312,10 @@ function Show-InteractiveWizard {
                 $step3Done = $true
             }
             '2' {
+                $authMethod = 'DeviceCode'
+                $step3Done = $true
+            }
+            '3' {
                 $authMethod = 'Certificate'
                 Write-Host ''
                 Write-Host '  Enter Application (Client) ID:' -ForegroundColor $cNormal
@@ -321,12 +326,12 @@ function Show-InteractiveWizard {
                 $wizCertThumb = Read-Host
                 $step3Done = $true
             }
-            '3' {
+            '4' {
                 $authMethod = 'Skip'
                 $step3Done = $true
             }
             default {
-                Write-Host '  ✗ Please enter 1, 2, or 3.' -ForegroundColor $cError
+                Write-Host '  ✗ Please enter 1, 2, 3, or 4.' -ForegroundColor $cError
                 Start-Sleep -Seconds 1
             }
         }
@@ -358,6 +363,7 @@ function Show-InteractiveWizard {
             if ($wizUpn.Trim()) { "Interactive login ($($wizUpn.Trim()))" }
             else { 'Interactive login' }
         }
+        'DeviceCode'   { 'Device code login' }
         'Certificate'  { 'Certificate-based (app-only)' }
         'Skip'         { 'Pre-existing connections' }
     }
@@ -369,9 +375,6 @@ function Show-InteractiveWizard {
     Write-Host "    Sections:  $sectionDisplay" -ForegroundColor $cNormal
     Write-Host "    Tenant:    $tenantDisplay" -ForegroundColor $cNormal
     Write-Host "    Auth:      $authDisplay" -ForegroundColor $cNormal
-    if ($UseDeviceCode) {
-        $authDisplay += ' (device code)'
-    }
     if ($M365Environment -ne 'commercial') {
         Write-Host "    Cloud:     $M365Environment" -ForegroundColor $cNormal
     }
@@ -404,6 +407,9 @@ function Show-InteractiveWizard {
         'Certificate' {
             if ($wizClientId.Trim()) { $wizardResult['ClientId'] = $wizClientId.Trim() }
             if ($wizCertThumb.Trim()) { $wizardResult['CertificateThumbprint'] = $wizCertThumb.Trim() }
+        }
+        'DeviceCode' {
+            $wizardResult['UseDeviceCode'] = $true
         }
         'Interactive' {
             if ($wizUpn.Trim()) { $wizardResult['UserPrincipalName'] = $wizUpn.Trim() }
