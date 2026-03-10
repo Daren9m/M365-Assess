@@ -601,6 +601,329 @@ foreach ($sectionName in $sections) {
 
     $null = $sectionHtml.AppendLine("</tbody></table>")
 
+    # ------------------------------------------------------------------
+    # Identity Dashboard — combined overview panel
+    # ------------------------------------------------------------------
+    if ($sectionName -eq 'Identity') {
+        $userCsvPath  = Join-Path -Path $AssessmentFolder -ChildPath '02-User-Summary.csv'
+        $mfaCsvPath   = Join-Path -Path $AssessmentFolder -ChildPath '03-MFA-Report.csv'
+        $entraCsvPath = Join-Path -Path $AssessmentFolder -ChildPath '07b-Entra-Security-Config.csv'
+
+        $userData  = if (Test-Path $userCsvPath)  { @(Import-Csv $userCsvPath)  } else { @() }
+        $mfaRawData = if (Test-Path $mfaCsvPath)   { @(Import-Csv $mfaCsvPath)   } else { @() }
+        $entraData = if (Test-Path $entraCsvPath) { @(Import-Csv $entraCsvPath) } else { @() }
+
+        $hasUsers = $userData.Count -gt 0
+
+        if ($hasUsers) {
+            $users = $userData[0]
+            $uProps = @($users.PSObject.Properties.Name)
+            $totalUsers    = if ($uProps -contains 'TotalUsers')       { [int]$users.TotalUsers }       else { 0 }
+            $licensedUsers = if ($uProps -contains 'Licensed')         { [int]$users.Licensed }         else { 0 }
+            $guestUsers    = if ($uProps -contains 'GuestUsers')       { [int]$users.GuestUsers }       else { 0 }
+            $disabledUsers = if ($uProps -contains 'DisabledUsers')    { [int]$users.DisabledUsers }    else { 0 }
+            $syncedUsers   = if ($uProps -contains 'SyncedFromOnPrem') { [int]$users.SyncedFromOnPrem } else { 0 }
+            $cloudOnly     = if ($uProps -contains 'CloudOnly')        { [int]$users.CloudOnly }        else { 0 }
+            $withMfa       = if ($uProps -contains 'WithMFA')          { [int]$users.WithMFA }          else { 0 }
+
+            # MFA / SSPR adoption from per-user report
+            $mfaCapable = 0; $mfaRegistered = 0; $ssprCapable = 0; $ssprRegistered = 0
+            if ($mfaRawData.Count -gt 0) {
+                $mfaCapable     = @($mfaRawData | Where-Object { $_.IsMfaCapable -eq 'True' }).Count
+                $mfaRegistered  = @($mfaRawData | Where-Object { $_.IsMfaCapable -eq 'True' -and $_.IsMfaRegistered -eq 'True' }).Count
+                $ssprCapable    = @($mfaRawData | Where-Object { $_.IsSsprCapable -eq 'True' }).Count
+                $ssprRegistered = @($mfaRawData | Where-Object { $_.IsSsprCapable -eq 'True' -and $_.IsSsprRegistered -eq 'True' }).Count
+            }
+            $mfaPct = if ($mfaCapable -gt 0) { [math]::Round(($mfaRegistered / $mfaCapable) * 100, 1) } else { 0 }
+            $mfaClass = if ($mfaPct -ge 90) { 'success' } elseif ($mfaPct -ge 70) { 'warning' } else { 'danger' }
+            $ssprPct = if ($ssprCapable -gt 0) { [math]::Round(($ssprRegistered / $ssprCapable) * 100, 1) } else { 0 }
+            $ssprClass = if ($ssprPct -ge 90) { 'success' } elseif ($ssprPct -ge 70) { 'warning' } else { 'danger' }
+            $disabledClass = if ($disabledUsers -gt 0) { 'danger' } else { 'success' }
+            $mfaSignInPct = if ($totalUsers -gt 0) { [math]::Round(($withMfa / $totalUsers) * 100, 1) } else { 0 }
+            $mfaSignInClass = if ($mfaSignInPct -ge 90) { 'success' } elseif ($mfaSignInPct -ge 70) { 'warning' } else { 'danger' }
+
+            $null = $sectionHtml.AppendLine("<div class='email-dashboard'>")
+
+            # --- Top row: 3-column layout ---
+            $null = $sectionHtml.AppendLine("<div class='email-dash-top'>")
+
+            # Left column: User metrics with icons
+            $null = $sectionHtml.AppendLine("<div class='email-dash-col'>")
+            $null = $sectionHtml.AppendLine("<div class='email-dash-heading'>User Summary</div>")
+            $null = $sectionHtml.AppendLine("<div class='email-metrics-grid'>")
+
+            # Build user metric cards with icons and color coding
+            $userMetrics = @(
+                @{ Icon = '&#128101;'; Value = $totalUsers;    Label = 'Total Users';    Css = '' }
+                @{ Icon = '&#127915;'; Value = $licensedUsers; Label = 'Licensed';       Css = '' }
+                @{ Icon = '&#128587;'; Value = $guestUsers;    Label = 'Guest Users';    Css = '' }
+                @{ Icon = '&#128683;'; Value = $disabledUsers; Label = 'Disabled';       Css = $disabledClass }
+                @{ Icon = '&#128260;'; Value = $syncedUsers;   Label = 'Synced On-Prem'; Css = '' }
+                @{ Icon = '&#9729;';   Value = $cloudOnly;     Label = 'Cloud Only';     Css = '' }
+                @{ Icon = '&#128272;'; Value = $withMfa;       Label = 'With MFA';       Css = $mfaSignInClass }
+            )
+            foreach ($m in $userMetrics) {
+                $cssExtra = if ($m.Css) { " id-metric-$($m.Css)" } else { '' }
+                $null = $sectionHtml.AppendLine("<div class='email-metric-card$cssExtra'><div class='email-metric-icon'>$($m.Icon)</div><div class='email-metric-body'><div class='email-metric-value'>$($m.Value)</div><div class='email-metric-label'>$(ConvertTo-HtmlSafe -Text $m.Label)</div></div></div>")
+            }
+            $null = $sectionHtml.AppendLine("</div>")
+            $null = $sectionHtml.AppendLine("</div>")
+
+            # Middle column: MFA & SSPR donuts
+            $mfaDonut  = Get-SvgDonut -Percentage $mfaPct  -CssClass $mfaClass  -Size 110 -StrokeWidth 10
+            $ssprDonut = Get-SvgDonut -Percentage $ssprPct -CssClass $ssprClass -Size 110 -StrokeWidth 10
+
+            $null = $sectionHtml.AppendLine("<div class='email-dash-col'>")
+            $null = $sectionHtml.AppendLine("<div class='email-dash-heading'>Authentication</div>")
+            $null = $sectionHtml.AppendLine("<div class='id-donut-stack'>")
+            $null = $sectionHtml.AppendLine("<div class='id-donut-item'>")
+            $null = $sectionHtml.AppendLine("<div class='id-donut-chart'>$mfaDonut</div>")
+            $null = $sectionHtml.AppendLine("<div class='id-donut-info'><div class='id-donut-title'>MFA Adoption</div><div class='id-donut-detail'>$mfaRegistered / $mfaCapable enrolled</div></div>")
+            $null = $sectionHtml.AppendLine("</div>")
+            $null = $sectionHtml.AppendLine("<div class='id-donut-item'>")
+            $null = $sectionHtml.AppendLine("<div class='id-donut-chart'>$ssprDonut</div>")
+            $null = $sectionHtml.AppendLine("<div class='id-donut-info'><div class='id-donut-title'>SSPR Enrollment</div><div class='id-donut-detail'>$ssprRegistered / $ssprCapable enrolled</div></div>")
+            $null = $sectionHtml.AppendLine("</div>")
+            $null = $sectionHtml.AppendLine("</div>")
+            $null = $sectionHtml.AppendLine("</div>")
+
+            # Right column: Entra Security Config donut
+            if ($entraData.Count -gt 0) {
+                $entraTotal  = $entraData.Count
+                $entraPass   = @($entraData | Where-Object { $_.Status -eq 'Pass' }).Count
+                $entraFail   = @($entraData | Where-Object { $_.Status -eq 'Fail' }).Count
+                $entraWarn   = @($entraData | Where-Object { $_.Status -eq 'Warning' }).Count
+                $entraReview = @($entraData | Where-Object { $_.Status -eq 'Review' }).Count
+
+                $entraSegments = @(
+                    @{ Css = 'success'; Pct = [math]::Round(($entraPass   / $entraTotal) * 100, 1); Label = 'Pass' }
+                    @{ Css = 'danger';  Pct = [math]::Round(($entraFail   / $entraTotal) * 100, 1); Label = 'Fail' }
+                    @{ Css = 'warning'; Pct = [math]::Round(($entraWarn   / $entraTotal) * 100, 1); Label = 'Warning' }
+                    @{ Css = 'info';    Pct = [math]::Round(($entraReview / $entraTotal) * 100, 1); Label = 'Review' }
+                )
+                $entraDonut = Get-SvgMultiDonut -Segments $entraSegments -CenterLabel "$entraTotal" -Size 130 -StrokeWidth 12
+
+                $null = $sectionHtml.AppendLine("<div class='email-dash-col'>")
+                $null = $sectionHtml.AppendLine("<div class='email-dash-heading'>Entra Security Config</div>")
+                $null = $sectionHtml.AppendLine("<div class='dash-panel'>")
+                $null = $sectionHtml.AppendLine("<div class='dash-panel-donut'>")
+                $null = $sectionHtml.AppendLine($entraDonut)
+                $null = $sectionHtml.AppendLine("<div class='score-donut-label'>Entra Controls</div>")
+                $null = $sectionHtml.AppendLine("</div>")
+                $null = $sectionHtml.AppendLine("<div class='dash-panel-details'>")
+                $null = $sectionHtml.AppendLine("<div class='score-detail-row'><span class='score-detail-label'><span class='chart-legend-dot dot-success'></span> Pass</span><span class='score-detail-value success-text'>$entraPass</span></div>")
+                if ($entraFail -gt 0) {
+                    $null = $sectionHtml.AppendLine("<div class='score-detail-row'><span class='score-detail-label'><span class='chart-legend-dot dot-danger'></span> Fail</span><span class='score-detail-value danger-text'>$entraFail</span></div>")
+                }
+                if ($entraWarn -gt 0) {
+                    $null = $sectionHtml.AppendLine("<div class='score-detail-row'><span class='score-detail-label'><span class='chart-legend-dot dot-warning'></span> Warning</span><span class='score-detail-value warning-text'>$entraWarn</span></div>")
+                }
+                if ($entraReview -gt 0) {
+                    $null = $sectionHtml.AppendLine("<div class='score-detail-row'><span class='score-detail-label'><span class='chart-legend-dot dot-info'></span> Review</span><span class='score-detail-value' style='color: var(--m365a-accent);'>$entraReview</span></div>")
+                }
+                $null = $sectionHtml.AppendLine("<div class='score-detail-row score-delta'><span class='score-detail-label'>Total Controls</span><span class='score-detail-value'>$entraTotal</span></div>")
+                $null = $sectionHtml.AppendLine("</div>")
+                $null = $sectionHtml.AppendLine("</div>")
+                $null = $sectionHtml.AppendLine("</div>")
+            }
+
+            $null = $sectionHtml.AppendLine("</div>") # end email-dash-top
+            $null = $sectionHtml.AppendLine("</div>") # end email-dashboard
+        }
+    }
+
+    # ------------------------------------------------------------------
+    # Email Dashboard — combined overview panel (rendered once above all
+    # expandable detail tables for a cohesive visual summary)
+    # ------------------------------------------------------------------
+    if ($sectionName -eq 'Email') {
+        # Pre-load email CSVs
+        $mbxCsvPath = Join-Path -Path $AssessmentFolder -ChildPath '09-Mailbox-Summary.csv'
+        $exoCsvPath = Join-Path -Path $AssessmentFolder -ChildPath '11b-EXO-Security-Config.csv'
+        $polCsvPath = Join-Path -Path $AssessmentFolder -ChildPath '11-Email-Security.csv'
+
+        $mbxData = if (Test-Path $mbxCsvPath) { @(Import-Csv $mbxCsvPath) } else { @() }
+        $exoData = if (Test-Path $exoCsvPath) { @(Import-Csv $exoCsvPath) } else { @() }
+        $polData = if (Test-Path $polCsvPath) { @(Import-Csv $polCsvPath) } else { @() }
+
+        $hasMailbox = $mbxData.Count -gt 0
+        $hasExo = $exoData.Count -gt 0
+        $hasPolicies = $polData.Count -gt 0
+
+        # Also pre-load DNS Authentication data
+        $dnsCsvPath = Join-Path -Path $AssessmentFolder -ChildPath '12-DNS-Authentication.csv'
+        $dnsData = if (Test-Path $dnsCsvPath) { @(Import-Csv $dnsCsvPath) } else { @() }
+        $hasDns = $dnsData.Count -gt 0
+
+        if ($hasMailbox -or $hasExo -or $hasPolicies -or $hasDns) {
+            $null = $sectionHtml.AppendLine("<div class='email-dashboard'>")
+
+            # --- Top row: 3-column layout ---
+            $null = $sectionHtml.AppendLine("<div class='email-dash-top'>")
+
+            # --- Left column: Mailbox metrics ---
+            if ($hasMailbox) {
+                $null = $sectionHtml.AppendLine("<div class='email-dash-col'>")
+                $null = $sectionHtml.AppendLine("<div class='email-dash-heading'>Mailbox Summary</div>")
+                $null = $sectionHtml.AppendLine("<div class='email-metrics-grid'>")
+                $iconMap = @{
+                    'TotalMailboxes'     = '&#128231;'
+                    'UserMailboxes'      = '&#128100;'
+                    'SharedMailboxes'    = '&#128101;'
+                    'RoomMailboxes'      = '&#127970;'
+                    'EquipmentMailboxes' = '&#128295;'
+                }
+                foreach ($row in $mbxData) {
+                    if ($row.Count -eq 'N/A') { continue }
+                    $metricKey = ($row.Metric -replace '\s', '')
+                    $icon = if ($iconMap.ContainsKey($metricKey)) { $iconMap[$metricKey] } else { '&#128232;' }
+                    $metricLabel = Format-ColumnHeader -Name $row.Metric
+                    $null = $sectionHtml.AppendLine("<div class='email-metric-card'><div class='email-metric-icon'>$icon</div><div class='email-metric-body'><div class='email-metric-value'>$($row.Count)</div><div class='email-metric-label'>$(ConvertTo-HtmlSafe -Text $metricLabel)</div></div></div>")
+                }
+                $null = $sectionHtml.AppendLine("</div>")
+                $null = $sectionHtml.AppendLine("</div>")
+            }
+
+            # --- Middle column: EXO Security Config donut ---
+            if ($hasExo) {
+                $exoTotal  = $exoData.Count
+                $exoPass   = @($exoData | Where-Object { $_.Status -eq 'Pass' }).Count
+                $exoFail   = @($exoData | Where-Object { $_.Status -eq 'Fail' }).Count
+                $exoWarn   = @($exoData | Where-Object { $_.Status -eq 'Warning' }).Count
+                $exoReview = @($exoData | Where-Object { $_.Status -eq 'Review' }).Count
+
+                if ($exoTotal -gt 0) {
+                    $exoSegments = @(
+                        @{ Css = 'success'; Pct = [math]::Round(($exoPass   / $exoTotal) * 100, 1); Label = 'Pass' }
+                        @{ Css = 'danger';  Pct = [math]::Round(($exoFail   / $exoTotal) * 100, 1); Label = 'Fail' }
+                        @{ Css = 'warning'; Pct = [math]::Round(($exoWarn   / $exoTotal) * 100, 1); Label = 'Warning' }
+                        @{ Css = 'info';    Pct = [math]::Round(($exoReview / $exoTotal) * 100, 1); Label = 'Review' }
+                    )
+                    $exoDonut = Get-SvgMultiDonut -Segments $exoSegments -CenterLabel "$exoTotal" -Size 130 -StrokeWidth 12
+
+                    $null = $sectionHtml.AppendLine("<div class='email-dash-col'>")
+                    $null = $sectionHtml.AppendLine("<div class='email-dash-heading'>EXO Security Config</div>")
+                    $null = $sectionHtml.AppendLine("<div class='dash-panel'>")
+                    $null = $sectionHtml.AppendLine("<div class='dash-panel-donut'>")
+                    $null = $sectionHtml.AppendLine($exoDonut)
+                    $null = $sectionHtml.AppendLine("<div class='score-donut-label'>EXO Controls</div>")
+                    $null = $sectionHtml.AppendLine("</div>")
+                    $null = $sectionHtml.AppendLine("<div class='dash-panel-details'>")
+                    $null = $sectionHtml.AppendLine("<div class='score-detail-row'><span class='score-detail-label'><span class='chart-legend-dot dot-success'></span> Pass</span><span class='score-detail-value success-text'>$exoPass</span></div>")
+                    if ($exoFail -gt 0) {
+                        $null = $sectionHtml.AppendLine("<div class='score-detail-row'><span class='score-detail-label'><span class='chart-legend-dot dot-danger'></span> Fail</span><span class='score-detail-value danger-text'>$exoFail</span></div>")
+                    }
+                    if ($exoWarn -gt 0) {
+                        $null = $sectionHtml.AppendLine("<div class='score-detail-row'><span class='score-detail-label'><span class='chart-legend-dot dot-warning'></span> Warning</span><span class='score-detail-value warning-text'>$exoWarn</span></div>")
+                    }
+                    if ($exoReview -gt 0) {
+                        $null = $sectionHtml.AppendLine("<div class='score-detail-row'><span class='score-detail-label'><span class='chart-legend-dot dot-info'></span> Review</span><span class='score-detail-value' style='color: var(--m365a-accent);'>$exoReview</span></div>")
+                    }
+                    $null = $sectionHtml.AppendLine("<div class='score-detail-row score-delta'><span class='score-detail-label'>Total Controls</span><span class='score-detail-value'>$exoTotal</span></div>")
+                    $null = $sectionHtml.AppendLine("</div>")
+                    $null = $sectionHtml.AppendLine("</div>")
+                    $null = $sectionHtml.AppendLine("</div>")
+                }
+            }
+
+            # --- Right column: Email Policy status ---
+            if ($hasPolicies) {
+                $null = $sectionHtml.AppendLine("<div class='email-dash-col'>")
+                $null = $sectionHtml.AppendLine("<div class='email-dash-heading'>Email Policies</div>")
+                $null = $sectionHtml.AppendLine("<div class='policy-list'>")
+                foreach ($policy in $polData) {
+                    $policyEnabled = ($policy.Enabled -eq 'True')
+                    $policyClass = if ($policyEnabled) { 'policy-enabled' } else { 'policy-disabled' }
+                    $statusIcon = if ($policyEnabled) { '&#x2713;' } else { '&#x2717;' }
+                    $statusLabel = if ($policyEnabled) { 'Enabled' } else { 'Disabled' }
+                    $policyLabel = ConvertTo-HtmlSafe -Text $policy.PolicyType
+                    $policyDetail = ConvertTo-HtmlSafe -Text $policy.Name
+                    $null = $sectionHtml.AppendLine("<div class='policy-card $policyClass'>")
+                    $null = $sectionHtml.AppendLine("<div class='policy-status-badge'>$statusIcon</div>")
+                    $null = $sectionHtml.AppendLine("<div class='policy-info'><div class='policy-name'>$policyLabel</div><div class='policy-detail'>$policyDetail</div></div>")
+                    $null = $sectionHtml.AppendLine("<div class='policy-status-label'>$statusLabel</div>")
+                    $null = $sectionHtml.AppendLine("</div>")
+                }
+                $null = $sectionHtml.AppendLine("</div>")
+                $null = $sectionHtml.AppendLine("</div>")
+            }
+
+            $null = $sectionHtml.AppendLine("</div>") # end email-dash-top
+
+            # --- Bottom row: DNS Authentication (full-width) ---
+            if ($hasDns) {
+                $totalDomains = $dnsData.Count
+                $dnsColumns = @($dnsData[0].PSObject.Properties.Name)
+
+                $spfConfigured = @($dnsData | Where-Object { $_.SPF -and $_.SPF -ne 'Not configured' -and $_.SPF -ne 'DNS lookup failed' }).Count
+                $spfClass = if ($spfConfigured -eq $totalDomains) { 'success' } else { 'danger' }
+
+                $dmarcConfigured = @($dnsData | Where-Object { $_.DMARC -and $_.DMARC -ne 'Not configured' }).Count
+                $dmarcEnforced = 0
+                $dmarcMonitoring = 0
+                if ($dnsColumns -contains 'DMARCPolicy') {
+                    $dmarcEnforced = @($dnsData | Where-Object { $_.DMARCPolicy -match '^(reject|quarantine)' }).Count
+                    $dmarcMonitoring = @($dnsData | Where-Object { $_.DMARCPolicy -match '^none' }).Count
+                }
+                $dmarcClass = if ($dmarcEnforced -eq $totalDomains) { 'success' } elseif ($dmarcConfigured -gt 0) { 'warning' } else { 'danger' }
+
+                $dkimKey = if ($dnsColumns -contains 'DKIMSelector1') { 'DKIMSelector1' } else { 'DKIMSelector' }
+                $dkimConfigured = @($dnsData | Where-Object { $_.$dkimKey -and $_.$dkimKey -ne 'Not configured' }).Count
+                $dkimClass = if ($dkimConfigured -eq $totalDomains) { 'success' } elseif ($dkimConfigured -gt 0) { 'warning' } else { 'danger' }
+
+                $mtaStsConfigured = 0
+                if ($dnsColumns -contains 'MTASTS') {
+                    $mtaStsConfigured = @($dnsData | Where-Object { $_.MTASTS -and $_.MTASTS -ne 'Not configured' }).Count
+                }
+                $mtaStsClass = if ($mtaStsConfigured -eq $totalDomains) { 'success' } elseif ($mtaStsConfigured -gt 0) { 'warning' } else { 'danger' }
+
+                $tlsRptConfigured = 0
+                if ($dnsColumns -contains 'TLSRPT') {
+                    $tlsRptConfigured = @($dnsData | Where-Object { $_.TLSRPT -and $_.TLSRPT -ne 'Not configured' }).Count
+                }
+                $tlsRptClass = if ($tlsRptConfigured -eq $totalDomains) { 'success' } elseif ($tlsRptConfigured -gt 0) { 'warning' } else { 'danger' }
+
+                $publicConfirmed = 0
+                if ($dnsColumns -contains 'PublicDNSConfirm') {
+                    $publicConfirmed = @($dnsData | Where-Object { $_.PublicDNSConfirm -match '^Confirmed' }).Count
+                }
+                $publicClass = if ($publicConfirmed -eq $totalDomains) { 'success' } elseif ($publicConfirmed -gt 0) { 'warning' } else { 'danger' }
+
+                $null = $sectionHtml.AppendLine("<div class='email-dash-dns'>")
+                $null = $sectionHtml.AppendLine("<div class='email-dash-heading'>Email Authentication</div>")
+
+                # DNS stat cards row
+                $null = $sectionHtml.AppendLine("<div class='dns-stats-row'>")
+                $null = $sectionHtml.AppendLine("<div class='dns-stat $spfClass'><div class='dns-stat-value'>$spfConfigured / $totalDomains</div><div class='dns-stat-label'>SPF</div></div>")
+                $dmarcDetail = if ($dmarcMonitoring -gt 0) { "<div class='dns-stat-detail'>$dmarcMonitoring monitoring</div>" } else { '' }
+                $null = $sectionHtml.AppendLine("<div class='dns-stat $dmarcClass'><div class='dns-stat-value'>$dmarcEnforced / $totalDomains</div><div class='dns-stat-label'>DMARC Enforced</div>$dmarcDetail</div>")
+                $null = $sectionHtml.AppendLine("<div class='dns-stat $dkimClass'><div class='dns-stat-value'>$dkimConfigured / $totalDomains</div><div class='dns-stat-label'>DKIM</div></div>")
+                $null = $sectionHtml.AppendLine("<div class='dns-stat $mtaStsClass'><div class='dns-stat-value'>$mtaStsConfigured / $totalDomains</div><div class='dns-stat-label'>MTA-STS</div></div>")
+                $null = $sectionHtml.AppendLine("<div class='dns-stat $tlsRptClass'><div class='dns-stat-value'>$tlsRptConfigured / $totalDomains</div><div class='dns-stat-label'>TLS-RPT</div></div>")
+                if ($dnsColumns -contains 'PublicDNSConfirm') {
+                    $null = $sectionHtml.AppendLine("<div class='dns-stat $publicClass'><div class='dns-stat-value'>$publicConfirmed / $totalDomains</div><div class='dns-stat-label'>Public DNS</div></div>")
+                }
+                $null = $sectionHtml.AppendLine("</div>")
+
+                # Collapsible protocol descriptions
+                $null = $sectionHtml.AppendLine("<details class='dns-protocols'>")
+                $null = $sectionHtml.AppendLine("<summary>About Email Authentication Protocols</summary>")
+                $null = $sectionHtml.AppendLine("<div class='dns-protocols-body'>")
+                $null = $sectionHtml.AppendLine("<p><strong>SPF</strong> (Sender Policy Framework) specifies which mail servers are authorized to send email on behalf of your domain. Without SPF, attackers can send emails that appear to come from your domain with no way for recipients to detect the forgery.</p>")
+                $null = $sectionHtml.AppendLine("<p><strong>DKIM</strong> (DomainKeys Identified Mail) adds a cryptographic signature to outgoing messages, proving they haven't been tampered with in transit. DKIM protects message integrity and is essential for DMARC alignment.</p>")
+                $null = $sectionHtml.AppendLine("<p><strong>DMARC</strong> (Domain-based Message Authentication, Reporting &amp; Conformance) ties SPF and DKIM together with a policy that tells receiving servers what to do with messages that fail authentication &mdash; monitor (<code>p=none</code>), quarantine, or reject. DMARC at <code>p=reject</code> is the gold standard and is required by <a href='https://www.cisa.gov/news-events/directives/bod-18-01-enhance-email-and-web-security' target='_blank'>CISA BOD 18-01</a> for federal agencies.</p>")
+                $null = $sectionHtml.AppendLine("<p><strong>MTA-STS</strong> (RFC 8461) enforces TLS encryption for inbound email transport, preventing man-in-the-middle downgrade attacks. <strong>TLS-RPT</strong> (RFC 8460) provides daily reports on TLS delivery failures so you know when encrypted delivery is failing.</p>")
+                $null = $sectionHtml.AppendLine("<p class='advisory-links'><strong>Resources:</strong> <a href='https://learn.microsoft.com/en-us/defender-office-365/email-authentication-about' target='_blank'>Microsoft Email Authentication</a> &middot; <a href='https://learn.microsoft.com/en-us/defender-office-365/email-authentication-dmarc-configure' target='_blank'>Configure DMARC</a> &middot; <a href='https://learn.microsoft.com/en-us/purview/enhancing-mail-flow-with-mta-sts' target='_blank'>MTA-STS for Exchange Online</a> &middot; <a href='https://csrc.nist.gov/pubs/sp/800/177/r1/final' target='_blank'>NIST SP 800-177</a> &middot; <a href='https://www.cisa.gov/news-events/directives/bod-18-01-enhance-email-and-web-security' target='_blank'>CISA BOD 18-01</a></p>")
+                $null = $sectionHtml.AppendLine("</div>")
+                $null = $sectionHtml.AppendLine("</details>")
+
+                $null = $sectionHtml.AppendLine("</div>")
+            }
+
+            $null = $sectionHtml.AppendLine("</div>") # end email-dashboard
+        }
+    }
+
     # Data tables for each collector
     foreach ($c in $sectionCollectors) {
         if ($c.Status -ne 'Complete' -or [int]$c.Items -eq 0) { continue }
@@ -716,191 +1039,23 @@ foreach ($sectionName in $sections) {
             $null = $sectionHtml.AppendLine("</div>")
         }
 
-        # ----------------------------------------------------------
-        # User Summary — all metrics as stat cards (no table)
-        # ----------------------------------------------------------
+        # User Summary — rendered in combined identity dashboard above
         if ($c.FileName -eq '02-User-Summary.csv') {
-            $users = $data[0]
-            $uProps = @($users.PSObject.Properties.Name)
-            $totalUsers    = if ($uProps -contains 'TotalUsers') { [int]$users.TotalUsers } else { 0 }
-            $licensedUsers = if ($uProps -contains 'Licensed') { [int]$users.Licensed } else { 0 }
-            $guestUsers    = if ($uProps -contains 'GuestUsers') { [int]$users.GuestUsers } else { 0 }
-            $disabledUsers = if ($uProps -contains 'DisabledUsers') { [int]$users.DisabledUsers } else { 0 }
-            $syncedUsers   = if ($uProps -contains 'SyncedFromOnPrem') { [int]$users.SyncedFromOnPrem } else { 0 }
-            $cloudOnly     = if ($uProps -contains 'CloudOnly') { [int]$users.CloudOnly } else { 0 }
-            $withMfa       = if ($uProps -contains 'WithMFA') { [int]$users.WithMFA } else { 0 }
-
-            # Load per-user MFA Report for accurate adoption metrics
-            $mfaCsvPath = Join-Path -Path $AssessmentFolder -ChildPath '03-MFA-Report.csv'
-            $mfaCapable = 0; $mfaRegistered = 0
-            $ssprCapable = 0; $ssprRegistered = 0
-            if (Test-Path -Path $mfaCsvPath) {
-                $mfaData = @(Import-Csv -Path $mfaCsvPath)
-                $mfaCapable    = @($mfaData | Where-Object { $_.IsMfaCapable -eq 'True' }).Count
-                $mfaRegistered = @($mfaData | Where-Object { $_.IsMfaCapable -eq 'True' -and $_.IsMfaRegistered -eq 'True' }).Count
-                $ssprCapable    = @($mfaData | Where-Object { $_.IsSsprCapable -eq 'True' }).Count
-                $ssprRegistered = @($mfaData | Where-Object { $_.IsSsprCapable -eq 'True' -and $_.IsSsprRegistered -eq 'True' }).Count
-            }
-
-            $mfaPct = if ($mfaCapable -gt 0) { [math]::Round(($mfaRegistered / $mfaCapable) * 100, 1) } else { 0 }
-            $mfaClass = if ($mfaPct -ge 90) { 'success' } elseif ($mfaPct -ge 70) { 'warning' } else { 'danger' }
-
-            $ssprPct = if ($ssprCapable -gt 0) { [math]::Round(($ssprRegistered / $ssprCapable) * 100, 1) } else { 0 }
-            $ssprClass = if ($ssprPct -ge 90) { 'success' } elseif ($ssprPct -ge 70) { 'warning' } else { 'danger' }
-
-            # Color coding for disabled users — red if any exist
-            $disabledClass = if ($disabledUsers -gt 0) { 'danger' } else { 'success' }
-
-            # Color coding for MFA sign-in count relative to total users
-            $mfaSignInPct = if ($totalUsers -gt 0) { [math]::Round(($withMfa / $totalUsers) * 100, 1) } else { 0 }
-            $mfaSignInClass = if ($mfaSignInPct -ge 90) { 'success' } elseif ($mfaSignInPct -ge 70) { 'warning' } else { 'danger' }
-
-            # Donut charts for MFA and SSPR adoption
-            $mfaDonut = Get-SvgDonut -Percentage $mfaPct -CssClass $mfaClass -Size 130 -StrokeWidth 12
-            $ssprDonut = Get-SvgDonut -Percentage $ssprPct -CssClass $ssprClass -Size 130 -StrokeWidth 12
-
-            $null = $sectionHtml.AppendLine("<div class='donut-pair'>")
-            $null = $sectionHtml.AppendLine("<div class='donut-card'><div class='donut-card-label'>MFA Adoption</div>$mfaDonut<div class='donut-card-detail'>$mfaRegistered / $mfaCapable capable users enrolled</div></div>")
-            $null = $sectionHtml.AppendLine("<div class='donut-card'><div class='donut-card-label'>SSPR Enrollment</div>$ssprDonut<div class='donut-card-detail'>$ssprRegistered / $ssprCapable capable users enrolled</div></div>")
-            $null = $sectionHtml.AppendLine("</div>")
-
-            $null = $sectionHtml.AppendLine("<div class='exec-summary'>")
-            $null = $sectionHtml.AppendLine("<div class='stat-card info'><div class='stat-value'>$totalUsers</div><div class='stat-label'>Total Users</div></div>")
-            $null = $sectionHtml.AppendLine("<div class='stat-card info'><div class='stat-value'>$licensedUsers</div><div class='stat-label'>Licensed</div></div>")
-            $null = $sectionHtml.AppendLine("<div class='stat-card info'><div class='stat-value'>$guestUsers</div><div class='stat-label'>Guest Users</div></div>")
-            $null = $sectionHtml.AppendLine("<div class='stat-card $disabledClass'><div class='stat-value'>$disabledUsers</div><div class='stat-label'>Disabled Users</div></div>")
-            $null = $sectionHtml.AppendLine("<div class='stat-card info'><div class='stat-value'>$syncedUsers</div><div class='stat-label'>Synced From On-Prem</div></div>")
-            $null = $sectionHtml.AppendLine("<div class='stat-card info'><div class='stat-value'>$cloudOnly</div><div class='stat-label'>Cloud Only</div></div>")
-            $null = $sectionHtml.AppendLine("<div class='stat-card $mfaSignInClass'><div class='stat-value'>$withMfa</div><div class='stat-label'>With MFA</div><div class='stat-detail'>$mfaSignInPct% of all users</div></div>")
-            $null = $sectionHtml.AppendLine("</div>")
-
-            # Cards replace the table — skip standard table rendering
             continue
         }
 
         # ----------------------------------------------------------
-        # Mailbox Summary — infrastructure cards (no table)
+        # Mailbox Summary — rendered in combined email dashboard above
         # ----------------------------------------------------------
         if ($c.FileName -eq '09-Mailbox-Summary.csv') {
-            $null = $sectionHtml.AppendLine("<div class='exec-summary'>")
-            foreach ($row in $data) {
-                if ($row.Count -eq 'N/A') { continue }
-                $metricLabel = Format-ColumnHeader -Name $row.Metric
-                $null = $sectionHtml.AppendLine("<div class='stat-card info'><div class='stat-value'>$($row.Count)</div><div class='stat-label'>$(ConvertTo-HtmlSafe -Text $metricLabel)</div></div>")
-            }
-            $null = $sectionHtml.AppendLine("</div>")
             continue
         }
 
-        # ----------------------------------------------------------
-        # EXO Security Config — pass/fail summary cards above CIS table
-        # ----------------------------------------------------------
-        if ($c.FileName -eq '11b-EXO-Security-Config.csv') {
-            $exoTotal = @($data).Count
-            $exoPass = @($data | Where-Object { $_.Status -eq 'Pass' }).Count
-            $exoFail = @($data | Where-Object { $_.Status -eq 'Fail' }).Count
-            $exoWarn = @($data | Where-Object { $_.Status -eq 'Warning' }).Count
-            $exoReview = @($data | Where-Object { $_.Status -eq 'Review' }).Count
+        # EXO Security Config — visuals rendered in combined email dashboard above
 
-            $null = $sectionHtml.AppendLine("<div class='exec-summary'>")
-            $null = $sectionHtml.AppendLine("<div class='stat-card info'><div class='stat-value'>$exoTotal</div><div class='stat-label'>EXO Controls</div></div>")
-            $null = $sectionHtml.AppendLine("<div class='stat-card success'><div class='stat-value'>$exoPass</div><div class='stat-label'>Pass</div></div>")
-            if ($exoFail -gt 0) {
-                $null = $sectionHtml.AppendLine("<div class='stat-card error'><div class='stat-value'>$exoFail</div><div class='stat-label'>Fail</div></div>")
-            }
-            if ($exoWarn -gt 0) {
-                $null = $sectionHtml.AppendLine("<div class='stat-card warning'><div class='stat-value'>$exoWarn</div><div class='stat-label'>Warning</div></div>")
-            }
-            if ($exoReview -gt 0) {
-                $null = $sectionHtml.AppendLine("<div class='stat-card info'><div class='stat-value'>$exoReview</div><div class='stat-label'>Review</div></div>")
-            }
-            $null = $sectionHtml.AppendLine("</div>")
-            # Don't continue — let the CIS table render below
-        }
+        # Email Policies — visuals rendered in combined email dashboard above
 
-        # ----------------------------------------------------------
-        # Email Policies — policy status cards above detail table
-        # ----------------------------------------------------------
-        if ($c.FileName -eq '11-Email-Security.csv') {
-            $null = $sectionHtml.AppendLine("<div class='exec-summary'>")
-            foreach ($policy in $data) {
-                $policyEnabled = ($policy.Enabled -eq 'True')
-                $policyClass = if ($policyEnabled) { 'success' } else { 'danger' }
-                $policyIcon = if ($policyEnabled) { 'Enabled' } else { 'Disabled' }
-                $policyLabel = ConvertTo-HtmlSafe -Text $policy.PolicyType
-                $policyDetail = ConvertTo-HtmlSafe -Text $policy.Name
-                $null = $sectionHtml.AppendLine("<div class='stat-card $policyClass'><div class='stat-value stat-value-sm'>$policyIcon</div><div class='stat-label'>$policyLabel</div><div class='stat-detail'>$policyDetail</div></div>")
-            }
-            $null = $sectionHtml.AppendLine("</div>")
-            # Don't continue — let detail table render below
-        }
-
-        # ----------------------------------------------------------
-        # DNS Authentication — protocol context + advisory cards + table
-        # ----------------------------------------------------------
-        if ($c.FileName -eq '12-DNS-Authentication.csv') {
-            # Protocol explanation — positioned right where it's relevant
-            $null = $sectionHtml.AppendLine("<div class='section-advisory'>")
-            $null = $sectionHtml.AppendLine("<strong>Email Authentication Protocols</strong>")
-            $null = $sectionHtml.AppendLine("<p><strong>SPF</strong> (Sender Policy Framework) specifies which mail servers are authorized to send email on behalf of your domain. Without SPF, attackers can send emails that appear to come from your domain with no way for recipients to detect the forgery.</p>")
-            $null = $sectionHtml.AppendLine("<p><strong>DKIM</strong> (DomainKeys Identified Mail) adds a cryptographic signature to outgoing messages, proving they haven't been tampered with in transit. DKIM protects message integrity and is essential for DMARC alignment.</p>")
-            $null = $sectionHtml.AppendLine("<p><strong>DMARC</strong> (Domain-based Message Authentication, Reporting &amp; Conformance) ties SPF and DKIM together with a policy that tells receiving servers what to do with messages that fail authentication &mdash; monitor (<code>p=none</code>), quarantine, or reject. DMARC at <code>p=reject</code> is the gold standard and is required by <a href='https://www.cisa.gov/news-events/directives/bod-18-01-enhance-email-and-web-security' target='_blank'>CISA BOD 18-01</a> for federal agencies.</p>")
-            $null = $sectionHtml.AppendLine("<p><strong>MTA-STS</strong> (RFC 8461) enforces TLS encryption for inbound email transport, preventing man-in-the-middle downgrade attacks. <strong>TLS-RPT</strong> (RFC 8460) provides daily reports on TLS delivery failures so you know when encrypted delivery is failing.</p>")
-            $null = $sectionHtml.AppendLine("<p>This assessment queries both local and public DNS servers (Google 8.8.8.8, Cloudflare 1.1.1.1) to confirm records are live. SPF records are validated against the RFC 7208 10-DNS-lookup limit, and duplicate records that would cause PermError are flagged.</p>")
-            $null = $sectionHtml.AppendLine("<p class='advisory-links'><strong>Official Resources:</strong> <a href='https://learn.microsoft.com/en-us/defender-office-365/email-authentication-about' target='_blank'>Microsoft Email Authentication</a> &middot; <a href='https://learn.microsoft.com/en-us/defender-office-365/email-authentication-dmarc-configure' target='_blank'>Configure DMARC</a> &middot; <a href='https://learn.microsoft.com/en-us/purview/enhancing-mail-flow-with-mta-sts' target='_blank'>MTA-STS for Exchange Online</a> &middot; <a href='https://csrc.nist.gov/pubs/sp/800/177/r1/final' target='_blank'>NIST SP 800-177</a> &middot; <a href='https://www.cisa.gov/news-events/directives/bod-18-01-enhance-email-and-web-security' target='_blank'>CISA BOD 18-01</a></p>")
-            $null = $sectionHtml.AppendLine("</div>")
-
-            # Summary cards
-            $dnsData = @($data)
-            $totalDomains = $dnsData.Count
-            $dnsColumns = @($dnsData[0].PSObject.Properties.Name)
-
-            $spfConfigured = @($dnsData | Where-Object { $_.SPF -and $_.SPF -ne 'Not configured' -and $_.SPF -ne 'DNS lookup failed' }).Count
-            $spfClass = if ($spfConfigured -eq $totalDomains) { 'success' } else { 'danger' }
-
-            $dmarcConfigured = @($dnsData | Where-Object { $_.DMARC -and $_.DMARC -ne 'Not configured' }).Count
-            $dmarcEnforced = 0
-            $dmarcMonitoring = 0
-            if ($dnsColumns -contains 'DMARCPolicy') {
-                $dmarcEnforced = @($dnsData | Where-Object { $_.DMARCPolicy -match '^(reject|quarantine)' }).Count
-                $dmarcMonitoring = @($dnsData | Where-Object { $_.DMARCPolicy -match '^none' }).Count
-            }
-            $dmarcClass = if ($dmarcEnforced -eq $totalDomains) { 'success' } elseif ($dmarcConfigured -gt 0) { 'warning' } else { 'danger' }
-
-            $dkimKey = if ($dnsColumns -contains 'DKIMSelector1') { 'DKIMSelector1' } else { 'DKIMSelector' }
-            $dkimConfigured = @($dnsData | Where-Object { $_.$dkimKey -and $_.$dkimKey -ne 'Not configured' }).Count
-            $dkimClass = if ($dkimConfigured -eq $totalDomains) { 'success' } elseif ($dkimConfigured -gt 0) { 'warning' } else { 'danger' }
-
-            $mtaStsConfigured = 0
-            if ($dnsColumns -contains 'MTASTS') {
-                $mtaStsConfigured = @($dnsData | Where-Object { $_.MTASTS -and $_.MTASTS -ne 'Not configured' }).Count
-            }
-            $mtaStsClass = if ($mtaStsConfigured -eq $totalDomains) { 'success' } elseif ($mtaStsConfigured -gt 0) { 'warning' } else { 'danger' }
-
-            $tlsRptConfigured = 0
-            if ($dnsColumns -contains 'TLSRPT') {
-                $tlsRptConfigured = @($dnsData | Where-Object { $_.TLSRPT -and $_.TLSRPT -ne 'Not configured' }).Count
-            }
-            $tlsRptClass = if ($tlsRptConfigured -eq $totalDomains) { 'success' } elseif ($tlsRptConfigured -gt 0) { 'warning' } else { 'danger' }
-
-            $publicConfirmed = 0
-            if ($dnsColumns -contains 'PublicDNSConfirm') {
-                $publicConfirmed = @($dnsData | Where-Object { $_.PublicDNSConfirm -match '^Confirmed' }).Count
-            }
-            $publicClass = if ($publicConfirmed -eq $totalDomains) { 'success' } elseif ($publicConfirmed -gt 0) { 'warning' } else { 'danger' }
-
-            $null = $sectionHtml.AppendLine("<div class='exec-summary'>")
-            $null = $sectionHtml.AppendLine("<div class='stat-card $spfClass'><div class='stat-value'>$spfConfigured / $totalDomains</div><div class='stat-label'>SPF Configured</div></div>")
-            $null = $sectionHtml.AppendLine("<div class='stat-card $dmarcClass'><div class='stat-value'>$dmarcEnforced / $totalDomains</div><div class='stat-label'>DMARC Enforced</div><div class='stat-detail'>$dmarcMonitoring monitoring only</div></div>")
-            $null = $sectionHtml.AppendLine("<div class='stat-card $dkimClass'><div class='stat-value'>$dkimConfigured / $totalDomains</div><div class='stat-label'>DKIM Configured</div></div>")
-            $null = $sectionHtml.AppendLine("<div class='stat-card $mtaStsClass'><div class='stat-value'>$mtaStsConfigured / $totalDomains</div><div class='stat-label'>MTA-STS</div><div class='stat-detail'>Transport encryption</div></div>")
-            $null = $sectionHtml.AppendLine("<div class='stat-card $tlsRptClass'><div class='stat-value'>$tlsRptConfigured / $totalDomains</div><div class='stat-label'>TLS-RPT</div><div class='stat-detail'>TLS failure reporting</div></div>")
-            if ($dnsColumns -contains 'PublicDNSConfirm') {
-                $null = $sectionHtml.AppendLine("<div class='stat-card $publicClass'><div class='stat-value'>$publicConfirmed / $totalDomains</div><div class='stat-label'>Public DNS</div><div class='stat-detail'>Confirmed live</div></div>")
-            }
-            $null = $sectionHtml.AppendLine("</div>")
-            # Don't continue — let the DNS per-domain table render below
-        }
+        # DNS Authentication — visuals rendered in combined email dashboard above
 
         # ----------------------------------------------------------
         # ScubaGear Baseline — summary cards + link to native report
@@ -1419,8 +1574,8 @@ $html = @"
 
         body {
             font-family: 'Calibri', 'Segoe UI', Arial, sans-serif;
-            font-size: 11pt;
-            line-height: 1.5;
+            font-size: 12pt;
+            line-height: 1.6;
             color: var(--m365a-text);
             background: var(--m365a-body-bg);
         }
@@ -1535,50 +1690,130 @@ $html = @"
         }
 
         /* ----------------------------------------------------------
-           Table of Contents
+           Executive Summary Hero
            ---------------------------------------------------------- */
-        .report-toc {
-            background: var(--m365a-white);
+        .exec-hero {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 30px;
+            padding: 28px 32px;
+            margin: 0 0 24px 0;
+            background: var(--m365a-light-gray);
             border: 1px solid var(--m365a-border);
-            border-radius: 6px;
-            padding: 20px 30px 20px 30px;
-            margin: 30px 0;
+            border-radius: 10px;
         }
-
-        .toc-heading {
-            font-size: 14pt;
+        .exec-hero-title {
+            font-size: 20pt;
+            font-weight: 700;
             color: var(--m365a-dark);
-            margin: 0 0 12px 0;
-            padding-bottom: 8px;
-            border-bottom: 1px solid var(--m365a-border);
-            border-left: none;
-            padding-left: 0;
+            margin: 0 0 8px 0;
+            border: none;
+            padding: 0;
         }
-
-        .toc-list {
-            columns: 2;
-            column-gap: 40px;
+        .exec-hero-desc {
+            font-size: 9.5pt;
+            color: var(--m365a-medium-gray);
+            line-height: 1.5;
+            margin: 0 0 16px 0;
+        }
+        .exec-hero-donut {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .exec-hero-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .exec-hero-stat {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 9.5pt;
+        }
+        .exec-hero-center {
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            border-left: 1px solid var(--m365a-border);
+            border-right: 1px solid var(--m365a-border);
+        }
+        .exec-hero-metrics {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        .exec-hero-metric {
+            text-align: center;
+            padding: 12px 16px;
+            background: var(--m365a-card-bg);
+            border-radius: 8px;
+            border: 1px solid var(--m365a-border);
+            min-width: 100px;
+        }
+        .exec-hero-metric-value {
+            font-size: 22pt;
+            font-weight: 700;
+            color: var(--m365a-accent);
+            line-height: 1.1;
+        }
+        .exec-hero-metric-label {
+            font-size: 8pt;
+            color: var(--m365a-medium-gray);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 4px;
+        }
+        .exec-hero-right {
+            display: flex;
+            flex-direction: column;
+        }
+        .exec-hero-toc-label {
+            font-size: 9pt;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--m365a-medium-gray);
+            margin-bottom: 10px;
+            padding-bottom: 6px;
+            border-bottom: 2px solid var(--m365a-border);
+        }
+        .exec-hero-toc {
             list-style: decimal;
-            padding-left: 20px;
+            padding-left: 18px;
             margin: 0;
         }
-
-        .toc-list li {
-            padding: 4px 0;
-            break-inside: avoid;
-            font-size: 10.5pt;
+        .exec-hero-toc li {
+            padding: 3px 0;
+            font-size: 9.5pt;
         }
-
-        .toc-list a {
+        .exec-hero-toc a {
             color: var(--m365a-dark);
             text-decoration: none;
-            border-bottom: 1px dotted var(--m365a-border);
-            transition: color 0.15s, border-color 0.15s;
+            transition: color 0.15s;
         }
-
-        .toc-list a:hover {
+        .exec-hero-toc a:hover {
             color: var(--m365a-accent);
-            border-bottom-color: var(--m365a-accent);
+        }
+        .exec-alert {
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-size: 9.5pt;
+            margin: 0 0 8px 0;
+            line-height: 1.5;
+        }
+        .exec-alert a { color: var(--m365a-accent); text-decoration: none; }
+        .exec-alert a:hover { text-decoration: underline; }
+        .exec-alert-warn {
+            background: var(--m365a-warning-bg);
+            border-left: 3px solid var(--m365a-warning);
+            color: var(--m365a-dark);
+        }
+        .exec-alert-info {
+            background: var(--m365a-info-bg);
+            border-left: 3px solid var(--m365a-accent);
+            color: var(--m365a-dark);
         }
 
         /* ----------------------------------------------------------
@@ -1866,34 +2101,39 @@ $html = @"
         .compliance-bar-title { font-weight: 600; font-size: 10pt; color: var(--m365a-dark); }
         .compliance-bar-total { font-size: 9pt; color: var(--m365a-medium-gray); }
 
-        /* Donut pair layout for Identity section */
-        .donut-pair {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin: 20px 0;
-        }
-        .donut-card {
+        /* Identity donut stack (MFA & SSPR side-by-side in dashboard) */
+        .id-donut-stack {
             display: flex;
             flex-direction: column;
+            gap: 14px;
+        }
+        .id-donut-item {
+            display: flex;
             align-items: center;
-            gap: 8px;
-            padding: 20px;
-            background: var(--m365a-light-gray);
-            border-radius: 8px;
+            gap: 12px;
+            padding: 10px 12px;
+            background: var(--m365a-card-bg);
+            border-radius: 6px;
             border: 1px solid var(--m365a-border);
         }
-        .donut-card-label {
+        .id-donut-chart { flex-shrink: 0; }
+        .id-donut-info { min-width: 0; }
+        .id-donut-title {
             font-size: 10pt;
             font-weight: 600;
             color: var(--m365a-dark);
-            text-transform: uppercase;
-            letter-spacing: 1px;
         }
-        .donut-card-detail {
+        .id-donut-detail {
             font-size: 8.5pt;
             color: var(--m365a-medium-gray);
+            margin-top: 2px;
         }
+        /* Color-coded identity metric cards */
+        .id-metric-danger { border-left: 3px solid var(--m365a-danger); }
+        .id-metric-danger .email-metric-value { color: var(--m365a-danger); }
+        .id-metric-success .email-metric-value { color: var(--m365a-success); }
+        .id-metric-warning { border-left: 3px solid var(--m365a-warning); }
+        .id-metric-warning .email-metric-value { color: var(--m365a-warning); }
 
         /* ----------------------------------------------------------
            Score Progress Bar
@@ -1962,6 +2202,205 @@ $html = @"
         .stat-card.danger .stat-value { color: var(--m365a-danger); }
         .stat-card.error { border-top-color: var(--m365a-primary); }
         .stat-card.info { border-top-color: var(--m365a-accent); }
+
+        /* ----------------------------------------------------------
+           Email Dashboard (combined overview)
+           ---------------------------------------------------------- */
+        .email-dashboard {
+            margin: 20px 0;
+            padding: 24px;
+            background: var(--m365a-light-gray);
+            border: 1px solid var(--m365a-border);
+            border-radius: 10px;
+        }
+        .email-dash-top {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+        }
+        .email-dash-col { min-width: 0; }
+        .email-dash-heading {
+            font-size: 10pt;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--m365a-medium-gray);
+            margin-bottom: 14px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--m365a-border);
+        }
+        .email-dash-dns {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--m365a-border);
+        }
+        .dns-stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 12px;
+        }
+        .dns-stat {
+            text-align: center;
+            padding: 12px 8px;
+            background: var(--m365a-card-bg);
+            border-radius: 6px;
+            border: 1px solid var(--m365a-border);
+            border-top: 3px solid var(--m365a-primary);
+        }
+        .dns-stat.success { border-top-color: var(--m365a-success); }
+        .dns-stat.warning { border-top-color: var(--m365a-warning); }
+        .dns-stat.danger { border-top-color: var(--m365a-danger); }
+        .dns-stat-value {
+            font-size: 16pt;
+            font-weight: bold;
+            color: var(--m365a-dark);
+        }
+        .dns-stat.success .dns-stat-value { color: var(--m365a-success); }
+        .dns-stat.warning .dns-stat-value { color: var(--m365a-warning); }
+        .dns-stat.danger .dns-stat-value { color: var(--m365a-danger); }
+        .dns-stat-label {
+            font-size: 8pt;
+            color: var(--m365a-medium-gray);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 4px;
+        }
+        .dns-stat-detail {
+            font-size: 7.5pt;
+            color: var(--m365a-medium-gray);
+            margin-top: 2px;
+        }
+        .dns-protocols {
+            margin-top: 12px;
+        }
+        .dns-protocols summary {
+            font-size: 9pt;
+            font-weight: 600;
+            color: var(--m365a-accent);
+            cursor: pointer;
+            padding: 6px 0;
+        }
+        .dns-protocols summary:hover { text-decoration: underline; }
+        .dns-protocols-body {
+            font-size: 9pt;
+            color: var(--m365a-medium-gray);
+            line-height: 1.6;
+            padding: 10px 0;
+        }
+        .dns-protocols-body p { margin: 6px 0; }
+        .dns-protocols-body code {
+            background: var(--m365a-border);
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-size: 8.5pt;
+        }
+        .dns-protocols-body a { color: var(--m365a-accent); text-decoration: none; }
+        .dns-protocols-body a:hover { text-decoration: underline; }
+
+        /* Mailbox metrics within dashboard */
+        .email-metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        .email-metric-card {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            background: var(--m365a-card-bg);
+            border-radius: 6px;
+            border: 1px solid var(--m365a-border);
+        }
+        .email-metric-icon {
+            font-size: 18pt;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+        .email-metric-body { min-width: 0; }
+        .email-metric-value {
+            font-size: 16pt;
+            font-weight: bold;
+            color: var(--m365a-dark);
+            line-height: 1.1;
+        }
+        .email-metric-label {
+            font-size: 8pt;
+            color: var(--m365a-medium-gray);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 1px;
+        }
+
+        /* EXO donut panel within dashboard */
+        .email-dash-col .dash-panel {
+            border: none;
+            padding: 0;
+            background: transparent;
+        }
+
+        /* Policy cards within dashboard */
+        .policy-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .policy-card {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            border-radius: 6px;
+            border: 1px solid var(--m365a-border);
+            background: var(--m365a-card-bg);
+        }
+        .policy-card.policy-enabled {
+            border-left: 4px solid var(--m365a-success);
+        }
+        .policy-card.policy-disabled {
+            border-left: 4px solid var(--m365a-danger);
+        }
+        .policy-status-badge {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12pt;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        .policy-enabled .policy-status-badge {
+            background: var(--m365a-success-bg);
+            color: var(--m365a-success);
+        }
+        .policy-disabled .policy-status-badge {
+            background: var(--m365a-danger-bg);
+            color: var(--m365a-danger);
+        }
+        .policy-info { flex: 1; min-width: 0; }
+        .policy-name {
+            font-size: 9.5pt;
+            font-weight: 600;
+            color: var(--m365a-dark);
+        }
+        .policy-detail {
+            font-size: 8pt;
+            color: var(--m365a-medium-gray);
+            margin-top: 1px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .policy-status-label {
+            font-size: 8.5pt;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        .policy-enabled .policy-status-label { color: var(--m365a-success); }
+        .policy-disabled .policy-status-label { color: var(--m365a-danger); }
 
         .cis-disclaimer {
             background: var(--m365a-info-bg);
@@ -2284,8 +2723,9 @@ $html = @"
             font-size: 18px; line-height: 1; padding: 0;
         }
         body.dark-theme .theme-toggle {
-            background: #334155; border-color: #475569;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+            background: #E2E8F0; border-color: #CBD5E1;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.5);
+            color: #1E293B;
         }
         .theme-toggle:hover { transform: scale(1.1); }
         body:not(.dark-theme) .theme-icon-dark { display: none; }
@@ -2337,7 +2777,14 @@ $html = @"
         body.dark-theme .cis-disclaimer { background: #1E293B; }
         body.dark-theme .section-advisory code { background: #334155; color: #E2E8F0; }
 
+        body.dark-theme .cover-page {
+            background-color: #1E293B;
+            color: #F1F5F9;
+        }
+        body.dark-theme .cover-title { color: #F1F5F9; }
+        body.dark-theme .cover-subtitle { color: #E2E8F0; }
         body.dark-theme .cover-tenant { color: #60A5FA; }
+        body.dark-theme .cover-date { color: #94A3B8; opacity: 1; }
 
         /* ----------------------------------------------------------
            Footer
@@ -2388,11 +2835,17 @@ $html = @"
             td { padding: 5px 8px; }
 
             .exec-summary { grid-template-columns: repeat(4, 1fr); }
+            .email-dashboard { page-break-inside: avoid; padding: 16px; }
+            .email-dash-top { grid-template-columns: 1fr 1fr 1fr; }
+            .email-metrics-grid { grid-template-columns: 1fr 1fr; }
+            .dns-stats-row { grid-template-columns: repeat(6, 1fr); }
+            .dns-protocols { display: block; }
+            .dns-protocols-body { display: block; }
             .chart-panel { page-break-inside: avoid; }
             .security-dashboard { grid-template-columns: 1fr 1fr; page-break-inside: avoid; max-width: none; }
-            .donut-pair { grid-template-columns: 1fr 1fr; page-break-inside: avoid; }
-            .report-toc { page-break-inside: avoid; page-break-after: always; }
-            .toc-list { columns: 1; }
+            .id-donut-stack { page-break-inside: avoid; }
+            .exec-hero { page-break-inside: avoid; page-break-after: always; grid-template-columns: 1fr auto 1fr; }
+            .exec-hero-center { border-left: none; border-right: none; padding: 0 10px; }
             .tenant-card { page-break-inside: avoid; }
             .tenant-facts { grid-template-columns: repeat(3, 1fr); }
             .tenant-meta { font-size: 8pt; }
@@ -2446,25 +2899,61 @@ $html = @"
 
     <!-- Content -->
     <main class="content">
-        <!-- Executive Summary -->
-        <h1>Executive Summary</h1>
-        <p>This report summarizes the findings of the Microsoft 365 environment assessment
-        conducted for <strong>$(ConvertTo-HtmlSafe -Text $TenantName)</strong> on
-        <strong>$assessmentDate</strong>. The assessment evaluated
-        <strong>$totalCollectors</strong> configuration areas across
-        <strong>$($sections.Count)</strong> sections.</p>
-
-        <div class="chart-panel">
-            $(
-                $completePct = if ($totalCollectors -gt 0) { [math]::Round(($completeCount / $totalCollectors) * 100, 0) } else { 0 }
-                $donutClass = if ($completePct -ge 90) { 'success' } elseif ($completePct -ge 70) { 'warning' } else { 'danger' }
-                Get-SvgDonut -Percentage $completePct -CssClass $donutClass -Label "$completeCount/$totalCollectors" -Size 140 -StrokeWidth 12
-            )
-            <div class="chart-legend">
-                <div class="chart-legend-item"><span class="chart-legend-dot dot-success"></span><strong>$completeCount</strong> Completed</div>
-                <div class="chart-legend-item"><span class="chart-legend-dot dot-warning"></span><strong>$skippedCount</strong> Skipped</div>
-                <div class="chart-legend-item"><span class="chart-legend-dot dot-danger"></span><strong>$failedCount</strong> Failed</div>
-                <div class="chart-legend-item"><span class="chart-legend-dot dot-info"></span><strong>$($sections.Count)</strong> Sections</div>
+        <!-- Executive Summary — Hero Panel -->
+        <div class="exec-hero">
+            <div class="exec-hero-left">
+                <h1 class="exec-hero-title">Executive Summary</h1>
+                <p class="exec-hero-desc">Microsoft 365 environment assessment for
+                <strong>$(ConvertTo-HtmlSafe -Text $TenantName)</strong> conducted on
+                <strong>$assessmentDate</strong>.</p>
+                <div class="exec-hero-donut">
+                    $(
+                        $completePct = if ($totalCollectors -gt 0) { [math]::Round(($completeCount / $totalCollectors) * 100, 0) } else { 0 }
+                        $donutClass = if ($completePct -ge 90) { 'success' } elseif ($completePct -ge 70) { 'warning' } else { 'danger' }
+                        Get-SvgDonut -Percentage $completePct -CssClass $donutClass -Label "$completeCount/$totalCollectors" -Size 120 -StrokeWidth 10
+                    )
+                    <div class="exec-hero-stats">
+                        <div class="exec-hero-stat"><span class="chart-legend-dot dot-success"></span><strong>$completeCount</strong> Completed</div>
+                        <div class="exec-hero-stat"><span class="chart-legend-dot dot-warning"></span><strong>$skippedCount</strong> Skipped</div>
+                        <div class="exec-hero-stat"><span class="chart-legend-dot dot-danger"></span><strong>$failedCount</strong> Failed</div>
+                    </div>
+                </div>
+            </div>
+            <div class="exec-hero-center">
+                <div class="exec-hero-metrics">
+                    <div class="exec-hero-metric">
+                        <div class="exec-hero-metric-value">$totalCollectors</div>
+                        <div class="exec-hero-metric-label">Config Areas</div>
+                    </div>
+                    <div class="exec-hero-metric">
+                        <div class="exec-hero-metric-value">$($sections.Count)</div>
+                        <div class="exec-hero-metric-label">Sections</div>
+                    </div>
+                    <div class="exec-hero-metric">
+                        <div class="exec-hero-metric-value">$($allCisFindings.Count)</div>
+                        <div class="exec-hero-metric-label">CIS Controls</div>
+                    </div>
+                    <div class="exec-hero-metric">
+                        <div class="exec-hero-metric-value">12</div>
+                        <div class="exec-hero-metric-label">Frameworks</div>
+                    </div>
+                </div>
+            </div>
+            <div class="exec-hero-right">
+                <div class="exec-hero-toc-label">Sections</div>
+                <ol class="exec-hero-toc">
+                    $( foreach ($tocSection in $sections) {
+                        if ($tocSection -eq 'Tenant') {
+                            "<li><a href='#section-tenant'>Organization Profile</a></li>`n"
+                        } else {
+                            $tocId = ($tocSection -replace '[^a-zA-Z0-9]', '-').ToLower()
+                            $tocLabel = [System.Web.HttpUtility]::HtmlEncode($tocSection)
+                            "<li><a href='#section-$tocId'>$tocLabel</a></li>`n"
+                        }
+                    })
+                    $( if ($allCisFindings.Count -gt 0 -and $frameworkMappings.Count -gt 0) { "<li><a href='#compliance-overview'>Compliance Overview</a></li>`n" })
+                    $( if ($issues.Count -gt 0) { "<li><a href='#issues'>Technical Issues</a></li>`n" })
+                </ol>
             </div>
         </div>
 "@
@@ -2472,34 +2961,24 @@ $html = @"
 if ($issues.Count -gt 0) {
     $html += @"
 
-        <p><strong>$($issues.Count) issue(s)</strong> were identified during the assessment:
-        $errorCount error(s) and $warningCount warning(s). See the
-        <a href="#issues">Technical Issues</a> section for details.</p>
-"@
-}
-else {
-    $html += @"
-
-        <p>No issues were identified during the assessment. All collectors completed successfully.</p>
+        <div class="exec-alert exec-alert-warn">&#9888; <strong>$($issues.Count) issue(s)</strong> identified:
+        $errorCount error(s) and $warningCount warning(s). See <a href="#issues">Technical Issues</a>.</div>
 "@
 }
 
 if ($allCisFindings.Count -gt 0) {
     $nonPassingCount = @($allCisFindings | Where-Object { $_.Status -ne 'Pass' }).Count
-    $html += @"
+    if ($nonPassingCount -gt 0) {
+        $html += @"
 
-        <p>Security configuration was evaluated against <strong>$($allCisFindings.Count)</strong> controls across
-        <strong>12 compliance frameworks</strong>. <strong>$nonPassingCount finding(s)</strong> require
-        attention. See the <a href="#compliance-overview">Compliance Overview</a> for details and cross-framework mapping.</p>
+        <div class="exec-alert exec-alert-info">&#128270; <strong>$nonPassingCount finding(s)</strong> across
+        $($allCisFindings.Count) controls require attention. See <a href="#compliance-overview">Compliance Overview</a>.</div>
 "@
+    }
 }
 
 $html += @"
 
-        $($tocHtml.ToString())
-
-        <!-- Assessment Results by Section -->
-        <h1 id="assessment-results">Assessment Results</h1>
         $($sectionHtml.ToString())
 "@
 
@@ -2623,7 +3102,7 @@ $html += @"
                         for (var i = 0; i < active.length; i++) {
                             if ((row.className || '').indexOf('cis-row-' + active[i]) !== -1) { show = true; break; }
                         }
-                        row.style.display = active.length === 0 || show ? '' : 'none';
+                        row.style.display = show ? '' : 'none';
                     });
                 }
 
