@@ -5,7 +5,7 @@
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="Common/assets/m365-assess-logo-white.png" />
   <source media="(prefers-color-scheme: light)" srcset="Common/assets/m365-assess-logo.png" />
-  <img src="Common/assets/m365-assess-logo.png" alt="M365 Assess" width="400" />
+  <img src="Common/assets/m365-assess-logo.png" alt="M365 Assess" width="500" />
 </picture>
 
 ### Comprehensive M365 Security Assessment Tool
@@ -14,7 +14,7 @@
 
 [![PowerShell 7.x](https://img.shields.io/badge/PowerShell-7.x-blue?logo=powershell&logoColor=white)](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows)
 [![Read-Only](https://img.shields.io/badge/Operations-Read--Only-brightgreen)](.)
-[![Version](https://img.shields.io/badge/version-0.3.0-blue)](.)
+[![Version](https://img.shields.io/badge/version-0.4.0-blue)](.)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 </div>

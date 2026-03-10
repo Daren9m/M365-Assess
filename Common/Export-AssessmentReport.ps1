@@ -34,7 +34,7 @@
 
     Generates a report with the specified tenant name on the cover page.
 .NOTES
-    Version: 0.3.0
+    Version: 0.4.0
     Author:  Daren9m
 #>
 [CmdletBinding()]
@@ -148,7 +148,7 @@ if (-not $TenantName) {
 # (avoids fragile CSV-scanning; the main script already resolved it from TenantId or Graph)
 
 # Read assessment version and cloud environment from log if available
-$assessmentVersion = '0.3.0'
+$assessmentVersion = '0.4.0'
 $cloudEnvironment = 'commercial'
 # Find the log file (may have domain suffix, e.g., _Assessment-Log_contoso.txt)
 $logFile = Get-ChildItem -Path $AssessmentFolder -Filter '_Assessment-Log*.txt' -ErrorAction SilentlyContinue | Select-Object -First 1
@@ -1518,6 +1518,9 @@ $html = @"
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>M365 Assessment Report - $(ConvertTo-HtmlSafe -Text $TenantName)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         /* ----------------------------------------------------------
            M365 Assess Theme
@@ -1573,9 +1576,9 @@ $html = @"
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: 'Calibri', 'Segoe UI', Arial, sans-serif;
-            font-size: 12pt;
-            line-height: 1.6;
+            font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+            font-size: 13pt;
+            line-height: 1.65;
             color: var(--m365a-text);
             background: var(--m365a-body-bg);
         }
@@ -1599,9 +1602,9 @@ $html = @"
         }
 
         .cover-logo {
-            max-width: 350px;
+            max-width: 500px;
             height: auto;
-            margin-bottom: 50px;
+            margin-bottom: 40px;
         }
 
         .cover-logo-text {
