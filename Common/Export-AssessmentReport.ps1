@@ -589,24 +589,27 @@ foreach ($sectionName in $sections) {
         $null = $sectionHtml.AppendLine("<p class='section-description'>$sectionDesc</p>")
     }
 
-    # Summary table for this section
-    $null = $sectionHtml.AppendLine("<table class='summary-table'>")
-    $null = $sectionHtml.AppendLine("<thead><tr><th scope='col'>Collector</th><th scope='col'>Status</th><th scope='col'>Items</th><th scope='col'>Duration</th><th scope='col'>Notes</th></tr></thead>")
-    $null = $sectionHtml.AppendLine("<tbody>")
+    # Collector status — compact chip grid
+    $null = $sectionHtml.AppendLine("<div class='collector-grid'>")
 
     foreach ($c in $sectionCollectors) {
-        $badge = Get-StatusBadge -Status $c.Status
+        $statusClass = switch ($c.Status) {
+            'Complete' { 'chip-complete' }
+            'Skipped'  { 'chip-skipped' }
+            'Failed'   { 'chip-failed' }
+            default    { '' }
+        }
         $notes = if ($c.Error) { ConvertTo-HtmlSafe -Text $c.Error } else { '' }
-        $null = $sectionHtml.AppendLine("<tr>")
-        $null = $sectionHtml.AppendLine("<td>$(ConvertTo-HtmlSafe -Text $c.Collector)</td>")
-        $null = $sectionHtml.AppendLine("<td>$badge</td>")
-        $null = $sectionHtml.AppendLine("<td class='num'>$($c.Items)</td>")
-        $null = $sectionHtml.AppendLine("<td class='num'>$($c.Duration)</td>")
-        $null = $sectionHtml.AppendLine("<td class='notes'>$notes</td>")
-        $null = $sectionHtml.AppendLine("</tr>")
+        $notesHtml = if ($notes) { "<span class='chip-note' title='$notes'>$notes</span>" } else { '' }
+        $null = $sectionHtml.AppendLine("<div class='collector-chip $statusClass'>")
+        $null = $sectionHtml.AppendLine("<span class='chip-dot'></span>")
+        $null = $sectionHtml.AppendLine("<span class='chip-name'>$(ConvertTo-HtmlSafe -Text $c.Collector)</span>")
+        $null = $sectionHtml.AppendLine("<span class='chip-count'>$($c.Items)</span>")
+        $null = $sectionHtml.AppendLine($notesHtml)
+        $null = $sectionHtml.AppendLine("</div>")
     }
 
-    $null = $sectionHtml.AppendLine("</tbody></table>")
+    $null = $sectionHtml.AppendLine("</div>")
 
     # ------------------------------------------------------------------
     # Identity Dashboard — combined overview panel
@@ -2756,6 +2759,62 @@ $html = @"
         }
 
         .summary-table { margin-bottom: 25px; }
+
+        /* Collector chip grid — compact status display */
+        .collector-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin: 8px 0 18px 0;
+        }
+
+        .collector-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 12px 5px 10px;
+            border-radius: 6px;
+            font-size: 8.5pt;
+            background: var(--m365a-light-gray);
+            border: 1px solid var(--m365a-border);
+            line-height: 1.3;
+            max-width: 340px;
+        }
+
+        .chip-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .chip-complete .chip-dot { background: var(--m365a-success); }
+        .chip-skipped .chip-dot  { background: var(--m365a-medium-gray); }
+        .chip-failed .chip-dot   { background: var(--m365a-danger); }
+
+        .chip-name {
+            font-weight: 500;
+            color: var(--m365a-text);
+            white-space: nowrap;
+        }
+
+        .chip-count {
+            font-variant-numeric: tabular-nums;
+            font-weight: 600;
+            color: var(--m365a-medium-gray);
+            margin-left: 2px;
+        }
+
+        .chip-count::before { content: '\00B7\00A0'; }
+
+        .chip-note {
+            font-size: 7.5pt;
+            color: var(--m365a-danger);
+            max-width: 140px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
 
         th {
             background: var(--m365a-dark);
