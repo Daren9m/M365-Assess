@@ -1799,6 +1799,18 @@ if ($allCisFindings.Count -gt 0 -and $controlRegistry.Count -gt 0) {
 }
 
 # ------------------------------------------------------------------
+# Export Compliance Matrix XLSX (optional — requires ImportExcel module)
+# ------------------------------------------------------------------
+try {
+    $xlsxScript = Join-Path -Path $PSScriptRoot -ChildPath 'Export-ComplianceMatrix.ps1'
+    if (Test-Path -Path $xlsxScript) {
+        & $xlsxScript -AssessmentFolder $AssessmentFolder -TenantName $TenantName
+    }
+} catch {
+    Write-Warning "XLSX compliance matrix export failed: $($_.Exception.Message)"
+}
+
+# ------------------------------------------------------------------
 # Build issues HTML
 # ------------------------------------------------------------------
 $issuesHtml = [System.Text.StringBuilder]::new()
