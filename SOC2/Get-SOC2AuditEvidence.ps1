@@ -65,6 +65,11 @@ catch {
 $results = [System.Collections.Generic.List[PSCustomObject]]::new()
 $startDate = (Get-Date).AddDays(-$EvidenceWindowDays).ToString('yyyy-MM-ddTHH:mm:ssZ')
 
+# Note: Evidence queries use $top=100 as a representative sample. For high-volume
+# tenants this may not capture all events. The EventCount reflects the sample size.
+# For full-population evidence, export via Microsoft Purview Audit (Premium) or
+# the continuous monitoring automation described in the Daily Monitoring Strategy.
+
 # Helper to add evidence summary
 function Add-EvidenceSummary {
     param(
@@ -102,13 +107,15 @@ try {
         -Uri "/v1.0/auditLogs/signIns?`$filter=createdDateTime ge $startDate and status/errorCode ne 0&`$top=100&`$orderby=createdDateTime desc" `
         -ErrorAction Stop
     $events = @($failedSignIns['value'])
+    $sampleCapped = $events.Count -ge 100
 
     $summary = if ($events.Count -eq 0) {
         'No failed sign-in attempts detected'
     } else {
         $topUsers = @($events | Group-Object -Property { $_['userPrincipalName'] } | Sort-Object -Property Count -Descending | Select-Object -First 3)
         $topUserSummary = ($topUsers | ForEach-Object { "$($_.Name): $($_.Count)" }) -join '; '
-        "Top users with failures: $topUserSummary"
+        $capNote = if ($sampleCapped) { ' (sample capped at 100; actual count may be higher)' } else { '' }
+        "Top users with failures: $topUserSummary$capNote"
     }
 
     $sampleData = ($events | Select-Object -First 3 | ForEach-Object {
@@ -136,13 +143,15 @@ try {
         -Uri "/v1.0/identityProtection/riskDetections?`$filter=activityDateTime ge $startDate&`$top=100&`$orderby=activityDateTime desc" `
         -ErrorAction Stop
     $events = @($riskDetections['value'])
+    $sampleCapped = $events.Count -ge 100
 
     $summary = if ($events.Count -eq 0) {
         'No risky sign-in detections in the evidence window'
     } else {
         $riskTypes = @($events | Group-Object -Property { $_['riskEventType'] } | Sort-Object -Property Count -Descending | Select-Object -First 3)
         $riskSummary = ($riskTypes | ForEach-Object { "$($_.Name): $($_.Count)" }) -join '; '
-        "Risk types detected: $riskSummary"
+        $capNote = if ($sampleCapped) { ' (sample capped at 100)' } else { '' }
+        "Risk types detected: $riskSummary$capNote"
     }
 
     $sampleData = ($events | Select-Object -First 3 | ForEach-Object {
@@ -171,15 +180,17 @@ try {
         -Uri "/v1.0/security/alerts_v2?`$top=100&`$orderby=createdDateTime desc" `
         -ErrorAction Stop
     $events = @($alerts['value'])
+    $sampleCapped = $events.Count -ge 100
 
     $newAlerts = @($events | Where-Object { $_['status'] -eq 'new' })
     $resolvedAlerts = @($events | Where-Object { $_['status'] -eq 'resolved' })
     $inProgressAlerts = @($events | Where-Object { $_['status'] -eq 'inProgress' })
 
+    $capNote = if ($sampleCapped) { ' (sample capped at 100)' } else { '' }
     $summary = if ($events.Count -eq 0) {
         'No security alerts generated (clean environment or no Defender configured)'
     } else {
-        "Total: $($events.Count); New: $($newAlerts.Count); In Progress: $($inProgressAlerts.Count); Resolved: $($resolvedAlerts.Count)"
+        "Total: $($events.Count); New: $($newAlerts.Count); In Progress: $($inProgressAlerts.Count); Resolved: $($resolvedAlerts.Count)$capNote"
     }
 
     $sampleData = ($events | Select-Object -First 3 | ForEach-Object {
@@ -207,13 +218,15 @@ try {
         -Uri "/v1.0/auditLogs/directoryAudits?`$filter=activityDateTime ge $startDate and category eq 'RoleManagement'&`$top=100&`$orderby=activityDateTime desc" `
         -ErrorAction Stop
     $events = @($roleAudits['value'])
+    $sampleCapped = $events.Count -ge 100
 
     $summary = if ($events.Count -eq 0) {
         'No privileged role changes in the evidence window'
     } else {
         $activities = @($events | Group-Object -Property { $_['activityDisplayName'] } | Sort-Object -Property Count -Descending | Select-Object -First 3)
         $actSummary = ($activities | ForEach-Object { "$($_.Name): $($_.Count)" }) -join '; '
-        "Role management activities: $actSummary"
+        $capNote = if ($sampleCapped) { ' (sample capped at 100)' } else { '' }
+        "Role management activities: $actSummary$capNote"
     }
 
     $sampleData = ($events | Select-Object -First 3 | ForEach-Object {

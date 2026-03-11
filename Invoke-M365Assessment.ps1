@@ -162,7 +162,7 @@ function Show-InteractiveWizard {
         '9'  = @{ Name = 'Inventory';       Label = 'M&A Inventory (opt-in)';       Selected = $false }
         '10' = @{ Name = 'ActiveDirectory'; Label = 'Active Directory (RSAT)';      Selected = $false }
         '11' = @{ Name = 'ScubaGear';       Label = 'ScubaGear Baseline (PS 5.1)';  Selected = $false }
-        '12' = @{ Name = 'SOC2';            Label = 'SOC 2 Compliance (opt-in)';    Selected = $false }
+        '12' = @{ Name = 'SOC2';            Label = 'SOC 2 Readiness (opt-in)';     Selected = $false }
     }
 
     # --- Header ---
@@ -978,6 +978,7 @@ $collectorMap = [ordered]@{
         @{ Name = '33-SOC2-Security-Controls';       Script = 'SOC2\Get-SOC2SecurityControls.ps1';       Label = 'SOC 2 Security Controls'; RequiredServices = @('Graph') }
         @{ Name = '34-SOC2-Confidentiality-Controls'; Script = 'SOC2\Get-SOC2ConfidentialityControls.ps1'; Label = 'SOC 2 Confidentiality Controls'; RequiredServices = @('Graph', 'Purview') }
         @{ Name = '35-SOC2-Audit-Evidence';           Script = 'SOC2\Get-SOC2AuditEvidence.ps1';           Label = 'SOC 2 Audit Evidence'; RequiredServices = @('Graph') }
+        @{ Name = '36-SOC2-Readiness-Checklist';     Script = 'SOC2\Get-SOC2ReadinessChecklist.ps1';     Label = 'SOC 2 Readiness Checklist' }
     )
 }
 

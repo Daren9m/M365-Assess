@@ -1,5 +1,5 @@
 {
-  "version": "1.0",
+  "version": "1.1",
   "framework": "SOC 2 Type II",
   "description": "Maps AICPA SOC 2 Trust Service Criteria to Microsoft 365 controls and audit queries",
   "trustPrinciples": {
@@ -17,7 +17,9 @@
               "graphEndpoint": "/identity/conditionalAccess/policies",
               "passCriteria": "CA policy with MFA grant control targeting all users, or Security Defaults enabled",
               "severity": "High",
-              "remediation": "Create a Conditional Access policy requiring MFA for all users, or enable Security Defaults in Entra admin center > Properties."
+              "controlOwner": "",
+              "remediation": "Create a Conditional Access policy requiring MFA for all users, or enable Security Defaults in Entra admin center > Properties.",
+              "compensatingControl": "If Conditional Access is not licensed (requires Entra ID P1), enable Security Defaults which enforces MFA for all users at no additional cost."
             },
             {
               "controlId": "S-02",
@@ -26,7 +28,9 @@
               "graphEndpoint": "/identity/conditionalAccess/policies",
               "passCriteria": "At least one CA policy with signInRiskLevels in conditions",
               "severity": "High",
-              "remediation": "Create a Conditional Access policy with sign-in risk condition set to Medium and High, requiring MFA or blocking access."
+              "controlOwner": "",
+              "remediation": "Create a Conditional Access policy with sign-in risk condition set to Medium and High, requiring MFA or blocking access.",
+              "compensatingControl": "If Entra ID P2 is not available for risk-based CA, enable Security Defaults (blocks legacy auth and requires MFA) and monitor sign-in logs manually for anomalous patterns."
             },
             {
               "controlId": "S-03",
@@ -35,7 +39,9 @@
               "graphEndpoint": "/identity/conditionalAccess/policies",
               "passCriteria": "At least one CA policy with userRiskLevels in conditions",
               "severity": "High",
-              "remediation": "Create a Conditional Access policy with user risk condition set to High, requiring password change."
+              "controlOwner": "",
+              "remediation": "Create a Conditional Access policy with user risk condition set to High, requiring password change.",
+              "compensatingControl": "If Entra ID P2 is not available, manually review the risky users report weekly and force password resets for flagged accounts."
             }
           ]
         },
@@ -50,7 +56,9 @@
               "graphEndpoint": "/reports/authenticationMethods/userRegistrationDetails",
               "passCriteria": "Admin users registered for FIDO2 or Windows Hello for Business",
               "severity": "High",
-              "remediation": "Register admin accounts for FIDO2 security keys or Windows Hello for Business. Create a CA policy requiring phishing-resistant MFA strength for admin roles."
+              "controlOwner": "",
+              "remediation": "Register admin accounts for FIDO2 security keys or Windows Hello for Business. Create a CA policy requiring phishing-resistant MFA strength for admin roles.",
+              "compensatingControl": "If FIDO2 keys are not feasible (budget or logistics), ensure Microsoft Authenticator is configured with number matching and additional context enabled, which provides stronger-than-default MFA."
             }
           ]
         },
@@ -65,7 +73,9 @@
               "graphEndpoint": "/directoryRoles",
               "passCriteria": "Between 2 and 4 Global Administrator role members",
               "severity": "High",
-              "remediation": "Review Global Admin assignments in Entra admin center > Roles and administrators. Reduce to 2-4 accounts; use scoped admin roles for day-to-day tasks."
+              "controlOwner": "",
+              "remediation": "Review Global Admin assignments in Entra admin center > Roles and administrators. Reduce to 2-4 accounts; use scoped admin roles for day-to-day tasks.",
+              "compensatingControl": "If more than 4 Global Admins are operationally required, implement Privileged Identity Management (PIM) with time-limited just-in-time activation and require approval for activation."
             }
           ]
         },
@@ -80,6 +90,7 @@
               "cmdlet": "Get-AdminAuditLogConfig",
               "passCriteria": "UnifiedAuditLogIngestionEnabled is True",
               "severity": "Critical",
+              "controlOwner": "",
               "remediation": "Enable audit logging: Set-AdminAuditLogConfig -UnifiedAuditLogIngestionEnabled $true. Verify in Microsoft Purview compliance portal > Audit."
             },
             {
@@ -89,7 +100,9 @@
               "graphEndpoint": "/security/alerts_v2",
               "passCriteria": "Alert policies exist and are in an active state",
               "severity": "High",
-              "remediation": "Review alert policies in Microsoft Defender portal > Policies & rules > Alert policy. Ensure default threat detection policies are enabled."
+              "controlOwner": "",
+              "remediation": "Review alert policies in Microsoft Defender portal > Policies & rules > Alert policy. Ensure default threat detection policies are enabled.",
+              "relatedCollector": "Get-DefenderPolicyReport.ps1 — provides detailed Defender policy configuration evidence"
             }
           ]
         },
@@ -104,6 +117,7 @@
               "graphEndpoint": "/security/alerts_v2?$filter=status ne 'new'",
               "passCriteria": "At least some alerts have been triaged (status is resolved or inProgress)",
               "severity": "Medium",
+              "controlOwner": "",
               "remediation": "Regularly review and triage security alerts in Microsoft Defender portal. Assign, investigate, and resolve alerts to demonstrate active incident response."
             }
           ]
@@ -124,6 +138,7 @@
               "cmdlet": "Get-SPOTenant",
               "passCriteria": "SharingCapability is not 'ExternalUserAndGuestSharing' with anonymous links",
               "severity": "High",
+              "controlOwner": "",
               "remediation": "In SharePoint admin center > Policies > Sharing, restrict external sharing to 'Existing guests' or more restrictive setting."
             },
             {
@@ -133,6 +148,7 @@
               "cmdlet": "Get-SPOTenant",
               "passCriteria": "SharingCapability is not 'ExternalUserAndGuestSharing' (most permissive)",
               "severity": "High",
+              "controlOwner": "",
               "remediation": "In SharePoint admin center > Policies > Sharing, set sharing level to 'New and existing guests' or more restrictive."
             },
             {
@@ -141,6 +157,7 @@
               "description": "TLS 1.2 or higher is enforced for all M365 service connections",
               "passCriteria": "TLS 1.2+ enforced (default in Microsoft 365)",
               "severity": "Medium",
+              "controlOwner": "",
               "remediation": "Microsoft 365 enforces TLS 1.2 by default. Verify no legacy applications use TLS 1.0/1.1."
             },
             {
@@ -150,6 +167,7 @@
               "graphEndpoint": "/policies/authorizationPolicy",
               "passCriteria": "allowInvitesFrom is set to 'adminsAndGuestInviters' or more restrictive",
               "severity": "Medium",
+              "controlOwner": "",
               "remediation": "In Entra admin center > External Identities > External collaboration settings, set 'Guest invite restrictions' to 'Only users assigned to specific admin roles can invite guest users'."
             }
           ]
@@ -165,7 +183,9 @@
               "cmdlet": "Get-DlpCompliancePolicy",
               "passCriteria": "At least one DLP policy with Mode set to 'Enable' (not 'TestWithNotifications' or 'TestWithoutNotifications')",
               "severity": "High",
-              "remediation": "In Microsoft Purview compliance portal > Data loss prevention > Policies, create or enable a DLP policy in enforcement mode."
+              "controlOwner": "",
+              "remediation": "In Microsoft Purview compliance portal > Data loss prevention > Policies, create or enable a DLP policy in enforcement mode.",
+              "compensatingControl": "If Purview DLP is not licensed, implement Exchange mail flow rules to block sensitive data patterns (SSN, credit card) in outbound email as a partial compensating control."
             },
             {
               "controlId": "C-04",
@@ -174,7 +194,9 @@
               "cmdlet": "Get-Label",
               "passCriteria": "At least one sensitivity label exists and is enabled",
               "severity": "Medium",
-              "remediation": "In Microsoft Purview compliance portal > Information protection > Labels, create and publish sensitivity labels to classify and protect sensitive data."
+              "controlOwner": "",
+              "remediation": "In Microsoft Purview compliance portal > Information protection > Labels, create and publish sensitivity labels to classify and protect sensitive data.",
+              "compensatingControl": "If sensitivity labels are not licensed, implement a documented manual classification scheme using folder structures and naming conventions with user training."
             },
             {
               "controlId": "C-06",
@@ -183,6 +205,7 @@
               "cmdlet": "Get-RetentionCompliancePolicy",
               "passCriteria": "At least one retention policy is active and enabled",
               "severity": "Medium",
+              "controlOwner": "",
               "remediation": "In Microsoft Purview compliance portal > Data lifecycle management > Retention policies, create retention policies for key workloads."
             }
           ]
@@ -198,7 +221,9 @@
         "name": "Failed Sign-in Attempts",
         "description": "Authentication attempts that failed due to incorrect credentials or policy blocks",
         "source": "Graph: /auditLogs/signIns?$filter=status/errorCode ne 0",
-        "timeWindowDays": 30
+        "timeWindowDays": 30,
+        "sampleSize": 100,
+        "note": "Capped at 100 events; for full population, use Purview Audit (Premium) or continuous monitoring automation"
       },
       {
         "evidenceId": "E-02",
@@ -206,7 +231,9 @@
         "name": "Risky Sign-in Detections",
         "description": "Sign-in events flagged as risky by Identity Protection",
         "source": "Graph: /identityProtection/riskDetections",
-        "timeWindowDays": 30
+        "timeWindowDays": 30,
+        "sampleSize": 100,
+        "note": "Requires Entra ID P2 license"
       },
       {
         "evidenceId": "E-03",
@@ -222,7 +249,8 @@
         "name": "Alert Response Activity",
         "description": "Security alerts that have been triaged, showing active incident response",
         "source": "Graph: /security/alerts_v2",
-        "timeWindowDays": 30
+        "timeWindowDays": 30,
+        "sampleSize": 100
       },
       {
         "evidenceId": "E-08",
@@ -230,7 +258,8 @@
         "name": "Privileged Role Changes",
         "description": "Directory audit events for role assignment additions and removals",
         "source": "Graph: /auditLogs/directoryAudits?$filter=category eq 'RoleManagement'",
-        "timeWindowDays": 30
+        "timeWindowDays": 30,
+        "sampleSize": 100
       }
     ],
     "Confidentiality": [
@@ -240,7 +269,8 @@
         "name": "Sharing Events Detected",
         "description": "SharePoint and OneDrive sharing events showing data access patterns",
         "source": "UAL: SharingSet, SharingInvitationCreated",
-        "timeWindowDays": 30
+        "timeWindowDays": 30,
+        "sampleSize": 100
       },
       {
         "evidenceId": "E-06",
@@ -256,7 +286,28 @@
         "name": "DLP Policy Matches",
         "description": "Data loss prevention rule matches showing policy enforcement activity",
         "source": "UAL: DlpRuleMatch",
-        "timeWindowDays": 30
+        "timeWindowDays": 30,
+        "sampleSize": 100
+      }
+    ]
+  },
+  "relatedCollectors": {
+    "description": "Existing M365-Assess collectors that produce SOC 2-relevant evidence",
+    "collectors": [
+      {
+        "script": "Get-SecureScoreReport.ps1",
+        "relevantCriteria": ["CC3.3", "CC7.5"],
+        "purpose": "Secure Score trends demonstrate ongoing risk awareness and vulnerability management"
+      },
+      {
+        "script": "Get-AppRegistrationReport.ps1",
+        "relevantCriteria": ["CC9.2"],
+        "purpose": "Inventories OAuth app registrations and consent grants for third-party risk assessment"
+      },
+      {
+        "script": "Get-DefenderPolicyReport.ps1",
+        "relevantCriteria": ["CC6.8", "CC7.1"],
+        "purpose": "Documents Defender for Office 365 anti-malware, Safe Links, and Safe Attachments configuration"
       }
     ]
   }

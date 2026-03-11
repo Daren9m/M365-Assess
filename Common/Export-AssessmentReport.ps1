@@ -455,7 +455,7 @@ $sectionDescriptions = @{
     'Hybrid'        = 'On-premises Active Directory synchronization and hybrid identity configuration. Hybrid sync health directly impacts authentication reliability and determines which identities are managed in the cloud vs. on-premises.'
     'Inventory'     = 'Per-object inventory of mailboxes, distribution lists, Microsoft 365 groups, Teams, SharePoint sites, and OneDrive accounts. Designed for M&amp;A due diligence, migration planning, and tenant-wide asset enumeration.'
     'ScubaGear'     = 'CISA <a href="https://github.com/cisagov/ScubaGear" target="_blank">ScubaGear</a> baseline compliance scan assessing Microsoft 365 configuration against Secure Cloud Business Applications (SCuBA) security baselines. Controls are categorized as <strong>Shall</strong> (mandatory) or <strong>Should</strong> (recommended).'
-    'SOC2'          = 'SOC 2 Trust Service Criteria assessment covering <strong>Security</strong> and <strong>Confidentiality</strong> principles. Evaluates M365 controls against AICPA SOC 2 requirements and collects audit log evidence demonstrating active monitoring. <em>This tool assists with SOC 2 readiness &mdash; it does not constitute a SOC 2 audit or certification.</em>'
+    'SOC2'          = 'SOC 2 readiness assessment covering <strong>Security</strong> and <strong>Confidentiality</strong> trust principles plus a Common Criteria (CC1–CC9) organizational readiness checklist. Evaluates M365 controls against AICPA SOC 2 requirements, collects audit log evidence, and identifies non-technical governance controls required by auditors. <em>This tool assists with SOC 2 readiness &mdash; it does not constitute a SOC 2 audit or certification.</em>'
 }
 
 foreach ($sectionName in $sections) {
