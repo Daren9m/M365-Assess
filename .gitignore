@@ -19,6 +19,7 @@ M365-Assess/
 CIS/
 ScubaGear-Report/
 SCF/
+SecFrame/
 
 # Credentials and certificates
 .env
