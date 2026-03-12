@@ -331,14 +331,23 @@ function Get-SvgMultiDonut {
     $center = $Size / 2
     $svg = "<svg class='donut-chart' width='$Size' height='$Size' viewBox='0 0 $Size $Size'>"
     $svg += "<circle class='donut-track' cx='$center' cy='$center' r='$radius' fill='none' stroke-width='$StrokeWidth'/>"
+    # Filter to visible segments and track cumulative arc to eliminate rounding gaps
+    $visibleSegs = @($Segments | Where-Object { $_.Pct -gt 0 })
     $offset = 0
-    foreach ($seg in $Segments) {
-        if ($seg.Pct -le 0) { continue }
-        $arcLen = [math]::Round(($seg.Pct / 100) * $circumference, 4)
-        $gapLen = [math]::Round($circumference - $arcLen, 4)
+    $cumulativeArc = 0
+    for ($i = 0; $i -lt $visibleSegs.Count; $i++) {
+        $seg = $visibleSegs[$i]
         $rotDeg = [math]::Round(($offset / 100) * 360 - 90, 4)
+        if ($i -eq $visibleSegs.Count - 1) {
+            # Last segment closes the circle exactly — no rounding gap possible
+            $arcLen = [math]::Round($circumference - $cumulativeArc, 4)
+        } else {
+            $arcLen = [math]::Round(($seg.Pct / 100) * $circumference, 4)
+        }
+        $gapLen = [math]::Round($circumference - $arcLen, 4)
         $svg += "<circle class='donut-fill donut-$($seg.Css)' data-segment='$($seg.Css)' cx='$center' cy='$center' r='$radius' fill='none' stroke-width='$StrokeWidth' stroke-dasharray='$arcLen $gapLen' transform='rotate($rotDeg $center $center)'/>"
         $offset += $seg.Pct
+        $cumulativeArc += $arcLen
     }
     $svg += "<text class='donut-text donut-text-sm' x='$center' y='$center' text-anchor='middle' dominant-baseline='central'>$CenterLabel</text>"
     $svg += "</svg>"
