@@ -243,6 +243,7 @@ function Write-Fail { param([string]$M) Write-Host "    x $M" -ForegroundColor M
 function Write-Info { param([string]$M) Write-Host "    . $M" -ForegroundColor White }
 
 function Add-AppRoleAssignment {
+    [CmdletBinding(SupportsShouldProcess)]
     param(
         [string]$PermissionName,
         [string]$Product,
@@ -268,7 +269,7 @@ function Add-AppRoleAssignment {
         return
     }
 
-    if ($PSCmdlet.ShouldProcess($PermissionName, "Add app role assignment")) {
+    if ($PSCmdlet.ShouldProcess($PermissionName, "Add app role assignment ($Reason)")) {
         try {
             New-MgServicePrincipalAppRoleAssignment -ServicePrincipalId $PrincipalId -BodyParameter @{
                 PrincipalId = $PrincipalId
@@ -700,6 +701,7 @@ else {
     Write-Step 'Registering service principal with Power Platform (PS 5.1 child process)...'
     Write-Info 'Microsoft.PowerApps.Administration.PowerShell only supports PS 5.1.'
     Write-Info 'This step runs in a child powershell.exe process. A browser window will open for auth.'
+    if ($PowerPlatformAdminUpn) { Write-Info "Power Platform admin: $PowerPlatformAdminUpn" }
 
     $ppEndpoint = switch ($M365Environment) {
         'gcc'     { 'usgov' }
