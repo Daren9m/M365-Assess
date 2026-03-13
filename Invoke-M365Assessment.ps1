@@ -10,7 +10,7 @@
     Designed for IT consultants assessing SMB clients (10-500 users) with
     Microsoft-based cloud environments.
 .NOTES
-    Version: 0.6.0
+    Version: 0.7.0
     Author:  Daren9m
 .PARAMETER Section
     One or more assessment sections to run. Valid values: Tenant, Identity,
@@ -112,8 +112,8 @@ param(
     [switch]$UseDeviceCode,
 
     [Parameter()]
-    [ValidateSet('aad', 'defender', 'exo', 'powerplatform', 'sharepoint', 'teams')]
-    [string[]]$ScubaProductNames = @('aad', 'defender', 'exo', 'powerplatform', 'sharepoint', 'teams'),
+    [ValidateSet('aad', 'defender', 'exo', 'powerbi', 'powerplatform', 'sharepoint', 'teams')]
+    [string[]]$ScubaProductNames = @('aad', 'defender', 'exo', 'powerbi', 'powerplatform', 'sharepoint', 'teams'),
 
     [Parameter()]
     [ValidateSet('commercial', 'gcc', 'gcchigh', 'dod')]
@@ -131,7 +131,7 @@ $ErrorActionPreference = 'Stop'
 # ------------------------------------------------------------------
 # Version
 # ------------------------------------------------------------------
-$script:AssessmentVersion = '0.6.0'
+$script:AssessmentVersion = '0.7.0'
 
 # Resolve project root for collector and helper paths
 $projectRoot = Split-Path -Parent $PSCommandPath

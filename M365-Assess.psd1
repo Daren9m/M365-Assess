@@ -3,7 +3,7 @@
     # Generated: 2026-03-08
 
     RootModule        = 'Invoke-M365Assessment.ps1'
-    ModuleVersion     = '0.3.0'
+    ModuleVersion     = '0.7.0'
     GUID              = 'f7e3b2a1-4c5d-6e8f-9a0b-1c2d3e4f5a6b'
     Author            = 'Daren9m'
     CompanyName       = 'Community'
@@ -80,7 +80,7 @@
             Tags         = @('Microsoft365', 'M365', 'Security', 'Assessment', 'EntraID', 'Exchange', 'Intune', 'Defender', 'SharePoint', 'Teams', 'ScubaGear', 'CIS')
             LicenseUri   = 'https://github.com/Daren9m/M365-Assess/blob/main/LICENSE'
             ProjectUri   = 'https://github.com/Daren9m/M365-Assess'
-            ReleaseNotes = 'v0.3.0 - Added module manifest, CIS compliance mapping, security config collectors, inventory section, ScubaGear integration'
+            ReleaseNotes = 'v0.7.0 - Expanded automated CIS controls (57 to 62), version alignment, added powerbi ScubaGear product'
         }
     }
 }
