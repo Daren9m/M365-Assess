@@ -3200,7 +3200,8 @@
           "controlId": "CC6.1",
           "evidenceType": "config-export"
         }
-      }
+      },
+      "supersededBy": "CA-MFA-ADMIN-001"
     },
     {
       "checkId": "MANUAL-CIS-5-2-2-2",
@@ -3248,14 +3249,15 @@
           "controlId": "CC6.1",
           "evidenceType": "config-export"
         }
-      }
+      },
+      "supersededBy": "CA-MFA-ALL-001"
     },
     {
       "checkId": "ENTRA-CA-001",
       "name": "Enable Conditional Access policies to block legacy authentication",
       "category": "CA",
       "collector": "Entra",
-      "hasAutomatedCheck": true,
+      "hasAutomatedCheck": false,
       "licensing": {
         "minimum": "E3"
       },
@@ -3296,7 +3298,8 @@
           "controlId": "CC5;CC8.1",
           "evidenceType": "config-export"
         }
-      }
+      },
+      "supersededBy": "CA-LEGACYAUTH-001"
     },
     {
       "checkId": "ENTRA-CA-002",
@@ -3400,7 +3403,8 @@
           "controlId": "CC6.1",
           "evidenceType": "config-export"
         }
-      }
+      },
+      "supersededBy": "CA-SIGNIN-FREQ-001"
     },
     {
       "checkId": "MANUAL-CIS-5-2-2-5",
@@ -3448,7 +3452,8 @@
           "controlId": "CC6.1",
           "evidenceType": "config-export"
         }
-      }
+      },
+      "supersededBy": "CA-PHISHRES-001"
     },
     {
       "checkId": "MANUAL-CIS-5-2-2-6",
@@ -3495,7 +3500,8 @@
           "controlId": "CC6.1;CC6.2;CC6.3",
           "evidenceType": "config-export"
         }
-      }
+      },
+      "supersededBy": "CA-USERRISK-001"
     },
     {
       "checkId": "MANUAL-CIS-5-2-2-7",
@@ -3542,7 +3548,8 @@
           "controlId": "CC6.1;CC6.2;CC6.3",
           "evidenceType": "config-export"
         }
-      }
+      },
+      "supersededBy": "CA-SIGNINRISK-001"
     },
     {
       "checkId": "MANUAL-CIS-5-2-2-8",
@@ -3589,7 +3596,8 @@
           "controlId": "CC6.1;CC6.2;CC6.3",
           "evidenceType": "config-export"
         }
-      }
+      },
+      "supersededBy": "CA-SIGNINRISK-002"
     },
     {
       "checkId": "MANUAL-CIS-5-2-2-9",
@@ -3634,7 +3642,8 @@
           "controlId": "CC6.1;CC6.2;CC6.3",
           "evidenceType": "config-export"
         }
-      }
+      },
+      "supersededBy": "CA-DEVICE-001"
     },
     {
       "checkId": "MANUAL-CIS-5-2-2-10",
@@ -3679,7 +3688,8 @@
           "controlId": "CC6.1;CC6.2;CC6.3",
           "evidenceType": "config-export"
         }
-      }
+      },
+      "supersededBy": "CA-DEVICE-002"
     },
     {
       "checkId": "MANUAL-CIS-5-2-2-11",
@@ -3724,7 +3734,8 @@
           "controlId": "CC6.1",
           "evidenceType": "config-export"
         }
-      }
+      },
+      "supersededBy": "CA-INTUNE-001"
     },
     {
       "checkId": "MANUAL-CIS-5-2-2-12",
@@ -3765,6 +3776,562 @@
         "soc2": {
           "controlId": "CC5;CC8.1",
           "evidenceType": "config-export"
+        }
+      },
+      "supersededBy": "CA-DEVICECODE-001"
+    },
+    {
+      "checkId": "CA-MFA-ADMIN-001",
+      "name": "Ensure multifactor authentication is enabled for all users in administrative roles",
+      "category": "Conditional Access",
+      "collector": "CAEvaluator",
+      "hasAutomatedCheck": true,
+      "licensing": {
+        "minimum": "E3"
+      },
+      "frameworks": {
+        "soc2": {
+          "controlId": "CC6.1",
+          "evidenceType": "config-export"
+        },
+        "iso-27001": {
+          "controlId": "A.8.5"
+        },
+        "cis-m365-v6": {
+          "profiles": [
+            "E3-L1",
+            "E5-L1"
+          ],
+          "controlId": "5.2.2.1",
+          "title": "Ensure multifactor authentication is enabled for all users in administrative roles"
+        },
+        "stig": {
+          "controlId": "V-260337"
+        },
+        "nist-800-53": {
+          "controlId": "IA-2(1);IA-2(2)"
+        },
+        "cisa-scuba": {
+          "controlId": "MS.AAD.3.1v1"
+        },
+        "hipaa": {
+          "controlId": "§164.312(d)"
+        },
+        "cmmc": {
+          "controlId": "3.5.3"
+        },
+        "nist-csf": {
+          "controlId": "PR.AA-03"
+        },
+        "pci-dss": {
+          "controlId": "8.4.1;8.4.2"
+        }
+      }
+    },
+    {
+      "checkId": "CA-MFA-ALL-001",
+      "name": "Ensure multifactor authentication is enabled for all users",
+      "category": "Conditional Access",
+      "collector": "CAEvaluator",
+      "hasAutomatedCheck": true,
+      "licensing": {
+        "minimum": "E3"
+      },
+      "frameworks": {
+        "soc2": {
+          "controlId": "CC6.1",
+          "evidenceType": "config-export"
+        },
+        "iso-27001": {
+          "controlId": "A.8.5"
+        },
+        "cis-m365-v6": {
+          "profiles": [
+            "E3-L1",
+            "E5-L1"
+          ],
+          "controlId": "5.2.2.2",
+          "title": "Ensure multifactor authentication is enabled for all users"
+        },
+        "stig": {
+          "controlId": "V-260337"
+        },
+        "nist-800-53": {
+          "controlId": "IA-2(1);IA-2(2)"
+        },
+        "cisa-scuba": {
+          "controlId": "MS.AAD.3.2v1;MS.AAD.3.3v1"
+        },
+        "hipaa": {
+          "controlId": "§164.312(d)"
+        },
+        "cmmc": {
+          "controlId": "3.5.3"
+        },
+        "nist-csf": {
+          "controlId": "PR.AA-03"
+        },
+        "pci-dss": {
+          "controlId": "8.4.1;8.4.2;8.3.1"
+        }
+      }
+    },
+    {
+      "checkId": "CA-LEGACYAUTH-001",
+      "name": "Enable Conditional Access policies to block legacy authentication",
+      "category": "Conditional Access",
+      "collector": "CAEvaluator",
+      "hasAutomatedCheck": true,
+      "licensing": {
+        "minimum": "E3"
+      },
+      "frameworks": {
+        "soc2": {
+          "controlId": "CC5;CC8.1",
+          "evidenceType": "config-export"
+        },
+        "iso-27001": {
+          "controlId": "A.8.5;A.8.20"
+        },
+        "cis-m365-v6": {
+          "profiles": [
+            "E3-L1",
+            "E5-L1"
+          ],
+          "controlId": "5.2.2.3",
+          "title": "Enable Conditional Access policies to block legacy authentication"
+        },
+        "stig": {
+          "controlId": "V-260338"
+        },
+        "nist-800-53": {
+          "controlId": "CM-7"
+        },
+        "cisa-scuba": {
+          "controlId": "MS.AAD.1.1v1"
+        },
+        "hipaa": {
+          "controlId": "§164.312(d);§164.312(a)(1)"
+        },
+        "cmmc": {
+          "controlId": "3.4.6;3.5.2"
+        },
+        "nist-csf": {
+          "controlId": "PR.AA-03"
+        },
+        "pci-dss": {
+          "controlId": "2.2.x;8.2.x"
+        }
+      }
+    },
+    {
+      "checkId": "CA-SIGNIN-FREQ-001",
+      "name": "Ensure Sign-in frequency is enabled and browser sessions are not persistent for Administrative users",
+      "category": "Conditional Access",
+      "collector": "CAEvaluator",
+      "hasAutomatedCheck": true,
+      "licensing": {
+        "minimum": "E3"
+      },
+      "frameworks": {
+        "soc2": {
+          "controlId": "CC6.1",
+          "evidenceType": "config-export"
+        },
+        "iso-27001": {
+          "controlId": "A.8.1;A.8.5"
+        },
+        "cis-m365-v6": {
+          "profiles": [
+            "E3-L1",
+            "E5-L1"
+          ],
+          "controlId": "5.2.2.4",
+          "title": "Ensure Sign-in frequency is enabled and browser sessions are not persistent for Administrative users"
+        },
+        "nist-800-53": {
+          "controlId": "AC-11;AC-12"
+        },
+        "cisa-scuba": {
+          "controlId": "MS.AAD.7.6v1"
+        },
+        "hipaa": {
+          "controlId": "§164.312(a)(2)(iii);§164.312(d)"
+        },
+        "cmmc": {
+          "controlId": "3.1.10"
+        },
+        "nist-csf": {
+          "controlId": "PR.AA-05"
+        },
+        "pci-dss": {
+          "controlId": "8.2.x"
+        }
+      }
+    },
+    {
+      "checkId": "CA-PHISHRES-001",
+      "name": "Ensure 'Phishing-resistant MFA strength' is required for Administrators",
+      "category": "Conditional Access",
+      "collector": "CAEvaluator",
+      "hasAutomatedCheck": true,
+      "licensing": {
+        "minimum": "E3"
+      },
+      "frameworks": {
+        "soc2": {
+          "controlId": "CC6.1",
+          "evidenceType": "config-export"
+        },
+        "iso-27001": {
+          "controlId": "A.8.5"
+        },
+        "cis-m365-v6": {
+          "profiles": [
+            "E3-L2",
+            "E5-L2"
+          ],
+          "controlId": "5.2.2.5",
+          "title": "Ensure 'Phishing-resistant MFA strength' is required for Administrators"
+        },
+        "stig": {
+          "controlId": "V-260339"
+        },
+        "nist-800-53": {
+          "controlId": "IA-2(1);IA-5c;IA-5g;IA-2(8)"
+        },
+        "cisa-scuba": {
+          "controlId": "MS.AAD.3.1v1"
+        },
+        "hipaa": {
+          "controlId": "§164.312(d)"
+        },
+        "cmmc": {
+          "controlId": "3.5.3"
+        },
+        "nist-csf": {
+          "controlId": "PR.AA-03"
+        },
+        "pci-dss": {
+          "controlId": "8.4.1;8.4.2"
+        }
+      }
+    },
+    {
+      "checkId": "CA-USERRISK-001",
+      "name": "Enable Identity Protection user risk policies",
+      "category": "Conditional Access",
+      "collector": "CAEvaluator",
+      "hasAutomatedCheck": true,
+      "licensing": {
+        "minimum": "E5"
+      },
+      "frameworks": {
+        "soc2": {
+          "controlId": "CC6.1;CC6.2;CC6.3",
+          "evidenceType": "config-export"
+        },
+        "iso-27001": {
+          "controlId": "A.8.5;A.8.16"
+        },
+        "cis-m365-v6": {
+          "profiles": [
+            "E5-L1"
+          ],
+          "controlId": "5.2.2.6",
+          "title": "Enable Identity Protection user risk policies"
+        },
+        "stig": {
+          "controlId": "V-260341"
+        },
+        "nist-800-53": {
+          "controlId": "AC-2(12);AC-2(13)"
+        },
+        "cisa-scuba": {
+          "controlId": "MS.AAD.2.1v1"
+        },
+        "hipaa": {
+          "controlId": "§164.312(d);§164.308(a)(1)(ii)(A)"
+        },
+        "cmmc": {
+          "controlId": "3.1.1;3.5.2"
+        },
+        "nist-csf": {
+          "controlId": "DE.CM-01;PR.AA-03"
+        },
+        "pci-dss": {
+          "controlId": "8.2.x"
+        }
+      }
+    },
+    {
+      "checkId": "CA-SIGNINRISK-001",
+      "name": "Enable Identity Protection sign-in risk policies",
+      "category": "Conditional Access",
+      "collector": "CAEvaluator",
+      "hasAutomatedCheck": true,
+      "licensing": {
+        "minimum": "E5"
+      },
+      "frameworks": {
+        "soc2": {
+          "controlId": "CC6.1;CC6.2;CC6.3",
+          "evidenceType": "config-export"
+        },
+        "iso-27001": {
+          "controlId": "A.8.5;A.8.16"
+        },
+        "cis-m365-v6": {
+          "profiles": [
+            "E5-L1"
+          ],
+          "controlId": "5.2.2.7",
+          "title": "Enable Identity Protection sign-in risk policies"
+        },
+        "stig": {
+          "controlId": "V-260340"
+        },
+        "nist-800-53": {
+          "controlId": "AC-2(12);AC-2(13)"
+        },
+        "cisa-scuba": {
+          "controlId": "MS.AAD.2.3v1"
+        },
+        "hipaa": {
+          "controlId": "§164.312(d);§164.308(a)(1)(ii)(A)"
+        },
+        "cmmc": {
+          "controlId": "3.1.1;3.5.2"
+        },
+        "nist-csf": {
+          "controlId": "DE.CM-01;PR.AA-03"
+        },
+        "pci-dss": {
+          "controlId": "8.2.x"
+        }
+      }
+    },
+    {
+      "checkId": "CA-SIGNINRISK-002",
+      "name": "Ensure 'sign-in risk' is blocked for medium and high risk",
+      "category": "Conditional Access",
+      "collector": "CAEvaluator",
+      "hasAutomatedCheck": true,
+      "licensing": {
+        "minimum": "E5"
+      },
+      "frameworks": {
+        "soc2": {
+          "controlId": "CC6.1;CC6.2;CC6.3",
+          "evidenceType": "config-export"
+        },
+        "iso-27001": {
+          "controlId": "A.8.5;A.8.16"
+        },
+        "cis-m365-v6": {
+          "profiles": [
+            "E5-L2"
+          ],
+          "controlId": "5.2.2.8",
+          "title": "Ensure 'sign-in risk' is blocked for medium and high risk"
+        },
+        "stig": {
+          "controlId": "V-260340"
+        },
+        "nist-800-53": {
+          "controlId": "AC-2(12);AC-2(13)"
+        },
+        "cisa-scuba": {
+          "controlId": "MS.AAD.2.3v1"
+        },
+        "hipaa": {
+          "controlId": "§164.312(d);§164.308(a)(1)(ii)(A)"
+        },
+        "cmmc": {
+          "controlId": "3.1.1;3.5.2"
+        },
+        "nist-csf": {
+          "controlId": "DE.CM-01;PR.AA-03"
+        },
+        "pci-dss": {
+          "controlId": "8.2.x"
+        }
+      }
+    },
+    {
+      "checkId": "CA-DEVICE-001",
+      "name": "Ensure a managed device is required for authentication",
+      "category": "Conditional Access",
+      "collector": "CAEvaluator",
+      "hasAutomatedCheck": true,
+      "licensing": {
+        "minimum": "E3"
+      },
+      "frameworks": {
+        "soc2": {
+          "controlId": "CC6.1;CC6.2;CC6.3",
+          "evidenceType": "config-export"
+        },
+        "iso-27001": {
+          "controlId": "A.8.1;A.8.5"
+        },
+        "cis-m365-v6": {
+          "profiles": [
+            "E3-L1",
+            "E5-L1"
+          ],
+          "controlId": "5.2.2.9",
+          "title": "Ensure a managed device is required for authentication"
+        },
+        "nist-800-53": {
+          "controlId": "AC-20b;IA-3"
+        },
+        "cisa-scuba": {
+          "controlId": "MS.AAD.3.6v1"
+        },
+        "hipaa": {
+          "controlId": "§164.312(d);§164.310(b)"
+        },
+        "cmmc": {
+          "controlId": "3.1.18;3.1.19;3.5.1"
+        },
+        "nist-csf": {
+          "controlId": "PR.AA-03;PR.AA-05"
+        },
+        "pci-dss": {
+          "controlId": "8.2.x;2.2.x"
+        }
+      }
+    },
+    {
+      "checkId": "CA-DEVICE-002",
+      "name": "Ensure a managed device is required to register security information",
+      "category": "Conditional Access",
+      "collector": "CAEvaluator",
+      "hasAutomatedCheck": true,
+      "licensing": {
+        "minimum": "E3"
+      },
+      "frameworks": {
+        "soc2": {
+          "controlId": "CC6.1;CC6.2;CC6.3",
+          "evidenceType": "config-export"
+        },
+        "iso-27001": {
+          "controlId": "A.8.1;A.8.5"
+        },
+        "cis-m365-v6": {
+          "profiles": [
+            "E3-L1",
+            "E5-L1"
+          ],
+          "controlId": "5.2.2.10",
+          "title": "Ensure a managed device is required to register security information"
+        },
+        "nist-800-53": {
+          "controlId": "AC-20b;IA-3"
+        },
+        "cisa-scuba": {
+          "controlId": "MS.AAD.3.7v1"
+        },
+        "hipaa": {
+          "controlId": "§164.312(d);§164.310(b)"
+        },
+        "cmmc": {
+          "controlId": "3.1.18;3.1.19;3.5.1"
+        },
+        "nist-csf": {
+          "controlId": "PR.AA-03;PR.AA-05"
+        },
+        "pci-dss": {
+          "controlId": "8.2.x;2.2.x"
+        }
+      }
+    },
+    {
+      "checkId": "CA-INTUNE-001",
+      "name": "Ensure sign-in frequency for Intune Enrollment is set to 'Every time'",
+      "category": "Conditional Access",
+      "collector": "CAEvaluator",
+      "hasAutomatedCheck": true,
+      "licensing": {
+        "minimum": "E3"
+      },
+      "frameworks": {
+        "soc2": {
+          "controlId": "CC6.1",
+          "evidenceType": "config-export"
+        },
+        "iso-27001": {
+          "controlId": "A.8.1;A.8.5"
+        },
+        "cis-m365-v6": {
+          "profiles": [
+            "E3-L1",
+            "E5-L1"
+          ],
+          "controlId": "5.2.2.11",
+          "title": "Ensure sign-in frequency for Intune Enrollment is set to 'Every time'"
+        },
+        "nist-800-53": {
+          "controlId": "AC-11;IA-2(1)"
+        },
+        "cisa-scuba": {
+          "controlId": "MS.AAD.3.8v1"
+        },
+        "hipaa": {
+          "controlId": "§164.312(d);§164.312(a)(2)(iii)"
+        },
+        "cmmc": {
+          "controlId": "3.1.10;3.5.3"
+        },
+        "nist-csf": {
+          "controlId": "PR.AA-03;PR.AA-05"
+        },
+        "pci-dss": {
+          "controlId": "8.2.x"
+        }
+      }
+    },
+    {
+      "checkId": "CA-DEVICECODE-001",
+      "name": "Ensure the device code sign-in flow is blocked",
+      "category": "Conditional Access",
+      "collector": "CAEvaluator",
+      "hasAutomatedCheck": true,
+      "licensing": {
+        "minimum": "E3"
+      },
+      "frameworks": {
+        "cis-m365-v6": {
+          "profiles": [
+            "E3-L1",
+            "E5-L1"
+          ],
+          "controlId": "5.2.2.12",
+          "title": "Ensure the device code sign-in flow is blocked"
+        },
+        "cmmc": {
+          "controlId": "3.4.6;3.5.2"
+        },
+        "soc2": {
+          "controlId": "CC5;CC8.1",
+          "evidenceType": "config-export"
+        },
+        "nist-800-53": {
+          "controlId": "CM-7"
+        },
+        "hipaa": {
+          "controlId": "§164.312(d);§164.312(a)(1)"
+        },
+        "nist-csf": {
+          "controlId": "PR.AA-03"
+        },
+        "iso-27001": {
+          "controlId": "A.8.5;A.8.20"
+        },
+        "pci-dss": {
+          "controlId": "2.2.x;8.2.x"
         }
       }
     },

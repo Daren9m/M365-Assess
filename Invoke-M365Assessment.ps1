@@ -10,7 +10,7 @@
     Designed for IT consultants assessing SMB clients (10-500 users) with
     Microsoft-based cloud environments.
 .NOTES
-    Version: 0.7.0
+    Version: 0.8.0
     Author:  Daren9m
 .PARAMETER Section
     One or more assessment sections to run. Valid values: Tenant, Identity,
@@ -131,7 +131,7 @@ $ErrorActionPreference = 'Stop'
 # ------------------------------------------------------------------
 # Version
 # ------------------------------------------------------------------
-$script:AssessmentVersion = '0.7.0'
+$script:AssessmentVersion = '0.8.0'
 
 # Resolve project root for collector and helper paths
 $projectRoot = Split-Path -Parent $PSCommandPath
@@ -938,6 +938,7 @@ $collectorMap = [ordered]@{
         @{ Name = '06-App-Registrations';      Script = 'Entra\Get-AppRegistrationReport.ps1';     Label = 'App Registrations' }
         @{ Name = '07-Password-Policy';        Script = 'Entra\Get-PasswordPolicyReport.ps1';      Label = 'Password Policy' }
         @{ Name = '07b-Entra-Security-Config'; Script = 'Entra\Get-EntraSecurityConfig.ps1';       Label = 'Entra Security Config' }
+        @{ Name = '07c-CA-Security-Config';   Script = 'Entra\Get-CASecurityConfig.ps1';         Label = 'CA Policy Evaluation' }
     )
     'Licensing' = @(
         @{ Name = '08-License-Summary'; Script = 'Entra\Get-LicenseReport.ps1'; Label = 'License Summary'; Params = @{} }

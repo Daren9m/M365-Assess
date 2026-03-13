@@ -20,6 +20,7 @@
 # ── Map registry collector names to section names and display labels ──
 $script:CollectorSectionMap = @{
     'Entra'          = 'Identity'
+    'CAEvaluator'    = 'Identity'
     'ExchangeOnline' = 'Email'
     'Defender'       = 'Security'
     'Compliance'     = 'Security'
@@ -29,6 +30,7 @@ $script:CollectorSectionMap = @{
 
 $script:CollectorLabelMap = @{
     'Entra'          = 'Entra Security Config'
+    'CAEvaluator'    = 'CA Policy Evaluation'
     'ExchangeOnline' = 'EXO Security Config'
     'Defender'       = 'Defender Security Config'
     'Compliance'     = 'Compliance Security Config'
@@ -37,7 +39,7 @@ $script:CollectorLabelMap = @{
 }
 
 # Ordered list for consistent display
-$script:CollectorOrder = @('Entra', 'ExchangeOnline', 'Defender', 'Compliance', 'SharePoint', 'Teams')
+$script:CollectorOrder = @('Entra', 'CAEvaluator', 'ExchangeOnline', 'Defender', 'Compliance', 'SharePoint', 'Teams')
 
 function Initialize-CheckProgress {
     <#

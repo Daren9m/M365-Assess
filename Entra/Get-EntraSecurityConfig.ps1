@@ -23,7 +23,7 @@
 
     Exports the security configuration to CSV.
 .NOTES
-    Version: 0.7.0
+    Version: 0.8.0
     Author:  Daren9m
     Settings checked are aligned with CIS Microsoft 365 Foundations Benchmark v6.0.1 recommendations.
 #>
@@ -453,22 +453,6 @@ try {
         -CheckId 'ENTRA-CA-003' `
         -Remediation 'Run: Get-MgIdentityConditionalAccessPolicy | Where-Object {$_.State -eq ''enabled''}. Ensure policies are set to On, not Report-only.'
 
-    # 11b. CA Policy Blocks Legacy Authentication (CIS 5.2.2.3)
-    $legacyBlockPolicies = @($caPolicies['value'] | Where-Object {
-        $_['state'] -eq 'enabled' -and
-        $_['conditions']['clientAppTypes'] -contains 'exchangeActiveSync' -or
-        $_['conditions']['clientAppTypes'] -contains 'other'
-    } | Where-Object {
-        $_['grantControls']['builtInControls'] -contains 'block'
-    })
-    $legacyBlockCount = $legacyBlockPolicies.Count
-
-    Add-Setting -Category 'Conditional Access' -Setting 'CA Policy Blocks Legacy Authentication' `
-        -CurrentValue $(if ($legacyBlockCount -gt 0) { "Yes ($legacyBlockCount policy)" } else { 'No' }) `
-        -RecommendedValue 'Yes' `
-        -Status $(if ($legacyBlockCount -gt 0) { 'Pass' } else { 'Fail' }) `
-        -CheckId 'ENTRA-CA-001' `
-        -Remediation 'Run: New-MgIdentityConditionalAccessPolicy targeting legacy client apps with Block grant control. Entra admin center > Protection > Conditional Access.'
 }
 catch {
     Write-Warning "Could not check CA policies: $_"

@@ -43,7 +43,7 @@ Describe 'Control Registry Integrity' {
     It 'CheckId format matches convention {COLLECTOR}-{AREA}-{NNN} for automated checks' {
         $automated = $checks | Where-Object { $_.hasAutomatedCheck -eq $true }
         foreach ($check in $automated) {
-            $check.checkId | Should -Match '^[A-Z]+-[A-Z]+-\d{3}$' `
+            $check.checkId | Should -Match '^[A-Z]+(-[A-Z]+)+-\d{3}$' `
                 -Because "$($check.checkId) must follow naming convention"
         }
     }
