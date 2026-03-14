@@ -96,7 +96,7 @@ All CheckIds live in `controls/registry.json`. Each entry contains:
 | `ExchangeOnline` | `Exchange-Online/Get-ExoSecurityConfig.ps1` | Email |
 | `DNS` | `Exchange-Online/Get-DnsSecurityConfig.ps1` | Email |
 | `Defender` | `Security/Get-DefenderSecurityConfig.ps1` | Security |
-| `Compliance` | `Purview/Get-ComplianceSecurityConfig.ps1` | Security |
+| `Compliance` | `Security/Get-ComplianceSecurityConfig.ps1` | Security |
 | `Intune` | `Intune/Get-IntuneSecurityConfig.ps1` | Intune |
 | `SharePoint` | `Collaboration/Get-SharePointSecurityConfig.ps1` | Collaboration |
 | `Teams` | `Collaboration/Get-TeamsSecurityConfig.ps1` | Collaboration |
