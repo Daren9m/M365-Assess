@@ -1073,7 +1073,8 @@
           "controlId": "CC6.1;CC6.2;CC6.3;CC6.8;CC7.1",
           "evidenceType": "config-export"
         }
-      }
+      },
+      "supersededBy": "DNS-SPF-001"
     },
     {
       "checkId": "MANUAL-CIS-2-1-9",
@@ -1118,7 +1119,8 @@
           "controlId": "CC6.1;CC6.7",
           "evidenceType": "config-export"
         }
-      }
+      },
+      "supersededBy": "DNS-DKIM-001"
     },
     {
       "checkId": "MANUAL-CIS-2-1-10",
@@ -1163,7 +1165,8 @@
           "controlId": "CC6.8;CC7.1;CC7.2",
           "evidenceType": "config-export"
         }
-      }
+      },
+      "supersededBy": "DNS-DMARC-001"
     },
     {
       "checkId": "MANUAL-CIS-2-1-11",
@@ -1205,7 +1208,8 @@
           "controlId": "CC5;CC6.8;CC7.1;CC8.1",
           "evidenceType": "config-export"
         }
-      }
+      },
+      "supersededBy": "DEFENDER-MALWARE-002"
     },
     {
       "checkId": "EXO-CONNFILTER-001",
@@ -1417,7 +1421,8 @@
           "controlId": "CC6.8;CC7.1",
           "evidenceType": "config-export"
         }
-      }
+      },
+      "supersededBy": "DEFENDER-ANTISPAM-002"
     },
     {
       "checkId": "DEFENDER-OUTBOUND-001",
@@ -1500,7 +1505,8 @@
           "controlId": "CC5;CC6.8;CC7.1;CC8.1",
           "evidenceType": "config-export"
         }
-      }
+      },
+      "supersededBy": "DEFENDER-PRIORITY-001"
     },
     {
       "checkId": "MANUAL-CIS-2-4-2",
@@ -1541,7 +1547,8 @@
           "controlId": "CC5;CC6.8;CC7.1;CC8.1",
           "evidenceType": "config-export"
         }
-      }
+      },
+      "supersededBy": "DEFENDER-PRIORITY-002"
     },
     {
       "checkId": "MANUAL-CIS-2-4-3",
@@ -1623,7 +1630,8 @@
           "controlId": "CC6.8;CC7.1",
           "evidenceType": "config-export"
         }
-      }
+      },
+      "supersededBy": "DEFENDER-ZAP-001"
     },
     {
       "checkId": "COMPLIANCE-AUDIT-001",
@@ -8581,6 +8589,311 @@
         },
         "soc2": {
           "controlId": "CC6.1;CC6.3",
+          "evidenceType": "config-export"
+        }
+      }
+    },
+    {
+      "checkId": "DNS-SPF-001",
+      "name": "Ensure that SPF records are published for all Exchange Domains",
+      "category": "SPF",
+      "collector": "DNS",
+      "hasAutomatedCheck": true,
+      "licensing": {
+        "minimum": "E3"
+      },
+      "frameworks": {
+        "cis-m365-v6": {
+          "controlId": "2.1.8",
+          "title": "Ensure that SPF records are published for all Exchange Domains",
+          "profiles": [
+            "E3-L1",
+            "E5-L1"
+          ]
+        },
+        "nist-csf": {
+          "controlId": "PR.DS-02"
+        },
+        "nist-800-53": {
+          "controlId": "SI-8;SC-7"
+        },
+        "iso-27001": {
+          "controlId": "A.8.23;A.8.24"
+        },
+        "cisa-scuba": {
+          "controlId": "MS.EXO.4.1v1"
+        },
+        "soc2": {
+          "controlId": "CC6.1;CC6.8",
+          "evidenceType": "config-export"
+        }
+      }
+    },
+    {
+      "checkId": "DNS-DKIM-001",
+      "name": "Ensure DKIM is enabled for all Exchange Online Domains",
+      "category": "DKIM",
+      "collector": "DNS",
+      "hasAutomatedCheck": true,
+      "licensing": {
+        "minimum": "E3"
+      },
+      "frameworks": {
+        "cis-m365-v6": {
+          "controlId": "2.1.9",
+          "title": "Ensure DKIM is enabled for all Exchange Online Domains",
+          "profiles": [
+            "E3-L1",
+            "E5-L1"
+          ]
+        },
+        "nist-csf": {
+          "controlId": "PR.DS-02"
+        },
+        "nist-800-53": {
+          "controlId": "SI-8;SC-7"
+        },
+        "iso-27001": {
+          "controlId": "A.8.23;A.8.24"
+        },
+        "cisa-scuba": {
+          "controlId": "MS.EXO.5.1v1"
+        },
+        "soc2": {
+          "controlId": "CC6.1;CC6.8",
+          "evidenceType": "config-export"
+        }
+      }
+    },
+    {
+      "checkId": "DNS-DMARC-001",
+      "name": "Ensure that DMARC Records are published for all Exchange Domains",
+      "category": "DMARC",
+      "collector": "DNS",
+      "hasAutomatedCheck": true,
+      "licensing": {
+        "minimum": "E3"
+      },
+      "frameworks": {
+        "cis-m365-v6": {
+          "controlId": "2.1.10",
+          "title": "Ensure that DMARC Records are published for all Exchange Domains",
+          "profiles": [
+            "E3-L1",
+            "E5-L1"
+          ]
+        },
+        "nist-csf": {
+          "controlId": "PR.DS-02"
+        },
+        "nist-800-53": {
+          "controlId": "SI-8;SC-7"
+        },
+        "iso-27001": {
+          "controlId": "A.8.23;A.8.24"
+        },
+        "cisa-scuba": {
+          "controlId": "MS.EXO.4.2v1;MS.EXO.4.3v1"
+        },
+        "soc2": {
+          "controlId": "CC6.1;CC6.8",
+          "evidenceType": "config-export"
+        }
+      }
+    },
+    {
+      "checkId": "DEFENDER-MALWARE-002",
+      "name": "Ensure comprehensive attachment filtering is applied",
+      "category": "MALWARE",
+      "collector": "Defender",
+      "hasAutomatedCheck": true,
+      "licensing": {
+        "minimum": "E3"
+      },
+      "frameworks": {
+        "cis-m365-v6": {
+          "controlId": "2.1.11",
+          "title": "Ensure comprehensive attachment filtering is applied",
+          "profiles": [
+            "E3-L2",
+            "E5-L2"
+          ]
+        },
+        "nist-csf": {
+          "controlId": "DE.CM-09"
+        },
+        "nist-800-53": {
+          "controlId": "SI-3;CM-6a"
+        },
+        "iso-27001": {
+          "controlId": "A.8.7;A.8.23"
+        },
+        "soc2": {
+          "controlId": "CC5;CC6.8;CC7.1;CC8.1",
+          "evidenceType": "config-export"
+        }
+      }
+    },
+    {
+      "checkId": "DEFENDER-ANTISPAM-002",
+      "name": "Ensure no allowed domains are configured in anti-spam policies",
+      "category": "ANTISPAM",
+      "collector": "Defender",
+      "hasAutomatedCheck": true,
+      "licensing": {
+        "minimum": "E3"
+      },
+      "frameworks": {
+        "cis-m365-v6": {
+          "controlId": "2.1.14",
+          "title": "Ensure no allowed domains are configured in anti-spam policies",
+          "profiles": [
+            "E3-L1",
+            "E5-L1"
+          ]
+        },
+        "nist-csf": {
+          "controlId": "DE.CM-09"
+        },
+        "nist-800-53": {
+          "controlId": "SI-8;CM-6a"
+        },
+        "iso-27001": {
+          "controlId": "A.8.23"
+        },
+        "soc2": {
+          "controlId": "CC5;CC6.8;CC7.1",
+          "evidenceType": "config-export"
+        }
+      }
+    },
+    {
+      "checkId": "DEFENDER-PRIORITY-001",
+      "name": "Ensure priority account protection is enabled",
+      "category": "PRIORITY",
+      "collector": "Defender",
+      "hasAutomatedCheck": true,
+      "licensing": {
+        "minimum": "E3"
+      },
+      "frameworks": {
+        "cis-m365-v6": {
+          "controlId": "2.4.1",
+          "title": "Ensure Priority account protection is enabled and configured",
+          "profiles": [
+            "E3-L1",
+            "E5-L1"
+          ]
+        },
+        "nist-csf": {
+          "controlId": "PR.AC-04"
+        },
+        "nist-800-53": {
+          "controlId": "AC-6;SI-4"
+        },
+        "iso-27001": {
+          "controlId": "A.8.2;A.8.7"
+        },
+        "soc2": {
+          "controlId": "CC6.1;CC6.3",
+          "evidenceType": "config-export"
+        }
+      }
+    },
+    {
+      "checkId": "DEFENDER-PRIORITY-002",
+      "name": "Ensure strict preset security policy is applied to priority accounts",
+      "category": "PRIORITY",
+      "collector": "Defender",
+      "hasAutomatedCheck": true,
+      "licensing": {
+        "minimum": "E3"
+      },
+      "frameworks": {
+        "cis-m365-v6": {
+          "controlId": "2.4.2",
+          "title": "Ensure the Strict Preset Security Policy is applied to Priority accounts",
+          "profiles": [
+            "E3-L1",
+            "E5-L1"
+          ]
+        },
+        "nist-csf": {
+          "controlId": "PR.AC-04"
+        },
+        "nist-800-53": {
+          "controlId": "AC-6;SI-4"
+        },
+        "iso-27001": {
+          "controlId": "A.8.2;A.8.7"
+        },
+        "soc2": {
+          "controlId": "CC6.1;CC6.3",
+          "evidenceType": "config-export"
+        }
+      }
+    },
+    {
+      "checkId": "DEFENDER-ZAP-001",
+      "name": "Ensure Zero-hour Auto Purge for Teams is enabled",
+      "category": "ZAP",
+      "collector": "Defender",
+      "hasAutomatedCheck": true,
+      "licensing": {
+        "minimum": "E5"
+      },
+      "frameworks": {
+        "cis-m365-v6": {
+          "controlId": "2.4.4",
+          "title": "Ensure Zero-hour auto purge for Microsoft Teams is on",
+          "profiles": [
+            "E5-L1"
+          ]
+        },
+        "nist-csf": {
+          "controlId": "DE.CM-09"
+        },
+        "nist-800-53": {
+          "controlId": "SI-3;SI-8"
+        },
+        "iso-27001": {
+          "controlId": "A.8.7;A.8.23"
+        },
+        "soc2": {
+          "controlId": "CC5;CC7.1",
+          "evidenceType": "config-export"
+        }
+      }
+    },
+    {
+      "checkId": "EXO-DIRECTSEND-001",
+      "name": "Ensure Direct Send is not allowed for unauthorized relay",
+      "category": "DIRECTSEND",
+      "collector": "ExchangeOnline",
+      "hasAutomatedCheck": true,
+      "licensing": {
+        "minimum": "E3"
+      },
+      "frameworks": {
+        "cis-m365-v6": {
+          "controlId": "6.5.5",
+          "title": "Ensure Direct Send is not configured to allow external senders to relay through Exchange Online",
+          "profiles": [
+            "E3-L1",
+            "E5-L1"
+          ]
+        },
+        "nist-csf": {
+          "controlId": "PR.AC-03"
+        },
+        "nist-800-53": {
+          "controlId": "SC-7;AC-17"
+        },
+        "iso-27001": {
+          "controlId": "A.8.20;A.8.23"
+        },
+        "soc2": {
+          "controlId": "CC6.1;CC6.6",
           "evidenceType": "config-export"
         }
       }

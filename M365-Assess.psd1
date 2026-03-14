@@ -43,6 +43,7 @@
         'Exchange-Online\Get-MailFlowReport.ps1'
         'Exchange-Online\Get-EmailSecurityReport.ps1'
         'Exchange-Online\Get-ExoSecurityConfig.ps1'
+        'Exchange-Online\Get-DnsSecurityConfig.ps1'
         'Exchange-Online\Get-MailboxPermissionReport.ps1'
         'Intune\Get-DeviceSummary.ps1'
         'Intune\Get-CompliancePolicyReport.ps1'

@@ -385,6 +385,54 @@ catch {
 }
 
 # ------------------------------------------------------------------
+# 12. Direct Send / Unauthenticated Relay (CIS 6.5.5)
+# ------------------------------------------------------------------
+try {
+    $connectorAvailable = Get-Command -Name Get-InboundConnector -ErrorAction SilentlyContinue
+    if ($connectorAvailable) {
+        Write-Verbose "Checking inbound connectors for unauthenticated relay..."
+        $inboundConnectors = Get-InboundConnector -ErrorAction Stop
+        $relayConnectors = @($inboundConnectors | Where-Object {
+            $_.Enabled -eq $true -and
+            $_.RequireTls -eq $false -and
+            $_.RestrictDomainsToIPAddresses -eq $false
+        })
+
+        if ($relayConnectors.Count -eq 0) {
+            Add-Setting -Category 'Mail Flow' `
+                -Setting 'Inbound Connectors - Unauthenticated Relay' `
+                -CurrentValue 'No unauthenticated relay connectors found' `
+                -RecommendedValue 'No open relay connectors' `
+                -Status 'Pass' `
+                -CheckId 'EXO-DIRECTSEND-001' `
+                -Remediation 'No action needed.'
+        }
+        else {
+            $connectorNames = ($relayConnectors | ForEach-Object { $_.Name }) -join ', '
+            Add-Setting -Category 'Mail Flow' `
+                -Setting 'Inbound Connectors - Unauthenticated Relay' `
+                -CurrentValue "$($relayConnectors.Count) connectors without TLS/domain restriction: $connectorNames" `
+                -RecommendedValue 'No open relay connectors' `
+                -Status 'Fail' `
+                -CheckId 'EXO-DIRECTSEND-001' `
+                -Remediation "Review inbound connectors: $connectorNames. Require TLS and restrict to specific sender domains/IPs. Exchange admin center > Mail flow > Connectors."
+        }
+    }
+    else {
+        Add-Setting -Category 'Mail Flow' `
+            -Setting 'Inbound Connectors - Unauthenticated Relay' `
+            -CurrentValue 'Get-InboundConnector not available' `
+            -RecommendedValue 'No open relay connectors' `
+            -Status 'Review' `
+            -CheckId 'EXO-DIRECTSEND-001' `
+            -Remediation 'Connect to Exchange Online PowerShell to check inbound connector configuration.'
+    }
+}
+catch {
+    Write-Warning "Could not check inbound connectors: $_"
+}
+
+# ------------------------------------------------------------------
 # Output
 # ------------------------------------------------------------------
 $report = @($settings)

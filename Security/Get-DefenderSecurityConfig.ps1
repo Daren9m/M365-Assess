@@ -536,6 +536,195 @@ catch {
 }
 
 # ------------------------------------------------------------------
+# 7. Comprehensive Attachment Filter (CIS 2.1.11)
+# ------------------------------------------------------------------
+try {
+    Write-Verbose "Checking comprehensive attachment filter file types..."
+    # Reuse $malwarePolicies from section 3 if available
+    if ($malwarePolicies) {
+        $defaultMalware = $malwarePolicies | Where-Object { $_.IsDefault }
+        if ($defaultMalware) {
+            $fileTypes = @($defaultMalware.FileTypes)
+            # CIS 2.1.11 L2 requires comprehensive coverage of dangerous extensions
+            $requiredTypes = @('ace','ani','apk','app','cab','cmd','com','deb','dmg','exe',
+                'hta','img','iso','jar','js','jse','lnk','msi','pif','ps1','reg','rgs',
+                'scr','sct','vb','vbe','vbs','vhd','vxd','wsc','wsf','wsh')
+            $missing = @($requiredTypes | Where-Object { $fileTypes -notcontains $_ })
+
+            if ($fileTypes.Count -ge 30 -and $missing.Count -eq 0) {
+                Add-Setting -Category 'Anti-Malware' `
+                    -Setting 'Comprehensive Attachment Filter (Default)' `
+                    -CurrentValue "$($fileTypes.Count) file types blocked" `
+                    -RecommendedValue '30+ dangerous types blocked' `
+                    -Status 'Pass' `
+                    -CheckId 'DEFENDER-MALWARE-002' `
+                    -Remediation 'No action needed.'
+            }
+            else {
+                $missingStr = if ($missing.Count -gt 0) { " Missing: $($missing -join ', ')" } else { '' }
+                Add-Setting -Category 'Anti-Malware' `
+                    -Setting 'Comprehensive Attachment Filter (Default)' `
+                    -CurrentValue "$($fileTypes.Count) types blocked.$missingStr" `
+                    -RecommendedValue '30+ dangerous types blocked' `
+                    -Status 'Fail' `
+                    -CheckId 'DEFENDER-MALWARE-002' `
+                    -Remediation "Add missing file types via: Set-MalwareFilterPolicy -Identity Default -FileTypes @{Add='ext1','ext2'}. Security admin center > Anti-malware > Default policy > Common attachments filter > Customize file types."
+            }
+        }
+    }
+}
+catch {
+    Write-Warning "Could not check comprehensive attachment filter: $_"
+}
+
+# ------------------------------------------------------------------
+# 8. Anti-Spam Allowed Domains (CIS 2.1.14)
+# ------------------------------------------------------------------
+try {
+    Write-Verbose "Checking anti-spam allowed sender domains..."
+    # Reuse $antiSpamPolicies from section 2 if available
+    if ($antiSpamPolicies) {
+        foreach ($policy in @($antiSpamPolicies)) {
+            $policyLabel = if ($policy.IsDefault) { 'Default' } else { $policy.Name }
+            $allowedDomains = @($policy.AllowedSenderDomains)
+
+            if ($allowedDomains.Count -eq 0) {
+                Add-Setting -Category 'Anti-Spam' `
+                    -Setting "Allowed Sender Domains ($policyLabel)" `
+                    -CurrentValue '0 allowed domains' `
+                    -RecommendedValue 'No allowed domains' `
+                    -Status 'Pass' `
+                    -CheckId 'DEFENDER-ANTISPAM-002' `
+                    -Remediation 'No action needed.'
+            }
+            else {
+                $domainList = ($allowedDomains | Select-Object -First 10) -join ', '
+                $suffix = if ($allowedDomains.Count -gt 10) { " (+$($allowedDomains.Count - 10) more)" } else { '' }
+                Add-Setting -Category 'Anti-Spam' `
+                    -Setting "Allowed Sender Domains ($policyLabel)" `
+                    -CurrentValue "$($allowedDomains.Count) domains: $domainList$suffix" `
+                    -RecommendedValue 'No allowed domains' `
+                    -Status 'Fail' `
+                    -CheckId 'DEFENDER-ANTISPAM-002' `
+                    -Remediation "Remove allowed sender domains: Set-HostedContentFilterPolicy -Identity '$policyLabel' -AllowedSenderDomains @{}. Security admin center > Anti-spam > Inbound policy > Allowed senders and domains > Remove all entries."
+            }
+
+            if (-not $policy.IsDefault) { continue }
+        }
+    }
+}
+catch {
+    Write-Warning "Could not check anti-spam allowed domains: $_"
+}
+
+# ------------------------------------------------------------------
+# 9. Priority Account Protection (CIS 2.4.1, 2.4.2)
+# ------------------------------------------------------------------
+try {
+    $eopRuleAvailable = Get-Command -Name Get-EOPProtectionPolicyRule -ErrorAction SilentlyContinue
+    if ($eopRuleAvailable) {
+        Write-Verbose "Checking priority account protection..."
+        $eopRules = Get-EOPProtectionPolicyRule -ErrorAction Stop
+
+        # CIS 2.4.1 - Priority account protection is configured
+        $strictRule = $eopRules | Where-Object { $_.Identity -match 'Strict' }
+        $standardRule = $eopRules | Where-Object { $_.Identity -match 'Standard' }
+        $hasPreset = ($null -ne $strictRule) -or ($null -ne $standardRule)
+
+        Add-Setting -Category 'Priority Accounts' `
+            -Setting 'Preset Security Policies Configured' `
+            -CurrentValue $(if ($hasPreset) { 'Preset policies found' } else { 'No preset policies' }) `
+            -RecommendedValue 'Strict or Standard preset policy configured' `
+            -Status $(if ($hasPreset) { 'Pass' } else { 'Fail' }) `
+            -CheckId 'DEFENDER-PRIORITY-001' `
+            -Remediation 'Configure preset security policies in Security admin center > Preset security policies > Strict or Standard protection > Assign users/groups.'
+
+        # CIS 2.4.2 - Strict preset applies to priority-tagged users
+        if ($strictRule) {
+            $hasSentTo = ($strictRule.SentTo.Count -gt 0) -or
+                         ($strictRule.SentToMemberOf.Count -gt 0) -or
+                         ($strictRule.RecipientDomainIs.Count -gt 0)
+            Add-Setting -Category 'Priority Accounts' `
+                -Setting 'Strict Preset Covers Priority Users' `
+                -CurrentValue $(if ($hasSentTo) { 'Strict policy has targeted users/groups' } else { 'Strict policy has no targeted recipients' }) `
+                -RecommendedValue 'Strict preset targets priority accounts' `
+                -Status $(if ($hasSentTo) { 'Pass' } else { 'Warning' }) `
+                -CheckId 'DEFENDER-PRIORITY-002' `
+                -Remediation 'Assign priority account users to the Strict preset policy. Security admin center > Preset security policies > Strict protection > Manage protection settings > Add users or groups.'
+        }
+        else {
+            Add-Setting -Category 'Priority Accounts' `
+                -Setting 'Strict Preset Covers Priority Users' `
+                -CurrentValue 'No strict preset policy found' `
+                -RecommendedValue 'Strict preset targets priority accounts' `
+                -Status 'Fail' `
+                -CheckId 'DEFENDER-PRIORITY-002' `
+                -Remediation 'Enable the Strict preset security policy and assign priority accounts. Security admin center > Preset security policies > Strict protection.'
+        }
+    }
+    else {
+        Add-Setting -Category 'Priority Accounts' `
+            -Setting 'Preset Security Policies Configured' `
+            -CurrentValue 'Get-EOPProtectionPolicyRule not available' `
+            -RecommendedValue 'Strict or Standard preset policy' `
+            -Status 'Review' `
+            -CheckId 'DEFENDER-PRIORITY-001' `
+            -Remediation 'Connect to Exchange Online PowerShell to check preset security policy rules.'
+        Add-Setting -Category 'Priority Accounts' `
+            -Setting 'Strict Preset Covers Priority Users' `
+            -CurrentValue 'Get-EOPProtectionPolicyRule not available' `
+            -RecommendedValue 'Strict preset targets priority accounts' `
+            -Status 'Review' `
+            -CheckId 'DEFENDER-PRIORITY-002' `
+            -Remediation 'Connect to Exchange Online PowerShell to check preset security policy rules.'
+    }
+}
+catch {
+    Write-Warning "Could not check priority account protection: $_"
+}
+
+# ------------------------------------------------------------------
+# 10. ZAP for Teams (CIS 2.4.4)
+# ------------------------------------------------------------------
+try {
+    # ZAP for Teams is a newer capability; check via Get-AtpPolicyForO365
+    $atpO365AvailableZap = Get-Command -Name Get-AtpPolicyForO365 -ErrorAction SilentlyContinue
+    if ($atpO365AvailableZap) {
+        $atpPolicyZap = Get-AtpPolicyForO365 -ErrorAction Stop
+        if ($null -ne $atpPolicyZap.ZapEnabled) {
+            Add-Setting -Category 'Zero-Hour Auto Purge' `
+                -Setting 'ZAP for Teams' `
+                -CurrentValue "$($atpPolicyZap.ZapEnabled)" `
+                -RecommendedValue 'True' `
+                -Status $(if ($atpPolicyZap.ZapEnabled) { 'Pass' } else { 'Fail' }) `
+                -CheckId 'DEFENDER-ZAP-001' `
+                -Remediation 'Enable ZAP for Teams in Security admin center > Settings > Zero-hour auto purge > Teams.'
+        }
+        else {
+            Add-Setting -Category 'Zero-Hour Auto Purge' `
+                -Setting 'ZAP for Teams' `
+                -CurrentValue 'Property not available on current license' `
+                -RecommendedValue 'Defender for Office 365 with Teams ZAP' `
+                -Status 'Review' `
+                -CheckId 'DEFENDER-ZAP-001' `
+                -Remediation 'ZAP for Teams requires Defender for Office 365 Plan 2. Verify license and check Security admin center > Settings > Zero-hour auto purge.'
+        }
+    }
+    else {
+        Add-Setting -Category 'Zero-Hour Auto Purge' `
+            -Setting 'ZAP for Teams' `
+            -CurrentValue 'Not licensed (Defender for Office 365 required)' `
+            -RecommendedValue 'Defender for Office 365 with Teams ZAP' `
+            -Status 'Review' `
+            -CheckId 'DEFENDER-ZAP-001' `
+            -Remediation 'ZAP for Teams requires Defender for Office 365. Upgrade license to enable this capability.'
+    }
+}
+catch {
+    Write-Warning "Could not check ZAP for Teams: $_"
+}
+
+# ------------------------------------------------------------------
 # Output
 # ------------------------------------------------------------------
 $report = @($settings)

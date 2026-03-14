@@ -948,6 +948,7 @@ $collectorMap = [ordered]@{
         @{ Name = '10-Mail-Flow';        Script = 'Exchange-Online\Get-MailFlowReport.ps1';       Label = 'Mail Flow' }
         @{ Name = '11-Email-Security';   Script = 'Exchange-Online\Get-EmailSecurityReport.ps1';  Label = 'Email Security' }
         @{ Name = '11b-EXO-Security-Config'; Script = 'Exchange-Online\Get-ExoSecurityConfig.ps1'; Label = 'EXO Security Config' }
+        @{ Name = '12b-DNS-Security-Config'; Script = 'Exchange-Online\Get-DnsSecurityConfig.ps1'; Label = 'DNS Security Config' }
     )
     'Intune' = @(
         @{ Name = '13-Device-Summary';       Script = 'Intune\Get-DeviceSummary.ps1';             Label = 'Device Summary' }
