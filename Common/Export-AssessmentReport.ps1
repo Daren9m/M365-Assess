@@ -37,7 +37,7 @@
 
     Generates a report with the specified tenant name on the cover page.
 .NOTES
-    Version: 0.8.1
+    Version: 0.8.4
     Author:  Daren9m
 #>
 [CmdletBinding()]
@@ -138,10 +138,10 @@ if (Test-Path -Path $userSummaryCsv) {
 # The $controlRegistry hashtable is keyed by CheckId and contains framework data.
 
 if (-not $TenantName) {
-    if ($tenantData -and $tenantData[0].PSObject.Properties.Name -contains 'OrgDisplayName') {
+    if ($tenantData -and @($tenantData).Count -gt 0 -and $tenantData[0].PSObject.Properties.Name -contains 'OrgDisplayName') {
         $TenantName = $tenantData[0].OrgDisplayName
     }
-    elseif ($tenantData -and $tenantData[0].PSObject.Properties.Name -contains 'DefaultDomain') {
+    elseif ($tenantData -and @($tenantData).Count -gt 0 -and $tenantData[0].PSObject.Properties.Name -contains 'DefaultDomain') {
         $TenantName = $tenantData[0].DefaultDomain
     }
     else {
@@ -153,7 +153,7 @@ if (-not $TenantName) {
 # (avoids fragile CSV-scanning; the main script already resolved it from TenantId or Graph)
 
 # Read assessment version and cloud environment from log if available
-$assessmentVersion = '0.8.1'
+$assessmentVersion = '0.8.4'
 $cloudEnvironment = 'commercial'
 # Find the log file (may have domain suffix, e.g., _Assessment-Log_contoso.txt)
 $logFile = Get-ChildItem -Path $AssessmentFolder -Filter '_Assessment-Log*.txt' -ErrorAction SilentlyContinue | Select-Object -First 1
@@ -492,7 +492,7 @@ foreach ($sectionName in $sections) {
     # ------------------------------------------------------------------
     # Tenant Info — non-collapsible organization profile card
     # ------------------------------------------------------------------
-    if ($sectionName -eq 'Tenant' -and $tenantData) {
+    if ($sectionName -eq 'Tenant' -and $tenantData -and @($tenantData).Count -gt 0) {
         $t = $tenantData[0]
         $props = @($t.PSObject.Properties.Name)
         $orgName = if ($props -contains 'OrgDisplayName') { $t.OrgDisplayName } else { $TenantName }
