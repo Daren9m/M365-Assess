@@ -940,6 +940,200 @@ elseif (-not $pimAvailable) {
 }
 
 # ------------------------------------------------------------------
+# 23. Cloud-Only Admin Accounts (CIS 1.1.1)
+# ------------------------------------------------------------------
+try {
+    Write-Verbose "Checking Global Administrator accounts for cloud-only status..."
+    $gaRoleTemplateId = '62e90394-69f5-4237-9190-012177145e10'
+    $gaMembers = Invoke-MgGraphRequest -Method GET `
+        -Uri "/v1.0/directoryRoles/roleTemplateId=$gaRoleTemplateId/members?`$select=displayName,userPrincipalName,onPremisesSyncEnabled" `
+        -ErrorAction Stop
+
+    $syncedAdmins = @($gaMembers['value'] | Where-Object { $_['onPremisesSyncEnabled'] -eq $true })
+
+    if ($syncedAdmins.Count -eq 0) {
+        Add-Setting -Category 'Admin Accounts' -Setting 'Cloud-Only Global Admins' `
+            -CurrentValue "All $($gaMembers['value'].Count) GA accounts are cloud-only" `
+            -RecommendedValue 'All admin accounts cloud-only' `
+            -Status 'Pass' `
+            -CheckId 'ENTRA-CLOUDADMIN-001' `
+            -Remediation 'No action needed.'
+    }
+    else {
+        $syncedNames = ($syncedAdmins | ForEach-Object { $_['displayName'] }) -join ', '
+        Add-Setting -Category 'Admin Accounts' -Setting 'Cloud-Only Global Admins' `
+            -CurrentValue "$($syncedAdmins.Count) synced: $syncedNames" `
+            -RecommendedValue 'All admin accounts cloud-only' `
+            -Status 'Fail' `
+            -CheckId 'ENTRA-CLOUDADMIN-001' `
+            -Remediation 'Create cloud-only admin accounts instead of using on-premises synced accounts. Entra admin center > Users > New user > Create user (cloud identity).'
+    }
+}
+catch {
+    Write-Warning "Could not check cloud-only admin accounts: $_"
+}
+
+# ------------------------------------------------------------------
+# 24. Admin License Footprint (CIS 1.1.4)
+# ------------------------------------------------------------------
+try {
+    Write-Verbose "Checking admin account license assignments..."
+    $gaRoleTemplateId = '62e90394-69f5-4237-9190-012177145e10'
+    $gaUsersLicense = Invoke-MgGraphRequest -Method GET `
+        -Uri "/v1.0/directoryRoles/roleTemplateId=$gaRoleTemplateId/members?`$select=displayName,assignedLicenses" `
+        -ErrorAction Stop
+
+    # E3/E5 SKU part IDs (productivity suites that admins shouldn't have)
+    $productivitySkus = @(
+        '05e9a617-0261-4cee-bb36-b42c3d50e6a0',  # SPE_E3 (M365 E3)
+        '06ebc4ee-1bb5-47dd-8120-11324bc54e06',  # SPE_E5 (M365 E5)
+        '6fd2c87f-b296-42f0-b197-1e91e994b900',  # ENTERPRISEPACK (O365 E3)
+        'c7df2760-2c81-4ef7-b578-5b5392b571df'   # ENTERPRISEPREMIUM (O365 E5)
+    )
+
+    $heavyLicensed = @($gaUsersLicense['value'] | Where-Object {
+        $licenses = $_['assignedLicenses']
+        $licenses | Where-Object { $productivitySkus -contains $_['skuId'] }
+    })
+
+    if ($heavyLicensed.Count -eq 0) {
+        Add-Setting -Category 'Admin Accounts' -Setting 'Admin License Footprint' `
+            -CurrentValue 'No GA accounts have full productivity licenses' `
+            -RecommendedValue 'Admins use minimal license (Entra P2 only)' `
+            -Status 'Pass' `
+            -CheckId 'ENTRA-CLOUDADMIN-002' `
+            -Remediation 'No action needed.'
+    }
+    else {
+        $names = ($heavyLicensed | ForEach-Object { $_['displayName'] }) -join ', '
+        Add-Setting -Category 'Admin Accounts' -Setting 'Admin License Footprint' `
+            -CurrentValue "$($heavyLicensed.Count) GA with productivity license: $names" `
+            -RecommendedValue 'Admins use minimal license (Entra P2 only)' `
+            -Status 'Warning' `
+            -CheckId 'ENTRA-CLOUDADMIN-002' `
+            -Remediation 'Assign admin accounts minimal licenses (Entra ID P2). Do not assign E3/E5 productivity suites. M365 admin center > Users > Active users > Licenses.'
+    }
+}
+catch {
+    Write-Warning "Could not check admin license footprint: $_"
+}
+
+# ------------------------------------------------------------------
+# 25. Public Groups Have Owners (CIS 1.2.1)
+# ------------------------------------------------------------------
+try {
+    Write-Verbose "Checking public M365 groups for owner assignment..."
+    $publicGroups = Invoke-MgGraphRequest -Method GET `
+        -Uri "/v1.0/groups?`$filter=visibility eq 'Public' and groupTypes/any(g:g eq 'Unified')&`$select=displayName,id&`$top=100" `
+        -ErrorAction Stop
+
+    $noOwnerGroups = @()
+    foreach ($group in $publicGroups['value']) {
+        $owners = Invoke-MgGraphRequest -Method GET `
+            -Uri "/v1.0/groups/$($group['id'])/owners?`$select=id" -ErrorAction SilentlyContinue
+        if (-not $owners['value'] -or $owners['value'].Count -eq 0) {
+            $noOwnerGroups += $group['displayName']
+        }
+    }
+
+    if ($noOwnerGroups.Count -eq 0) {
+        Add-Setting -Category 'Group Management' -Setting 'Public Groups Have Owners' `
+            -CurrentValue "$($publicGroups['value'].Count) public groups, all have owners" `
+            -RecommendedValue 'All public groups have assigned owners' `
+            -Status 'Pass' `
+            -CheckId 'ENTRA-GROUP-003' `
+            -Remediation 'No action needed.'
+    }
+    else {
+        $groupList = ($noOwnerGroups | Select-Object -First 5) -join ', '
+        $suffix = if ($noOwnerGroups.Count -gt 5) { " (+$($noOwnerGroups.Count - 5) more)" } else { '' }
+        Add-Setting -Category 'Group Management' -Setting 'Public Groups Have Owners' `
+            -CurrentValue "$($noOwnerGroups.Count) groups without owners: $groupList$suffix" `
+            -RecommendedValue 'All public groups have assigned owners' `
+            -Status 'Fail' `
+            -CheckId 'ENTRA-GROUP-003' `
+            -Remediation 'Assign owners to ownerless public M365 groups. Entra admin center > Groups > All groups > select group > Owners > Add owners.'
+    }
+}
+catch {
+    Write-Warning "Could not check public group owners: $_"
+}
+
+# ------------------------------------------------------------------
+# 26. User Owned Apps Restricted (CIS 1.3.4)
+# ------------------------------------------------------------------
+try {
+    Write-Verbose "Checking user consent for apps..."
+    $consentPolicy = Invoke-MgGraphRequest -Method GET `
+        -Uri '/v1.0/policies/authorizationPolicy' -ErrorAction Stop
+
+    $consentSetting = $consentPolicy['defaultUserRolePermissions']['permissionGrantPoliciesAssigned']
+    $isRestricted = ($null -eq $consentSetting) -or ($consentSetting.Count -eq 0) -or
+                    ($consentSetting -notcontains 'ManagePermissionGrantsForSelf.microsoft-user-default-legacy')
+
+    Add-Setting -Category 'Organization Settings' -Setting 'User Consent for Applications' `
+        -CurrentValue $(if ($isRestricted) { 'Restricted' } else { "Allowed: $($consentSetting -join ', ')" }) `
+        -RecommendedValue 'Do not allow user consent' `
+        -Status $(if ($isRestricted) { 'Pass' } else { 'Fail' }) `
+        -CheckId 'ENTRA-ORGSETTING-001' `
+        -Remediation 'Entra admin center > Enterprise applications > Consent and permissions > User consent settings > Do not allow user consent.'
+}
+catch {
+    Write-Warning "Could not check user app consent: $_"
+}
+
+# ------------------------------------------------------------------
+# 27. Password Protection On-Premises (CIS 5.2.3.3)
+# ------------------------------------------------------------------
+try {
+    Write-Verbose "Checking password protection on-premises setting..."
+    # Reuse $pwSettings from section 8 if available
+    if ($pwSettings) {
+        $onPremEnabled = ($pwSettings['values'] | Where-Object { $_['name'] -eq 'EnableBannedPasswordCheckOnPremises' })['value']
+        Add-Setting -Category 'Password Management' -Setting 'Password Protection On-Premises' `
+            -CurrentValue "$onPremEnabled" -RecommendedValue 'True' `
+            -Status $(if ($onPremEnabled -eq 'True') { 'Pass' } else { 'Fail' }) `
+            -CheckId 'ENTRA-PASSWORD-005' `
+            -Remediation 'Entra admin center > Protection > Authentication methods > Password protection > Enable password protection on Windows Server Active Directory > Yes.'
+    }
+    else {
+        Add-Setting -Category 'Password Management' -Setting 'Password Protection On-Premises' `
+            -CurrentValue 'Password Rule Settings not available' `
+            -RecommendedValue 'True' `
+            -Status 'Review' `
+            -CheckId 'ENTRA-PASSWORD-005' `
+            -Remediation 'Entra admin center > Protection > Authentication methods > Password protection. Verify on-premises password protection is enabled.'
+    }
+}
+catch {
+    Write-Warning "Could not check password protection on-premises: $_"
+}
+
+# ------------------------------------------------------------------
+# 28-30. Organization Settings (Review-only CIS 1.3.5, 1.3.7, 1.3.9)
+# ------------------------------------------------------------------
+Add-Setting -Category 'Organization Settings' -Setting 'Forms Internal Phishing Protection' `
+    -CurrentValue 'Cannot be checked via API' `
+    -RecommendedValue 'Enabled' `
+    -Status 'Review' `
+    -CheckId 'ENTRA-ORGSETTING-002' `
+    -Remediation 'M365 admin center > Settings > Org settings > Microsoft Forms > ensure internal phishing protection is enabled.'
+
+Add-Setting -Category 'Organization Settings' -Setting 'Third-Party Storage in M365 Web Apps' `
+    -CurrentValue 'Cannot be checked via API' `
+    -RecommendedValue 'Restricted (all third-party storage disabled)' `
+    -Status 'Review' `
+    -CheckId 'ENTRA-ORGSETTING-003' `
+    -Remediation 'M365 admin center > Settings > Org settings > Microsoft 365 on the web > uncheck all third-party storage services.'
+
+Add-Setting -Category 'Organization Settings' -Setting 'Shared Bookings Pages Restricted' `
+    -CurrentValue 'Cannot be checked via API' `
+    -RecommendedValue 'Restricted to selected users' `
+    -Status 'Review' `
+    -CheckId 'ENTRA-ORGSETTING-004' `
+    -Remediation 'M365 admin center > Settings > Org settings > Bookings > restrict shared booking pages to selected staff members.'
+
+# ------------------------------------------------------------------
 # Output results
 # ------------------------------------------------------------------
 $report = @($settings)

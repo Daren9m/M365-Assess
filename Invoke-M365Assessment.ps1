@@ -954,6 +954,7 @@ $collectorMap = [ordered]@{
         @{ Name = '13-Device-Summary';       Script = 'Intune\Get-DeviceSummary.ps1';             Label = 'Device Summary' }
         @{ Name = '14-Compliance-Policies';  Script = 'Intune\Get-CompliancePolicyReport.ps1';    Label = 'Compliance Policies' }
         @{ Name = '15-Config-Profiles';      Script = 'Intune\Get-ConfigProfileReport.ps1';       Label = 'Config Profiles' }
+        @{ Name = '15b-Intune-Security-Config'; Script = 'Intune\Get-IntuneSecurityConfig.ps1'; Label = 'Intune Security Config'; RequiredServices = @('Graph') }
     )
     'Security' = @(
         @{ Name = '16-Secure-Score';       Script = 'Security\Get-SecureScoreReport.ps1';   Label = 'Secure Score'; HasSecondary = $true; SecondaryName = '17-Improvement-Actions'; RequiredServices = @('Graph') }

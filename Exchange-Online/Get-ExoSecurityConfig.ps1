@@ -385,7 +385,65 @@ catch {
 }
 
 # ------------------------------------------------------------------
-# 12. Direct Send / Unauthenticated Relay (CIS 6.5.5)
+# 12. Shared Mailbox Sign-In Blocked (CIS 1.2.2)
+# ------------------------------------------------------------------
+try {
+    Write-Verbose "Checking shared mailbox sign-in status..."
+    $sharedMailboxes = Get-Mailbox -RecipientTypeDetails SharedMailbox -ResultSize 100 -ErrorAction Stop
+
+    if ($sharedMailboxes.Count -eq 0) {
+        Add-Setting -Category 'Mailbox Security' `
+            -Setting 'Shared Mailbox Sign-In Blocked' `
+            -CurrentValue 'No shared mailboxes found' `
+            -RecommendedValue 'All shared mailbox accounts disabled' `
+            -Status 'Pass' `
+            -CheckId 'EXO-SHAREDMBX-001' `
+            -Remediation 'No action needed.'
+    }
+    else {
+        $enabledAccounts = @()
+        foreach ($mbx in $sharedMailboxes) {
+            try {
+                $mgUser = Invoke-MgGraphRequest -Method GET `
+                    -Uri "/v1.0/users/$($mbx.UserPrincipalName)?`$select=accountEnabled" `
+                    -ErrorAction SilentlyContinue
+                if ($mgUser -and $mgUser['accountEnabled'] -eq $true) {
+                    $enabledAccounts += $mbx.UserPrincipalName
+                }
+            }
+            catch {
+                Write-Verbose "Could not resolve user $($mbx.UserPrincipalName): $_"
+            }
+        }
+
+        if ($enabledAccounts.Count -eq 0) {
+            Add-Setting -Category 'Mailbox Security' `
+                -Setting 'Shared Mailbox Sign-In Blocked' `
+                -CurrentValue "All $($sharedMailboxes.Count) shared mailbox accounts disabled" `
+                -RecommendedValue 'All shared mailbox accounts disabled' `
+                -Status 'Pass' `
+                -CheckId 'EXO-SHAREDMBX-001' `
+                -Remediation 'No action needed.'
+        }
+        else {
+            $upnList = ($enabledAccounts | Select-Object -First 5) -join ', '
+            $suffix = if ($enabledAccounts.Count -gt 5) { " (+$($enabledAccounts.Count - 5) more)" } else { '' }
+            Add-Setting -Category 'Mailbox Security' `
+                -Setting 'Shared Mailbox Sign-In Blocked' `
+                -CurrentValue "$($enabledAccounts.Count)/$($sharedMailboxes.Count) enabled: $upnList$suffix" `
+                -RecommendedValue 'All shared mailbox accounts disabled' `
+                -Status 'Fail' `
+                -CheckId 'EXO-SHAREDMBX-001' `
+                -Remediation 'Block sign-in for shared mailbox accounts: Set-AzureADUser -ObjectId <UPN> -AccountEnabled $false. Entra admin center > Users > select shared mailbox user > Properties > Account enabled > No.'
+        }
+    }
+}
+catch {
+    Write-Warning "Could not check shared mailbox sign-in: $_"
+}
+
+# ------------------------------------------------------------------
+# 13. Direct Send / Unauthenticated Relay (CIS 6.5.5)
 # ------------------------------------------------------------------
 try {
     $connectorAvailable = Get-Command -Name Get-InboundConnector -ErrorAction SilentlyContinue

@@ -25,6 +25,7 @@ $script:CollectorSectionMap = @{
     'DNS'            = 'Email'
     'Defender'       = 'Security'
     'Compliance'     = 'Security'
+    'Intune'         = 'Intune'
     'SharePoint'     = 'Collaboration'
     'Teams'          = 'Collaboration'
 }
@@ -36,12 +37,13 @@ $script:CollectorLabelMap = @{
     'DNS'            = 'DNS Security Config'
     'Defender'       = 'Defender Security Config'
     'Compliance'     = 'Compliance Security Config'
+    'Intune'         = 'Intune Security Config'
     'SharePoint'     = 'SharePoint Security Config'
     'Teams'          = 'Teams Security Config'
 }
 
 # Ordered list for consistent display
-$script:CollectorOrder = @('Entra', 'CAEvaluator', 'ExchangeOnline', 'DNS', 'Defender', 'Compliance', 'SharePoint', 'Teams')
+$script:CollectorOrder = @('Entra', 'CAEvaluator', 'ExchangeOnline', 'DNS', 'Defender', 'Compliance', 'Intune', 'SharePoint', 'Teams')
 
 function Initialize-CheckProgress {
     <#

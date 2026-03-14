@@ -49,6 +49,7 @@
         'Intune\Get-CompliancePolicyReport.ps1'
         'Intune\Get-ConfigProfileReport.ps1'
         'Intune\Get-DeviceComplianceReport.ps1'
+        'Intune\Get-IntuneSecurityConfig.ps1'
         'Security\Get-SecureScoreReport.ps1'
         'Security\Get-DefenderPolicyReport.ps1'
         'Security\Get-DefenderSecurityConfig.ps1'

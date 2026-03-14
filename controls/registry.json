@@ -48,7 +48,8 @@
           "controlId": "CC6.1;CC6.2;CC6.3",
           "evidenceType": "config-export"
         }
-      }
+      },
+      "supersededBy": "ENTRA-CLOUDADMIN-001"
     },
     {
       "checkId": "MANUAL-CIS-1-1-2",
@@ -220,7 +221,8 @@
           "controlId": "CC6.1;CC6.3",
           "evidenceType": "config-export"
         }
-      }
+      },
+      "supersededBy": "ENTRA-CLOUDADMIN-002"
     },
     {
       "checkId": "MANUAL-CIS-1-2-1",
@@ -262,7 +264,8 @@
           "controlId": "CC5;CC6.1;CC6.3;CC8.1",
           "evidenceType": "config-export"
         }
-      }
+      },
+      "supersededBy": "ENTRA-GROUP-003"
     },
     {
       "checkId": "MANUAL-CIS-1-2-2",
@@ -304,7 +307,8 @@
           "controlId": "CC6.1;CC6.2;CC6.3",
           "evidenceType": "config-export"
         }
-      }
+      },
+      "supersededBy": "EXO-SHAREDMBX-001"
     },
     {
       "checkId": "ENTRA-PASSWORD-001",
@@ -475,7 +479,8 @@
           "controlId": "CC5;CC8.1",
           "evidenceType": "config-export"
         }
-      }
+      },
+      "supersededBy": "ENTRA-ORGSETTING-001"
     },
     {
       "checkId": "MANUAL-CIS-1-3-5",
@@ -517,7 +522,8 @@
           "controlId": "CC6.8;CC7.1",
           "evidenceType": "config-export"
         }
-      }
+      },
+      "supersededBy": "ENTRA-ORGSETTING-002"
     },
     {
       "checkId": "EXO-LOCKBOX-001",
@@ -600,7 +606,8 @@
           "controlId": "CC5;CC6.1;CC6.7;CC8.1",
           "evidenceType": "config-export"
         }
-      }
+      },
+      "supersededBy": "ENTRA-ORGSETTING-003"
     },
     {
       "checkId": "MANUAL-CIS-1-3-8",
@@ -684,7 +691,8 @@
           "controlId": "CC6.1;CC6.2;CC6.3",
           "evidenceType": "config-export"
         }
-      }
+      },
+      "supersededBy": "ENTRA-ORGSETTING-004"
     },
     {
       "checkId": "DEFENDER-SAFELINKS-001",
@@ -2023,7 +2031,8 @@
           "controlId": "CC5;CC8.1",
           "evidenceType": "config-export"
         }
-      }
+      },
+      "supersededBy": "INTUNE-COMPLIANCE-001"
     },
     {
       "checkId": "MANUAL-CIS-4-2",
@@ -2065,7 +2074,8 @@
           "controlId": "CC5;CC8.1",
           "evidenceType": "config-export"
         }
-      }
+      },
+      "supersededBy": "INTUNE-ENROLL-001"
     },
     {
       "checkId": "MANUAL-CIS-5-1-2-1",
@@ -4546,7 +4556,8 @@
           "controlId": "CC6.1",
           "evidenceType": "config-export"
         }
-      }
+      },
+      "supersededBy": "ENTRA-PASSWORD-005"
     },
     {
       "checkId": "ENTRA-MFA-001",
@@ -6416,7 +6427,8 @@
           "controlId": "CC6.1;CC6.2;CC6.3",
           "evidenceType": "config-export"
         }
-      }
+      },
+      "supersededBy": "SPO-B2B-001"
     },
     {
       "checkId": "SPO-SHARING-001",
@@ -6500,7 +6512,8 @@
           "controlId": "CC6.1;CC6.2;CC6.3",
           "evidenceType": "config-export"
         }
-      }
+      },
+      "supersededBy": "SPO-OD-001"
     },
     {
       "checkId": "SPO-SHARING-002",
@@ -6835,7 +6848,8 @@
           "controlId": "CC6.8;CC7.1",
           "evidenceType": "config-export"
         }
-      }
+      },
+      "supersededBy": "SPO-MALWARE-002"
     },
     {
       "checkId": "SPO-SYNC-001",
@@ -7487,7 +7501,8 @@
           "controlId": "CC5;CC8.1",
           "evidenceType": "config-export"
         }
-      }
+      },
+      "supersededBy": "TEAMS-APPS-002"
     },
     {
       "checkId": "TEAMS-MEETING-001",
@@ -8129,7 +8144,8 @@
           "controlId": "CC7.1;CC7.2",
           "evidenceType": "config-export"
         }
-      }
+      },
+      "supersededBy": "TEAMS-REPORTING-001"
     },
     {
       "checkId": "MANUAL-CIS-9-1-1",
@@ -8894,6 +8910,534 @@
         },
         "soc2": {
           "controlId": "CC6.1;CC6.6",
+          "evidenceType": "config-export"
+        }
+      }
+    },
+    {
+      "checkId": "ENTRA-CLOUDADMIN-001",
+      "name": "Ensure Administrative accounts are cloud-only",
+      "category": "CLOUDADMIN",
+      "collector": "Entra",
+      "hasAutomatedCheck": true,
+      "licensing": {
+        "minimum": "E3"
+      },
+      "frameworks": {
+        "cis-m365-v6": {
+          "controlId": "1.1.1",
+          "title": "Ensure Administrative accounts are cloud-only",
+          "profiles": [
+            "E3-L1",
+            "E5-L1"
+          ]
+        },
+        "nist-csf": {
+          "controlId": "PR.AC-01"
+        },
+        "nist-800-53": {
+          "controlId": "AC-2;AC-6"
+        },
+        "iso-27001": {
+          "controlId": "A.8.2;A.8.5"
+        },
+        "soc2": {
+          "controlId": "CC6.1;CC6.3",
+          "evidenceType": "config-export"
+        }
+      }
+    },
+    {
+      "checkId": "ENTRA-CLOUDADMIN-002",
+      "name": "Ensure administrative accounts use licenses with a reduced application footprint",
+      "category": "CLOUDADMIN",
+      "collector": "Entra",
+      "hasAutomatedCheck": true,
+      "licensing": {
+        "minimum": "E3"
+      },
+      "frameworks": {
+        "cis-m365-v6": {
+          "controlId": "1.1.4",
+          "title": "Ensure administrative accounts use licenses with a reduced application footprint",
+          "profiles": [
+            "E3-L1",
+            "E5-L1"
+          ]
+        },
+        "nist-csf": {
+          "controlId": "PR.AC-04"
+        },
+        "nist-800-53": {
+          "controlId": "AC-6;CM-7"
+        },
+        "iso-27001": {
+          "controlId": "A.8.2"
+        },
+        "soc2": {
+          "controlId": "CC6.1;CC6.3",
+          "evidenceType": "config-export"
+        }
+      }
+    },
+    {
+      "checkId": "ENTRA-GROUP-003",
+      "name": "Ensure that all public M365 groups have assigned owners",
+      "category": "GROUP",
+      "collector": "Entra",
+      "hasAutomatedCheck": true,
+      "licensing": {
+        "minimum": "E3"
+      },
+      "frameworks": {
+        "cis-m365-v6": {
+          "controlId": "1.2.1",
+          "title": "Ensure that only organizationally managed/approved public groups exist",
+          "profiles": [
+            "E3-L2",
+            "E5-L2"
+          ]
+        },
+        "nist-csf": {
+          "controlId": "PR.AC-04"
+        },
+        "nist-800-53": {
+          "controlId": "AC-2;AC-6"
+        },
+        "iso-27001": {
+          "controlId": "A.8.2;A.8.3"
+        },
+        "soc2": {
+          "controlId": "CC6.1;CC6.3",
+          "evidenceType": "config-export"
+        }
+      }
+    },
+    {
+      "checkId": "EXO-SHAREDMBX-001",
+      "name": "Ensure sign-in to shared mailboxes is blocked",
+      "category": "SHAREDMBX",
+      "collector": "ExchangeOnline",
+      "hasAutomatedCheck": true,
+      "licensing": {
+        "minimum": "E3"
+      },
+      "frameworks": {
+        "cis-m365-v6": {
+          "controlId": "1.2.2",
+          "title": "Ensure sign-in to shared mailboxes is blocked",
+          "profiles": [
+            "E3-L1",
+            "E5-L1"
+          ]
+        },
+        "nist-csf": {
+          "controlId": "PR.AC-01"
+        },
+        "nist-800-53": {
+          "controlId": "AC-2;AC-6"
+        },
+        "iso-27001": {
+          "controlId": "A.8.2;A.8.5"
+        },
+        "soc2": {
+          "controlId": "CC6.1;CC6.3",
+          "evidenceType": "config-export"
+        }
+      }
+    },
+    {
+      "checkId": "ENTRA-ORGSETTING-001",
+      "name": "Ensure user consent to apps is not allowed",
+      "category": "ORGSETTING",
+      "collector": "Entra",
+      "hasAutomatedCheck": true,
+      "licensing": {
+        "minimum": "E3"
+      },
+      "frameworks": {
+        "cis-m365-v6": {
+          "controlId": "1.3.4",
+          "title": "Ensure user consent to apps accessing company data on their behalf is not allowed",
+          "profiles": [
+            "E3-L1",
+            "E5-L1"
+          ]
+        },
+        "nist-csf": {
+          "controlId": "PR.AC-04"
+        },
+        "nist-800-53": {
+          "controlId": "AC-3;CM-7"
+        },
+        "iso-27001": {
+          "controlId": "A.8.9;A.8.19"
+        },
+        "soc2": {
+          "controlId": "CC6.1;CC6.3",
+          "evidenceType": "config-export"
+        }
+      }
+    },
+    {
+      "checkId": "ENTRA-ORGSETTING-002",
+      "name": "Ensure internal phishing protection for Forms is enabled",
+      "category": "ORGSETTING",
+      "collector": "Entra",
+      "hasAutomatedCheck": true,
+      "licensing": {
+        "minimum": "E3"
+      },
+      "frameworks": {
+        "cis-m365-v6": {
+          "controlId": "1.3.5",
+          "title": "Ensure internal phishing protection for Forms is enabled",
+          "profiles": [
+            "E3-L2",
+            "E5-L2"
+          ]
+        },
+        "nist-csf": {
+          "controlId": "PR.AT-01"
+        },
+        "nist-800-53": {
+          "controlId": "SI-3;SI-8"
+        },
+        "iso-27001": {
+          "controlId": "A.8.7;A.8.23"
+        },
+        "soc2": {
+          "controlId": "CC5;CC7.1",
+          "evidenceType": "config-export"
+        }
+      }
+    },
+    {
+      "checkId": "ENTRA-ORGSETTING-003",
+      "name": "Ensure third-party storage services are restricted in M365 on the web",
+      "category": "ORGSETTING",
+      "collector": "Entra",
+      "hasAutomatedCheck": true,
+      "licensing": {
+        "minimum": "E3"
+      },
+      "frameworks": {
+        "cis-m365-v6": {
+          "controlId": "1.3.7",
+          "title": "Ensure 'third-party storage services' are restricted in 'Microsoft 365 on the web'",
+          "profiles": [
+            "E3-L1",
+            "E5-L1"
+          ]
+        },
+        "nist-csf": {
+          "controlId": "PR.DS-01"
+        },
+        "nist-800-53": {
+          "controlId": "AC-3;SC-8"
+        },
+        "iso-27001": {
+          "controlId": "A.8.10;A.8.11"
+        },
+        "soc2": {
+          "controlId": "CC6.1;CC6.7",
+          "evidenceType": "config-export"
+        }
+      }
+    },
+    {
+      "checkId": "ENTRA-ORGSETTING-004",
+      "name": "Ensure shared bookings pages are restricted to select users",
+      "category": "ORGSETTING",
+      "collector": "Entra",
+      "hasAutomatedCheck": true,
+      "licensing": {
+        "minimum": "E3"
+      },
+      "frameworks": {
+        "cis-m365-v6": {
+          "controlId": "1.3.9",
+          "title": "Ensure shared bookings pages are restricted to select users",
+          "profiles": [
+            "E3-L2",
+            "E5-L2"
+          ]
+        },
+        "nist-csf": {
+          "controlId": "PR.AC-04"
+        },
+        "nist-800-53": {
+          "controlId": "AC-3;AC-6"
+        },
+        "iso-27001": {
+          "controlId": "A.8.3;A.8.9"
+        },
+        "soc2": {
+          "controlId": "CC6.1;CC6.3",
+          "evidenceType": "config-export"
+        }
+      }
+    },
+    {
+      "checkId": "ENTRA-PASSWORD-005",
+      "name": "Ensure Azure AD Password Protection is enabled for on-premises",
+      "category": "PASSWORD",
+      "collector": "Entra",
+      "hasAutomatedCheck": true,
+      "licensing": {
+        "minimum": "E3"
+      },
+      "frameworks": {
+        "cis-m365-v6": {
+          "controlId": "5.2.3.3",
+          "title": "Ensure the Azure AD 'Password protection' feature for on-premises Active Directory is enabled",
+          "profiles": [
+            "E3-L1",
+            "E5-L1"
+          ]
+        },
+        "nist-csf": {
+          "controlId": "PR.AC-01"
+        },
+        "nist-800-53": {
+          "controlId": "IA-5"
+        },
+        "iso-27001": {
+          "controlId": "A.8.5"
+        },
+        "soc2": {
+          "controlId": "CC6.1",
+          "evidenceType": "config-export"
+        }
+      }
+    },
+    {
+      "checkId": "INTUNE-COMPLIANCE-001",
+      "name": "Ensure devices without a compliance policy are marked not compliant",
+      "category": "COMPLIANCE",
+      "collector": "Intune",
+      "hasAutomatedCheck": true,
+      "licensing": {
+        "minimum": "E3"
+      },
+      "frameworks": {
+        "cis-m365-v6": {
+          "controlId": "4.1",
+          "title": "Ensure devices without a compliance policy are marked 'not compliant'",
+          "profiles": [
+            "E3-L1",
+            "E5-L1"
+          ]
+        },
+        "nist-csf": {
+          "controlId": "PR.IP-01"
+        },
+        "nist-800-53": {
+          "controlId": "CM-6;CM-7"
+        },
+        "iso-27001": {
+          "controlId": "A.8.1;A.8.9"
+        },
+        "soc2": {
+          "controlId": "CC5;CC6.1",
+          "evidenceType": "config-export"
+        }
+      }
+    },
+    {
+      "checkId": "INTUNE-ENROLL-001",
+      "name": "Ensure device enrollment for personally owned devices is blocked by default",
+      "category": "ENROLL",
+      "collector": "Intune",
+      "hasAutomatedCheck": true,
+      "licensing": {
+        "minimum": "E3"
+      },
+      "frameworks": {
+        "cis-m365-v6": {
+          "controlId": "4.2",
+          "title": "Ensure device enrollment for personally owned devices is blocked by default",
+          "profiles": [
+            "E3-L2",
+            "E5-L2"
+          ]
+        },
+        "nist-csf": {
+          "controlId": "PR.AC-03"
+        },
+        "nist-800-53": {
+          "controlId": "AC-19;CM-7"
+        },
+        "iso-27001": {
+          "controlId": "A.8.1;A.8.9"
+        },
+        "soc2": {
+          "controlId": "CC6.1;CC6.6",
+          "evidenceType": "config-export"
+        }
+      }
+    },
+    {
+      "checkId": "SPO-B2B-001",
+      "name": "Ensure SharePoint and OneDrive integration with Azure AD B2B is enabled",
+      "category": "B2B",
+      "collector": "SharePoint",
+      "hasAutomatedCheck": true,
+      "licensing": {
+        "minimum": "E3"
+      },
+      "frameworks": {
+        "cis-m365-v6": {
+          "controlId": "7.2.2",
+          "title": "Ensure SharePoint and OneDrive integration with Azure AD B2B is enabled",
+          "profiles": [
+            "E3-L1",
+            "E5-L1"
+          ]
+        },
+        "nist-csf": {
+          "controlId": "PR.AC-04"
+        },
+        "nist-800-53": {
+          "controlId": "AC-3;IA-8"
+        },
+        "iso-27001": {
+          "controlId": "A.8.3;A.8.5"
+        },
+        "soc2": {
+          "controlId": "CC6.1;CC6.3",
+          "evidenceType": "config-export"
+        }
+      }
+    },
+    {
+      "checkId": "SPO-OD-001",
+      "name": "Ensure OneDrive content sharing is restricted",
+      "category": "OD",
+      "collector": "SharePoint",
+      "hasAutomatedCheck": true,
+      "licensing": {
+        "minimum": "E3"
+      },
+      "frameworks": {
+        "cis-m365-v6": {
+          "controlId": "7.2.4",
+          "title": "Ensure OneDrive content sharing is restricted",
+          "profiles": [
+            "E3-L2",
+            "E5-L2"
+          ]
+        },
+        "nist-csf": {
+          "controlId": "PR.DS-05"
+        },
+        "nist-800-53": {
+          "controlId": "AC-3;AC-21"
+        },
+        "iso-27001": {
+          "controlId": "A.8.10;A.8.12"
+        },
+        "soc2": {
+          "controlId": "CC6.1;CC6.6",
+          "evidenceType": "config-export"
+        }
+      }
+    },
+    {
+      "checkId": "SPO-MALWARE-002",
+      "name": "Ensure that infected files cannot be downloaded from SharePoint Online",
+      "category": "MALWARE",
+      "collector": "SharePoint",
+      "hasAutomatedCheck": true,
+      "licensing": {
+        "minimum": "E3"
+      },
+      "frameworks": {
+        "cis-m365-v6": {
+          "controlId": "7.3.1",
+          "title": "Ensure that infected files cannot be downloaded from SharePoint Online",
+          "profiles": [
+            "E3-L1",
+            "E5-L1"
+          ]
+        },
+        "nist-csf": {
+          "controlId": "DE.CM-09"
+        },
+        "nist-800-53": {
+          "controlId": "SI-3"
+        },
+        "iso-27001": {
+          "controlId": "A.8.7"
+        },
+        "soc2": {
+          "controlId": "CC5;CC7.1",
+          "evidenceType": "config-export"
+        }
+      }
+    },
+    {
+      "checkId": "TEAMS-APPS-002",
+      "name": "Ensure app permission policies are configured for Teams",
+      "category": "APPS",
+      "collector": "Teams",
+      "hasAutomatedCheck": true,
+      "licensing": {
+        "minimum": "E3"
+      },
+      "frameworks": {
+        "cis-m365-v6": {
+          "controlId": "8.4.1",
+          "title": "Ensure app permission policies are configured",
+          "profiles": [
+            "E3-L2",
+            "E5-L2"
+          ]
+        },
+        "nist-csf": {
+          "controlId": "PR.AC-04"
+        },
+        "nist-800-53": {
+          "controlId": "AC-3;CM-7"
+        },
+        "iso-27001": {
+          "controlId": "A.8.9;A.8.19"
+        },
+        "soc2": {
+          "controlId": "CC6.1;CC6.3",
+          "evidenceType": "config-export"
+        }
+      }
+    },
+    {
+      "checkId": "TEAMS-REPORTING-001",
+      "name": "Ensure users can report security concerns in Teams",
+      "category": "REPORTING",
+      "collector": "Teams",
+      "hasAutomatedCheck": true,
+      "licensing": {
+        "minimum": "E3"
+      },
+      "frameworks": {
+        "cis-m365-v6": {
+          "controlId": "8.6.1",
+          "title": "Ensure users can report security concerns in Teams",
+          "profiles": [
+            "E3-L1",
+            "E5-L1"
+          ]
+        },
+        "nist-csf": {
+          "controlId": "RS.CO-02"
+        },
+        "nist-800-53": {
+          "controlId": "IR-6;SI-4"
+        },
+        "iso-27001": {
+          "controlId": "A.5.24;A.6.8"
+        },
+        "soc2": {
+          "controlId": "CC2.2;CC7.3",
           "evidenceType": "config-export"
         }
       }
