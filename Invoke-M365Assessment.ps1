@@ -1130,12 +1130,14 @@ if (-not $SkipConnection) {
     }
 
     # Determine which modules the selected sections actually require
-    $needsGraph = $false
-    $needsExo   = $false
+    $needsGraph   = $false
+    $needsExo     = $false
+    $needsPowerBI = $false
     foreach ($s in $Section) {
         $svcList = $sectionServiceMap[$s]
         if ($svcList -contains 'Graph')                                    { $needsGraph = $true }
         if ($svcList -contains 'ExchangeOnline' -or $svcList -contains 'Purview') { $needsExo = $true }
+        if ($svcList -contains 'PowerBI')                                  { $needsPowerBI = $true }
     }
 
     $missingModules = @()
@@ -1144,6 +1146,9 @@ if (-not $SkipConnection) {
     }
     if ($needsExo -and -not $exoModule) {
         $missingModules += "ExchangeOnlineManagement — Install-Module ExchangeOnlineManagement -RequiredVersion 3.7.1 -Scope CurrentUser"
+    }
+    if ($needsPowerBI -and -not (Get-Module -Name MicrosoftPowerBIMgmt -ListAvailable)) {
+        $missingModules += "MicrosoftPowerBIMgmt — Install-Module MicrosoftPowerBIMgmt -Scope CurrentUser"
     }
 
     if ($missingModules.Count -gt 0) {
