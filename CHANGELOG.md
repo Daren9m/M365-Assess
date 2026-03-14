@@ -2,6 +2,22 @@
 
 All notable changes to M365 Assess are documented here. This project uses [Conventional Commits](https://www.conventionalcommits.org/).
 
+## [0.8.1] - 2026-03-14
+
+### Added
+- 6 CIS quick-win checks: admin center restriction (5.1.2.4), emergency access accounts (1.1.2), password hash sync (5.1.8.1), external sharing by security group (7.2.8), custom script on personal sites (7.3.3), custom script on site collections (7.3.4)
+- Authentication capability matrix with auth method support, license requirements, and platform requirements
+
+### Changed
+- Registry expanded to 233 entries with 138 automated checks
+- Synced version numbers across all 23 scripts to 0.8.1
+- CheckId Guide rewritten with current counts, sub-numbering docs, supersededBy pattern, and new-check checklist
+- Added Show-CheckProgress and Export-ComplianceMatrix to version tracking list
+
+### Fixed
+- Dashboard card coloring inconsistency in Collaboration section (switch statement semicolons)
+- Added ActiveDirectory and SOC2 sections to README Available Sections table
+
 ## [0.8.0] - 2026-03-14
 
 ### Added

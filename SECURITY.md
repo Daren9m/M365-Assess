@@ -11,6 +11,7 @@ M365 Assess is a **read-only** assessment tool. It connects to Microsoft 365 ser
 | 0.8.x   | Yes       |
 | < 0.8   | No        |
 
+
 ## Reporting a Vulnerability
 
 If you discover a security issue in this project, please report it responsibly:

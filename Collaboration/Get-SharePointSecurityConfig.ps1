@@ -21,7 +21,7 @@
 
     Exports the security configuration to CSV.
 .NOTES
-    Version: 0.8.0
+    Version: 0.8.1
     Author:  Daren9m
     Settings checked are aligned with CIS Microsoft 365 Foundations Benchmark v6.0.1 recommendations.
 #>

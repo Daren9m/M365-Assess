@@ -3,7 +3,7 @@
     # Generated: 2026-03-08
 
     RootModule        = 'Invoke-M365Assessment.ps1'
-    ModuleVersion     = '0.8.0'
+    ModuleVersion     = '0.8.1'
     GUID              = 'f7e3b2a1-4c5d-6e8f-9a0b-1c2d3e4f5a6b'
     Author            = 'Daren9m'
     CompanyName       = 'Community'
@@ -84,7 +84,7 @@
             Tags         = @('Microsoft365', 'M365', 'Security', 'Assessment', 'EntraID', 'Exchange', 'Intune', 'Defender', 'SharePoint', 'Teams', 'ScubaGear', 'CIS')
             LicenseUri   = 'https://github.com/Daren9m/M365-Assess/blob/main/LICENSE'
             ProjectUri   = 'https://github.com/Daren9m/M365-Assess'
-            ReleaseNotes = 'v0.8.0 - CIS gap closure: CA Policy Evaluator, DNS Security, Intune collectors; 68 to 119 CIS automated coverage'
+            ReleaseNotes = 'v0.8.1 - Polish: version sync across all scripts, CheckId Guide rewrite, dashboard fix, auth matrix, 6 CIS quick-win checks (138 automated)'
         }
     }
 }

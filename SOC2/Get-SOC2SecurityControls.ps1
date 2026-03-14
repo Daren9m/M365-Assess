@@ -29,7 +29,7 @@
 
     Exports SOC 2 Security control results to CSV.
 .NOTES
-    Version: 0.8.0
+    Version: 0.8.1
     Author:  Daren9m
 #>
 [CmdletBinding()]

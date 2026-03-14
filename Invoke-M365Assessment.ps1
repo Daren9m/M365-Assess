@@ -10,7 +10,7 @@
     Designed for IT consultants assessing SMB clients (10-500 users) with
     Microsoft-based cloud environments.
 .NOTES
-    Version: 0.8.0
+    Version: 0.8.1
     Author:  Daren9m
 .PARAMETER Section
     One or more assessment sections to run. Valid values: Tenant, Identity,
@@ -131,7 +131,7 @@ $ErrorActionPreference = 'Stop'
 # ------------------------------------------------------------------
 # Version
 # ------------------------------------------------------------------
-$script:AssessmentVersion = '0.8.0'
+$script:AssessmentVersion = '0.8.1'
 
 # Resolve project root for collector and helper paths
 $projectRoot = Split-Path -Parent $PSCommandPath
