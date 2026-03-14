@@ -14,8 +14,9 @@
 .PARAMETER Section
     One or more assessment sections to run. Valid values: Tenant, Identity,
     Licensing, Email, Intune, Security, Collaboration, Hybrid, PowerBI,
-    ScubaGear, SOC2. Defaults to all standard sections (PowerBI, ScubaGear,
-    and SOC2 are opt-in only).
+    Inventory, ActiveDirectory, ScubaGear, SOC2. Defaults to all standard
+    sections. PowerBI, Inventory, ActiveDirectory, ScubaGear, and SOC2 are
+    opt-in only.
 .PARAMETER TenantId
     Tenant ID or domain (e.g., 'contoso.onmicrosoft.com').
 .PARAMETER OutputFolder
@@ -27,13 +28,16 @@
     Application (client) ID for app-only authentication.
 .PARAMETER CertificateThumbprint
     Certificate thumbprint for app-only authentication.
+.PARAMETER ClientSecret
+    Client secret for app-only authentication. Less secure than certificate
+    auth -- prefer -CertificateThumbprint for production use.
 .PARAMETER UserPrincipalName
     User principal name (e.g., 'admin@contoso.onmicrosoft.com') for interactive
     authentication to Exchange Online and Purview. Specifying this can bypass
     Windows Authentication Manager (WAM) broker errors on some systems.
 .PARAMETER ScubaProductNames
     ScubaGear product codes to assess. Only used when the ScubaGear section is
-    selected. Defaults to all six products.
+    selected. Defaults to all seven products.
 .PARAMETER ManagedIdentity
     Use Azure managed identity authentication. Requires the script to be running
     on an Azure resource with a system-assigned or user-assigned managed identity
@@ -109,6 +113,9 @@ param(
 
     [Parameter()]
     [string]$CertificateThumbprint,
+
+    [Parameter()]
+    [string]$ClientSecret,
 
     [Parameter()]
     [string]$UserPrincipalName,
@@ -1226,6 +1233,7 @@ function Connect-RequiredService {
             if ($TenantId) { $connectParams['TenantId'] = $TenantId }
             if ($ClientId) { $connectParams['ClientId'] = $ClientId }
             if ($CertificateThumbprint) { $connectParams['CertificateThumbprint'] = $CertificateThumbprint }
+            if ($ClientSecret) { $connectParams['ClientSecret'] = $ClientSecret }
             if ($UserPrincipalName -and $svc -ne 'Graph') {
                 $connectParams['UserPrincipalName'] = $UserPrincipalName
             }

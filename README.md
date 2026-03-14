@@ -138,7 +138,7 @@ During execution, the console displays real-time streaming progress for each sec
 | `-UserPrincipalName` | string | | UPN for interactive auth (avoids WAM broker issues) |
 | `-UseDeviceCode` | switch | | Use device code flow for headless environments |
 | `-ManagedIdentity` | switch | | Use Azure managed identity auth (VMs, App Service, Functions) |
-| `-ScubaProductNames` | string[] | aad, defender, exo, powerplatform, sharepoint, teams | ScubaGear products to scan |
+| `-ScubaProductNames` | string[] | aad, defender, exo, powerbi, powerplatform, sharepoint, teams | ScubaGear products to scan |
 | `-M365Environment` | string | `commercial` | Cloud environment: `commercial`, `gcc`, `gcchigh`, `dod` |
 | `-NoBranding` | switch | | Generate report without M365 Assess branding |
 | `-SkipDLP` | switch | | Skip DLP collector and Purview connection (saves ~46s) |
@@ -240,11 +240,13 @@ M365-Assess/
 
 | Guide | Description |
 |-------|-------------|
-| [Authentication](AUTHENTICATION.md) | Interactive, certificate, device code, and pre-existing connection methods |
+| [Authentication](AUTHENTICATION.md) | Interactive, certificate, device code, managed identity, and pre-existing connection methods |
 | [HTML Report](REPORT.md) | Report features, custom branding, `-NoBranding`, standalone generation |
 | [Compliance](COMPLIANCE.md) | 13 frameworks, XLSX export, CheckId system, control registry |
+| [Compatibility](docs/COMPATIBILITY.md) | Module versions, dependency matrix, known incompatibilities |
 | [ScubaGear](docs/SCUBAGEAR.md) | CISA baseline integration, first run, products, GCC support |
 | [CheckId Guide](docs/CheckId-Guide.md) | CheckId naming convention and mapping reference |
+| [Security](SECURITY.md) | Vulnerability reporting and security policy |
 
 ## Individual Scripts
 
