@@ -1359,6 +1359,18 @@ if (Test-Path -Path $progressHelper) {
     }
 }
 
+# Optimize section execution order to minimize service reconnections.
+# Group all EXO-dependent sections before Purview-dependent sections so
+# that running both Inventory and Security avoids EXO→Purview→EXO thrashing.
+$sectionOrder = @(
+    'Tenant', 'Identity', 'Licensing', 'Email', 'Intune',
+    'Inventory',        # EXO-dependent — run before Security's Purview collectors
+    'Security',         # Graph → EXO (Defender) → Purview (DLP/Compliance)
+    'Collaboration', 'PowerBI', 'Hybrid',
+    'ActiveDirectory', 'ScubaGear', 'SOC2'
+)
+$Section = $sectionOrder | Where-Object { $_ -in $Section }
+
 foreach ($sectionName in $Section) {
     if (-not $collectorMap.Contains($sectionName)) {
         Write-AssessmentLog -Level WARN -Message "Unknown section '$sectionName' — skipping."
