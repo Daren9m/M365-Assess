@@ -56,7 +56,7 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory)]
-    [ValidateSet('Graph', 'ExchangeOnline', 'Purview')]
+    [ValidateSet('Graph', 'ExchangeOnline', 'Purview', 'PowerBI')]
     [string]$Service,
 
     [Parameter()]
@@ -91,6 +91,7 @@ $moduleMap = @{
     'Graph'           = 'Microsoft.Graph.Authentication'
     'ExchangeOnline'  = 'ExchangeOnlineManagement'
     'Purview'         = 'ExchangeOnlineManagement'
+    'PowerBI'         = 'MicrosoftPowerBIMgmt'
 }
 
 $requiredModule = $moduleMap[$Service]
@@ -213,6 +214,20 @@ try {
 
             Connect-IPPSSession @connectParams
             Write-Verbose "Connected to Purview (Security & Compliance) ($M365Environment)"
+        }
+
+        'PowerBI' {
+            $connectParams = @{}
+            if ($TenantId) { $connectParams['Tenant'] = $TenantId }
+
+            if ($ClientId -and $CertificateThumbprint) {
+                $connectParams['ServicePrincipal'] = $true
+                $connectParams['ApplicationId'] = $ClientId
+                $connectParams['CertificateThumbprint'] = $CertificateThumbprint
+            }
+
+            Connect-PowerBIServiceAccount @connectParams
+            Write-Verbose "Connected to Power BI ($M365Environment)"
         }
     }
 }

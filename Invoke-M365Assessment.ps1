@@ -13,8 +13,9 @@
     Author:  Daren9m
 .PARAMETER Section
     One or more assessment sections to run. Valid values: Tenant, Identity,
-    Licensing, Email, Intune, Security, Collaboration, Hybrid, ScubaGear, SOC2.
-    Defaults to all standard sections (ScubaGear and SOC2 are opt-in only).
+    Licensing, Email, Intune, Security, Collaboration, Hybrid, PowerBI,
+    ScubaGear, SOC2. Defaults to all standard sections (PowerBI, ScubaGear,
+    and SOC2 are opt-in only).
 .PARAMETER TenantId
     Tenant ID or domain (e.g., 'contoso.onmicrosoft.com').
 .PARAMETER OutputFolder
@@ -85,7 +86,7 @@
 [CmdletBinding()]
 param(
     [Parameter()]
-    [ValidateSet('Tenant', 'Identity', 'Licensing', 'Email', 'Intune', 'Security', 'Collaboration', 'Hybrid', 'Inventory', 'ActiveDirectory', 'ScubaGear', 'SOC2')]
+    [ValidateSet('Tenant', 'Identity', 'Licensing', 'Email', 'Intune', 'Security', 'Collaboration', 'PowerBI', 'Hybrid', 'Inventory', 'ActiveDirectory', 'ScubaGear', 'SOC2')]
     [string[]]$Section = @('Tenant', 'Identity', 'Licensing', 'Email', 'Intune', 'Security', 'Collaboration', 'Hybrid'),
 
     [Parameter()]
@@ -166,10 +167,11 @@ function Show-InteractiveWizard {
         '6'  = @{ Name = 'Security';        Label = 'Security';                     Selected = $true }
         '7'  = @{ Name = 'Collaboration';   Label = 'Collaboration';                Selected = $true }
         '8'  = @{ Name = 'Hybrid';          Label = 'Hybrid Sync';                  Selected = $true }
-        '9'  = @{ Name = 'Inventory';       Label = 'M&A Inventory (opt-in)';       Selected = $false }
-        '10' = @{ Name = 'ActiveDirectory'; Label = 'Active Directory (RSAT)';      Selected = $false }
-        '11' = @{ Name = 'ScubaGear';       Label = 'ScubaGear Baseline (PS 5.1)';  Selected = $false }
-        '12' = @{ Name = 'SOC2';            Label = 'SOC 2 Readiness (opt-in)';     Selected = $false }
+        '9'  = @{ Name = 'PowerBI';         Label = 'Power BI (opt-in)';            Selected = $false }
+        '10' = @{ Name = 'Inventory';       Label = 'M&A Inventory (opt-in)';       Selected = $false }
+        '11' = @{ Name = 'ActiveDirectory'; Label = 'Active Directory (RSAT)';      Selected = $false }
+        '12' = @{ Name = 'ScubaGear';       Label = 'ScubaGear Baseline (PS 5.1)';  Selected = $false }
+        '13' = @{ Name = 'SOC2';            Label = 'SOC 2 Readiness (opt-in)';     Selected = $false }
     }
 
     # --- Header ---
@@ -877,6 +879,7 @@ $sectionServiceMap = @{
     'Intune'        = @('Graph')
     'Security'      = @('Graph', 'ExchangeOnline', 'Purview')
     'Collaboration' = @('Graph')
+    'PowerBI'       = @('PowerBI')
     'Hybrid'           = @('Graph')
     'Inventory'        = @('Graph', 'ExchangeOnline')
     'ActiveDirectory'  = @()
@@ -894,6 +897,7 @@ $sectionScopeMap = @{
     'Intune'        = @('DeviceManagementManagedDevices.Read.All', 'DeviceManagementConfiguration.Read.All')
     'Security'      = @('SecurityEvents.Read.All')
     'Collaboration' = @('SharePointTenantSettings.Read.All', 'TeamSettings.Read.All', 'TeamworkAppSettings.Read.All')
+    'PowerBI'       = @()
     'Hybrid'           = @('Organization.Read.All', 'Domain.Read.All')
     'Inventory'        = @('Group.Read.All', 'Team.ReadBasic.All', 'TeamMember.Read.All', 'Channel.ReadBasic.All', 'Reports.Read.All', 'Sites.Read.All', 'User.Read.All')
     'ActiveDirectory'  = @()
@@ -913,6 +917,7 @@ $sectionModuleMap = @{
     'Intune'        = @('Microsoft.Graph.DeviceManagement')
     'Security'      = @('Microsoft.Graph.Security')
     'Collaboration' = @()
+    'PowerBI'       = @()
     'Hybrid'           = @('Microsoft.Graph.Identity.DirectoryManagement')
     'Inventory'        = @()
     'ActiveDirectory'  = @()
@@ -966,8 +971,11 @@ $collectorMap = [ordered]@{
         @{ Name = '21-Teams-Access';        Script = 'Collaboration\Get-TeamsAccessReport.ps1';         Label = 'Teams Access' }
         @{ Name = '21b-Teams-Security-Config'; Script = 'Collaboration\Get-TeamsSecurityConfig.ps1';    Label = 'Teams Security Config' }
     )
+    'PowerBI' = @(
+        @{ Name = '22-PowerBI-Security-Config'; Script = 'PowerBI\Get-PowerBISecurityConfig.ps1'; Label = 'Power BI Security Config' }
+    )
     'Hybrid' = @(
-        @{ Name = '22-Hybrid-Sync'; Script = 'ActiveDirectory\Get-HybridSyncReport.ps1'; Label = 'Hybrid Sync' }
+        @{ Name = '23-Hybrid-Sync'; Script = 'ActiveDirectory\Get-HybridSyncReport.ps1'; Label = 'Hybrid Sync' }
     )
     'Inventory' = @(
         @{ Name = '28-Mailbox-Inventory';    Script = 'Inventory\Get-MailboxInventory.ps1';    Label = 'Mailbox Inventory';    RequiredServices = @('ExchangeOnline') }
@@ -1183,6 +1191,7 @@ function Connect-RequiredService {
             'Graph'          { 'Microsoft Graph' }
             'ExchangeOnline' { 'Exchange Online' }
             'Purview'        { 'Purview (Security & Compliance)' }
+            'PowerBI'        { 'Power BI' }
             default          { $svc }
         }
         Write-Host "    Connecting to $serviceDisplayName..." -ForegroundColor Yellow
