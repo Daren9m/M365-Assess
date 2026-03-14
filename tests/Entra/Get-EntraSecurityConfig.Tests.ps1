@@ -199,6 +199,8 @@ Describe 'Get-EntraSecurityConfig' {
     }
 }
 
+# Note: Dot-sourcing the collector re-initialises $settings and $checkIdCounter,
+# so this Describe block gets a fresh state independent of the main Describe above.
 Describe 'Get-EntraSecurityConfig - Edge Cases' {
     BeforeAll {
         function global:Update-CheckProgress {
@@ -230,12 +232,12 @@ Describe 'Get-EntraSecurityConfig - Edge Cases' {
             $settings | Should -Not -BeNullOrEmpty
         }
 
-        It 'should produce a Warning or Info status for admin count' {
+        It 'should produce a Warning status for admin count' {
             $adminCheck = $settings | Where-Object {
                 $_.Setting -eq 'Global Administrator Count'
             }
             $adminCheck | Should -Not -BeNullOrEmpty
-            $adminCheck.Status | Should -BeIn @('Warning', 'Info', 'N/A')
+            $adminCheck.Status | Should -Be 'Warning'
         }
     }
 
