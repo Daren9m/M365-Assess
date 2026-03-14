@@ -139,7 +139,7 @@ During execution, the console displays real-time streaming progress for each sec
 | `-NoBranding` | switch | | Generate report without M365 Assess branding |
 | `-SkipDLP` | switch | | Skip DLP collector and Purview connection (saves ~46s) |
 
-See [Authentication](docs/AUTHENTICATION.md) for detailed auth examples and App Registration setup.
+See [Authentication](AUTHENTICATION.md) for detailed auth examples and App Registration setup.
 
 ## Output Structure
 
@@ -235,9 +235,9 @@ M365-Assess/
 
 | Guide | Description |
 |-------|-------------|
-| [Authentication](docs/AUTHENTICATION.md) | Interactive, certificate, device code, and pre-existing connection methods |
-| [HTML Report](docs/REPORT.md) | Report features, custom branding, `-NoBranding`, standalone generation |
-| [Compliance](docs/COMPLIANCE.md) | 13 frameworks, XLSX export, CheckId system, control registry |
+| [Authentication](AUTHENTICATION.md) | Interactive, certificate, device code, and pre-existing connection methods |
+| [HTML Report](REPORT.md) | Report features, custom branding, `-NoBranding`, standalone generation |
+| [Compliance](COMPLIANCE.md) | 13 frameworks, XLSX export, CheckId system, control registry |
 | [ScubaGear](docs/SCUBAGEAR.md) | CISA baseline integration, first run, products, GCC support |
 | [CheckId Guide](docs/CheckId-Guide.md) | CheckId naming convention and mapping reference |
 
