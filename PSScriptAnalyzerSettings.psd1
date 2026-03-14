@@ -24,5 +24,7 @@
         'PSReviewUnusedParameter'
         # Connect-Service intentionally converts client secret string to SecureString for credential objects
         'PSAvoidUsingConvertToSecureStringWithPlainText'
+        # Internal helper functions returning collections use plural nouns by design
+        'PSUseSingularNouns'
     )
 }
