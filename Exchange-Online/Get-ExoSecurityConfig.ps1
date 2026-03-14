@@ -385,6 +385,112 @@ catch {
 }
 
 # ------------------------------------------------------------------
+# 12. Shared Mailbox Sign-In Blocked (CIS 1.2.2)
+# ------------------------------------------------------------------
+try {
+    Write-Verbose "Checking shared mailbox sign-in status..."
+    $sharedMailboxes = Get-Mailbox -RecipientTypeDetails SharedMailbox -ResultSize 100 -ErrorAction Stop
+
+    if ($sharedMailboxes.Count -eq 0) {
+        Add-Setting -Category 'Mailbox Security' `
+            -Setting 'Shared Mailbox Sign-In Blocked' `
+            -CurrentValue 'No shared mailboxes found' `
+            -RecommendedValue 'All shared mailbox accounts disabled' `
+            -Status 'Pass' `
+            -CheckId 'EXO-SHAREDMBX-001' `
+            -Remediation 'No action needed.'
+    }
+    else {
+        $enabledAccounts = @()
+        foreach ($mbx in $sharedMailboxes) {
+            try {
+                $mgUser = Invoke-MgGraphRequest -Method GET `
+                    -Uri "/v1.0/users/$($mbx.UserPrincipalName)?`$select=accountEnabled" `
+                    -ErrorAction SilentlyContinue
+                if ($mgUser -and $mgUser['accountEnabled'] -eq $true) {
+                    $enabledAccounts += $mbx.UserPrincipalName
+                }
+            }
+            catch {
+                Write-Verbose "Could not resolve user $($mbx.UserPrincipalName): $_"
+            }
+        }
+
+        if ($enabledAccounts.Count -eq 0) {
+            Add-Setting -Category 'Mailbox Security' `
+                -Setting 'Shared Mailbox Sign-In Blocked' `
+                -CurrentValue "All $($sharedMailboxes.Count) shared mailbox accounts disabled" `
+                -RecommendedValue 'All shared mailbox accounts disabled' `
+                -Status 'Pass' `
+                -CheckId 'EXO-SHAREDMBX-001' `
+                -Remediation 'No action needed.'
+        }
+        else {
+            $upnList = ($enabledAccounts | Select-Object -First 5) -join ', '
+            $suffix = if ($enabledAccounts.Count -gt 5) { " (+$($enabledAccounts.Count - 5) more)" } else { '' }
+            Add-Setting -Category 'Mailbox Security' `
+                -Setting 'Shared Mailbox Sign-In Blocked' `
+                -CurrentValue "$($enabledAccounts.Count)/$($sharedMailboxes.Count) enabled: $upnList$suffix" `
+                -RecommendedValue 'All shared mailbox accounts disabled' `
+                -Status 'Fail' `
+                -CheckId 'EXO-SHAREDMBX-001' `
+                -Remediation 'Block sign-in for shared mailbox accounts: Set-AzureADUser -ObjectId <UPN> -AccountEnabled $false. Entra admin center > Users > select shared mailbox user > Properties > Account enabled > No.'
+        }
+    }
+}
+catch {
+    Write-Warning "Could not check shared mailbox sign-in: $_"
+}
+
+# ------------------------------------------------------------------
+# 13. Direct Send / Unauthenticated Relay (CIS 6.5.5)
+# ------------------------------------------------------------------
+try {
+    $connectorAvailable = Get-Command -Name Get-InboundConnector -ErrorAction SilentlyContinue
+    if ($connectorAvailable) {
+        Write-Verbose "Checking inbound connectors for unauthenticated relay..."
+        $inboundConnectors = Get-InboundConnector -ErrorAction Stop
+        $relayConnectors = @($inboundConnectors | Where-Object {
+            $_.Enabled -eq $true -and
+            $_.RequireTls -eq $false -and
+            $_.RestrictDomainsToIPAddresses -eq $false
+        })
+
+        if ($relayConnectors.Count -eq 0) {
+            Add-Setting -Category 'Mail Flow' `
+                -Setting 'Inbound Connectors - Unauthenticated Relay' `
+                -CurrentValue 'No unauthenticated relay connectors found' `
+                -RecommendedValue 'No open relay connectors' `
+                -Status 'Pass' `
+                -CheckId 'EXO-DIRECTSEND-001' `
+                -Remediation 'No action needed.'
+        }
+        else {
+            $connectorNames = ($relayConnectors | ForEach-Object { $_.Name }) -join ', '
+            Add-Setting -Category 'Mail Flow' `
+                -Setting 'Inbound Connectors - Unauthenticated Relay' `
+                -CurrentValue "$($relayConnectors.Count) connectors without TLS/domain restriction: $connectorNames" `
+                -RecommendedValue 'No open relay connectors' `
+                -Status 'Fail' `
+                -CheckId 'EXO-DIRECTSEND-001' `
+                -Remediation "Review inbound connectors: $connectorNames. Require TLS and restrict to specific sender domains/IPs. Exchange admin center > Mail flow > Connectors."
+        }
+    }
+    else {
+        Add-Setting -Category 'Mail Flow' `
+            -Setting 'Inbound Connectors - Unauthenticated Relay' `
+            -CurrentValue 'Get-InboundConnector not available' `
+            -RecommendedValue 'No open relay connectors' `
+            -Status 'Review' `
+            -CheckId 'EXO-DIRECTSEND-001' `
+            -Remediation 'Connect to Exchange Online PowerShell to check inbound connector configuration.'
+    }
+}
+catch {
+    Write-Warning "Could not check inbound connectors: $_"
+}
+
+# ------------------------------------------------------------------
 # Output
 # ------------------------------------------------------------------
 $report = @($settings)

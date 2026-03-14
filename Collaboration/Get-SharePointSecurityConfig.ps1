@@ -423,6 +423,107 @@ catch {
 }
 
 # ------------------------------------------------------------------
+# B2B Integration (CIS 7.2.2)
+# ------------------------------------------------------------------
+try {
+    Write-Verbose "Checking B2B integration for SharePoint/OneDrive..."
+    # Check via beta endpoint for B2B integration property
+    $betaSpoSettings = $null
+    try {
+        $betaSpoSettings = Invoke-MgGraphRequest -Method GET `
+            -Uri '/beta/admin/sharepoint/settings' -ErrorAction Stop
+    }
+    catch {
+        Write-Verbose "Beta SharePoint settings endpoint not available: $_"
+    }
+
+    if ($betaSpoSettings -and $null -ne $betaSpoSettings['isB2BIntegrationEnabled']) {
+        $b2bEnabled = $betaSpoSettings['isB2BIntegrationEnabled']
+        Add-Setting -Category 'Authentication' `
+            -Setting 'SharePoint B2B Integration' `
+            -CurrentValue "$b2bEnabled" -RecommendedValue 'True' `
+            -Status $(if ($b2bEnabled) { 'Pass' } else { 'Fail' }) `
+            -CheckId 'SPO-B2B-001' `
+            -Remediation 'Enable B2B integration in SharePoint admin center > Policies > Sharing > More external sharing settings > Enable integration with Azure AD B2B.'
+    }
+    else {
+        Add-Setting -Category 'Authentication' `
+            -Setting 'SharePoint B2B Integration' `
+            -CurrentValue 'Not available via Graph API' -RecommendedValue 'True' `
+            -Status 'Review' `
+            -CheckId 'SPO-B2B-001' `
+            -Remediation 'SharePoint admin center > Policies > Sharing > More external sharing settings > check Enable integration with Azure AD B2B.'
+    }
+}
+catch {
+    Write-Warning "Could not check B2B integration: $_"
+}
+
+# ------------------------------------------------------------------
+# OneDrive Sharing Restriction (CIS 7.2.4)
+# ------------------------------------------------------------------
+try {
+    Write-Verbose "Checking OneDrive sharing capability..."
+    if ($betaSpoSettings -and $null -ne $betaSpoSettings['oneDriveSharingCapability']) {
+        $odSharing = $betaSpoSettings['oneDriveSharingCapability']
+        $isRestricted = $odSharing -ne 'externalUserAndGuestSharing'
+
+        $odDisplay = switch ($odSharing) {
+            'disabled'                    { 'Disabled (no sharing)' }
+            'externalUserSharingOnly'     { 'Existing guests only' }
+            'externalUserAndGuestSharing' { 'Anyone (most permissive)' }
+            'existingExternalUserSharingOnly' { 'Existing guests only' }
+            default { $odSharing }
+        }
+
+        Add-Setting -Category 'Sharing' `
+            -Setting 'OneDrive External Sharing' `
+            -CurrentValue $odDisplay -RecommendedValue 'Existing guests only or more restrictive' `
+            -Status $(if ($isRestricted) { 'Pass' } else { 'Fail' }) `
+            -CheckId 'SPO-OD-001' `
+            -Remediation 'SharePoint admin center > Policies > Sharing > OneDrive > set to "Existing guests" or more restrictive.'
+    }
+    else {
+        Add-Setting -Category 'Sharing' `
+            -Setting 'OneDrive External Sharing' `
+            -CurrentValue 'Not available via Graph API' -RecommendedValue 'Restricted' `
+            -Status 'Review' `
+            -CheckId 'SPO-OD-001' `
+            -Remediation 'SharePoint admin center > Policies > Sharing > OneDrive > verify sharing level.'
+    }
+}
+catch {
+    Write-Warning "Could not check OneDrive sharing: $_"
+}
+
+# ------------------------------------------------------------------
+# Infected File Download Blocked (CIS 7.3.1)
+# ------------------------------------------------------------------
+try {
+    Write-Verbose "Checking infected file download blocking..."
+    if ($betaSpoSettings -and $null -ne $betaSpoSettings['disallowInfectedFileDownload']) {
+        $blockInfected = $betaSpoSettings['disallowInfectedFileDownload']
+        Add-Setting -Category 'Malware Protection' `
+            -Setting 'Infected File Download Blocked' `
+            -CurrentValue "$blockInfected" -RecommendedValue 'True' `
+            -Status $(if ($blockInfected) { 'Pass' } else { 'Fail' }) `
+            -CheckId 'SPO-MALWARE-002' `
+            -Remediation 'Run: Set-SPOTenant -DisallowInfectedFileDownload $true. SharePoint admin center > Policies > Malware protection.'
+    }
+    else {
+        Add-Setting -Category 'Malware Protection' `
+            -Setting 'Infected File Download Blocked' `
+            -CurrentValue 'Not available via Graph API' -RecommendedValue 'True' `
+            -Status 'Review' `
+            -CheckId 'SPO-MALWARE-002' `
+            -Remediation 'Connect via SharePoint Online Management Shell: Get-SPOTenant | Select DisallowInfectedFileDownload. Set to $true if not already.'
+    }
+}
+catch {
+    Write-Warning "Could not check infected file download setting: $_"
+}
+
+# ------------------------------------------------------------------
 # Output
 # ------------------------------------------------------------------
 $report = @($settings)

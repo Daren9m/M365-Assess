@@ -326,6 +326,26 @@ catch {
 }
 
 # ------------------------------------------------------------------
+# Teams App Permission Policies (CIS 8.4.1 - Review)
+# ------------------------------------------------------------------
+Add-Setting -Category 'Teams Apps' -Setting 'Third-Party App Permission Policies' `
+    -CurrentValue 'Cannot be fully checked via API' `
+    -RecommendedValue 'Block third-party apps or restrict to approved list' `
+    -Status 'Review' `
+    -CheckId 'TEAMS-APPS-002' `
+    -Remediation 'Teams admin center > Teams apps > Permission policies > Org-wide app settings > Third-party apps > Off (or restrict to approved apps).'
+
+# ------------------------------------------------------------------
+# Teams Report a Security Concern (CIS 8.6.1 - Review)
+# ------------------------------------------------------------------
+Add-Setting -Category 'Teams Settings' -Setting 'Report a Security Concern Enabled' `
+    -CurrentValue 'Cannot be checked via API' `
+    -RecommendedValue 'Enabled in messaging policies' `
+    -Status 'Review' `
+    -CheckId 'TEAMS-REPORTING-001' `
+    -Remediation 'Teams admin center > Messaging policies > Global (Org-wide default) > Report a security concern > On.'
+
+# ------------------------------------------------------------------
 # Output
 # ------------------------------------------------------------------
 $report = @($settings)
