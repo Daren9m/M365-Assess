@@ -138,10 +138,10 @@ if (Test-Path -Path $userSummaryCsv) {
 # The $controlRegistry hashtable is keyed by CheckId and contains framework data.
 
 if (-not $TenantName) {
-    if ($tenantData -and $tenantData[0].PSObject.Properties.Name -contains 'OrgDisplayName') {
+    if ($tenantData -and @($tenantData).Count -gt 0 -and $tenantData[0].PSObject.Properties.Name -contains 'OrgDisplayName') {
         $TenantName = $tenantData[0].OrgDisplayName
     }
-    elseif ($tenantData -and $tenantData[0].PSObject.Properties.Name -contains 'DefaultDomain') {
+    elseif ($tenantData -and @($tenantData).Count -gt 0 -and $tenantData[0].PSObject.Properties.Name -contains 'DefaultDomain') {
         $TenantName = $tenantData[0].DefaultDomain
     }
     else {
@@ -492,7 +492,7 @@ foreach ($sectionName in $sections) {
     # ------------------------------------------------------------------
     # Tenant Info — non-collapsible organization profile card
     # ------------------------------------------------------------------
-    if ($sectionName -eq 'Tenant' -and $tenantData) {
+    if ($sectionName -eq 'Tenant' -and $tenantData -and @($tenantData).Count -gt 0) {
         $t = $tenantData[0]
         $props = @($t.PSObject.Properties.Name)
         $orgName = if ($props -contains 'OrgDisplayName') { $t.OrgDisplayName } else { $TenantName }
