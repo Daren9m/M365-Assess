@@ -2,6 +2,33 @@
 
 All notable changes to M365 Assess are documented here. This project uses [Conventional Commits](https://www.conventionalcommits.org/).
 
+## [0.9.2] - 2026-03-15
+
+### Added
+- Section filter bar to scope compliance view by assessment domain (Identity, Email, Security, etc.) (#109)
+- Expand/Collapse All buttons on section panels with multiple collectors (#122)
+- NIST 800-53 baseline profiles: Low, Moderate, High, Privacy columns in compliance matrix (#123)
+- `complianceData` JSON blob embedded in report for client-side metric recalculation
+- No-results placeholder when all filters exclude everything
+- `cis-row-pass` CSS style (pass rows now have green left border)
+- 27 new Pester tests for report structure validation
+
+### Changed
+- All framework cards now show pass rate as primary metric with coverage progress bar underneath (#108)
+- Non-CIS card color thresholds changed from 70/50 to 80/60 (matching CIS)
+- Framework and status filters merged into unified `applyAllFilters()` JS function
+- Section filter recalculates cards, status bar, and table dynamically
+- Coverage percentage capped at 100% to prevent display bugs
+- Info status note moved inline with status filter bar
+- Section filter chips use teal color to differentiate from framework pills
+- Dynamic zebra striping replaces static CSS `nth-child` for filtered tables
+- NIST baseline cards visible by default; matrix columns visible by default
+- Synced registry.json from CheckID with NIST 800-53 baseline profiles (229 entries)
+
+### Fixed
+- Inconsistent metrics between CIS (pass rate) and non-CIS (coverage) framework cards (#108)
+- Coverage bar hidden for frameworks without catalog CSV (e.g., SOC 2 TSC)
+
 ## [0.9.0] - 2026-03-14
 
 ### Added
