@@ -37,7 +37,7 @@
     Windows Authentication Manager (WAM) broker errors on some systems.
 .PARAMETER ScubaProductNames
     ScubaGear product codes to assess. Only used when the ScubaGear section is
-    selected. Defaults to all seven products.
+    selected. Defaults to all six products.
 .PARAMETER ManagedIdentity
     Use Azure managed identity authentication. Requires the script to be running
     on an Azure resource with a system-assigned or user-assigned managed identity
@@ -127,8 +127,8 @@ param(
     [switch]$UseDeviceCode,
 
     [Parameter()]
-    [ValidateSet('aad', 'defender', 'exo', 'powerbi', 'powerplatform', 'sharepoint', 'teams')]
-    [string[]]$ScubaProductNames = @('aad', 'defender', 'exo', 'powerbi', 'powerplatform', 'sharepoint', 'teams'),
+    [ValidateSet('aad', 'defender', 'exo', 'powerplatform', 'sharepoint', 'teams')]
+    [string[]]$ScubaProductNames = @('aad', 'defender', 'exo', 'powerplatform', 'sharepoint', 'teams'),
 
     [Parameter()]
     [ValidateSet('commercial', 'gcc', 'gcchigh', 'dod')]

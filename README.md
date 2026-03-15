@@ -138,7 +138,7 @@ During execution, the console displays real-time streaming progress for each sec
 | `-UserPrincipalName` | string | | UPN for interactive auth (avoids WAM broker issues) |
 | `-UseDeviceCode` | switch | | Use device code flow for headless environments |
 | `-ManagedIdentity` | switch | | Use Azure managed identity auth (VMs, App Service, Functions) |
-| `-ScubaProductNames` | string[] | aad, defender, exo, powerbi, powerplatform, sharepoint, teams | ScubaGear products to scan |
+| `-ScubaProductNames` | string[] | aad, defender, exo, powerplatform, sharepoint, teams | ScubaGear products to scan |
 | `-M365Environment` | string | `commercial` | Cloud environment: `commercial`, `gcc`, `gcchigh`, `dod` |
 | `-NoBranding` | switch | | Generate report without M365 Assess branding |
 | `-SkipDLP` | switch | | Skip DLP collector and Purview connection (saves ~46s) |
