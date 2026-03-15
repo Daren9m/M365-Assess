@@ -626,6 +626,11 @@ foreach ($sectionName in $sections) {
 
     $null = $sectionHtml.AppendLine("</div>")
 
+    # Expand/Collapse buttons (only for sections with multiple collectors)
+    if ($sectionCollectors.Count -gt 1) {
+        $null = $sectionHtml.AppendLine("<div class='matrix-controls'><button type='button' class='expand-all-btn fw-action-btn'>Expand All</button><button type='button' class='collapse-all-btn fw-action-btn'>Collapse All</button></div>")
+    }
+
     # ------------------------------------------------------------------
     # Identity Dashboard — combined overview panel
     # ------------------------------------------------------------------
@@ -3337,6 +3342,9 @@ $html = @"
         .info-status-note { display: flex; align-items: center; gap: 8px; padding: 8px 14px; margin: 0 0 12px; font-size: 0.82em; color: var(--m365a-medium-gray); background: var(--m365a-light-gray); border: 1px solid var(--m365a-border); border-radius: 6px; border-left: 3px solid var(--m365a-neutral); }
         .info-status-note .badge { flex-shrink: 0; }
 
+        /* Expand/Collapse all buttons */
+        .matrix-controls { display: flex; gap: 6px; margin: 8px 0; }
+
         /* Matrix table */
         .matrix-table td { vertical-align: top; }
         .matrix-table .framework-refs { max-width: 180px; }
@@ -3564,6 +3572,7 @@ $html = @"
             tr { page-break-inside: avoid; }
             .fw-selector { display: none; }
             .status-filter { display: none; }
+            .matrix-controls { display: none; }
             .matrix-table tr { display: table-row !important; }
             .fw-col { display: table-cell !important; }
 
@@ -3842,6 +3851,24 @@ $html += @"
                 applyStatusFilter();
             }
         }
+
+        // --- Expand/Collapse All buttons ---
+        document.querySelectorAll('.expand-all-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var section = btn.closest('.section');
+                if (section) {
+                    section.querySelectorAll('.collector-detail').forEach(function(d) { d.open = true; });
+                }
+            });
+        });
+        document.querySelectorAll('.collapse-all-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var section = btn.closest('.section');
+                if (section) {
+                    section.querySelectorAll('.collector-detail').forEach(function(d) { d.open = false; });
+                }
+            });
+        });
 
         // --- Table-level status filters (security config tables) ---
         document.querySelectorAll('.table-status-filter').forEach(function(filterBar) {
