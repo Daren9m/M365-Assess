@@ -3886,7 +3886,7 @@ $html += @"
                 var visibleCount = 0;
                 compRows.forEach(function(row) {
                     var sec = row.getAttribute('data-section') || '';
-                    var sectionOk = activeSections.length === 0 || activeSections.indexOf(sec) !== -1;
+                    var sectionOk = activeSections.indexOf(sec) !== -1;
                     var statusOk = false;
                     for (var i = 0; i < activeStatus.length; i++) {
                         if ((row.className || '').indexOf('cis-row-' + activeStatus[i]) !== -1) { statusOk = true; break; }
@@ -3914,7 +3914,7 @@ $html += @"
                     var catalogTotal = parseInt(card.getAttribute('data-catalog-total')) || 0;
 
                     var findings = complianceData.filter(function(f) {
-                        return (activeSections.length === 0 || activeSections.indexOf(f.s) !== -1) && f.fw[fw];
+                        return activeSections.indexOf(f.s) !== -1 && f.fw[fw];
                     });
                     var passCount = findings.filter(function(f) { return f.st === 'Pass'; }).length;
                     var total = findings.length;
@@ -3941,8 +3941,7 @@ $html += @"
             function recalculateStatusBar(activeSections) {
                 var bar = document.querySelector('.compliance-status-bar');
                 if (!bar || typeof complianceData === 'undefined') return;
-                var findings = activeSections.length === 0 ? complianceData :
-                    complianceData.filter(function(f) { return activeSections.indexOf(f.s) !== -1; });
+                var findings = complianceData.filter(function(f) { return activeSections.indexOf(f.s) !== -1; });
                 var total = findings.length;
 
                 var statusMap = [
