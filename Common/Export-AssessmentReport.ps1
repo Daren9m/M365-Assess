@@ -3365,6 +3365,8 @@ $html = @"
         .fw-cis    { background: #e8f0fe; color: #1a56db; }
         .fw-cis-l2 { background: #dbeafe; color: #1e40af; }
         .fw-nist   { background: #e8f0fe; color: #1a56db; }
+        .fw-nist-high { background: #dbeafe; color: #1e40af; }
+        .fw-nist-privacy { background: #ede9fe; color: #5b21b6; }
         .fw-csf   { background: #fef3c7; color: #92400e; }
         .fw-iso   { background: #ecfdf5; color: #065f46; }
         .fw-stig  { background: #f3e8ff; color: #6b21a8; }
@@ -3472,6 +3474,8 @@ $html = @"
         body.dark-theme .fw-cis    { background: #1E3A5F; color: #93C5FD; }
         body.dark-theme .fw-cis-l2 { background: #1E3A5F; color: #60A5FA; }
         body.dark-theme .fw-nist   { background: #1E3A5F; color: #93C5FD; }
+        body.dark-theme .fw-nist-high { background: #1E3A5F; color: #60A5FA; }
+        body.dark-theme .fw-nist-privacy { background: #2E1065; color: #C4B5FD; }
         body.dark-theme .fw-csf    { background: #78350F; color: #FCD34D; }
         body.dark-theme .fw-iso    { background: #064E3B; color: #6EE7B7; }
         body.dark-theme .fw-stig   { background: #3B0764; color: #C4B5FD; }
