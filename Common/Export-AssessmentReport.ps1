@@ -1837,11 +1837,6 @@ if ($allCisFindings.Count -gt 0 -and $controlRegistry.Count -gt 0) {
         $null = $complianceHtml.AppendLine("</div>")
     }
 
-    # Info status explanation (only if Info checks exist) — placed before cards, after status bar
-    if ($cisInfo -gt 0) {
-        $null = $complianceHtml.AppendLine("<div class='info-status-note'><span class='badge badge-neutral'>Info</span> checks are informational data points with no pass/fail criteria &mdash; they provide context about your environment but are <strong>not included</strong> in compliance pass rates.</div>")
-    }
-
     # Framework coverage cards (all frameworks)
     $null = $complianceHtml.AppendLine("<div class='exec-summary' id='fwCards'>")
     foreach ($fwKey in $allFrameworkKeys) {
@@ -1894,6 +1889,9 @@ if ($allCisFindings.Count -gt 0 -and $controlRegistry.Count -gt 0) {
     }
     if ($cisUnknown -gt 0) {
         $null = $complianceHtml.AppendLine("<label class='status-checkbox status-unknown'><input type='checkbox' value='unknown' checked> Unknown ($cisUnknown)</label>")
+    }
+    if ($cisInfo -gt 0) {
+        $null = $complianceHtml.AppendLine("<span class='info-note-inline'><span class='badge badge-neutral'>Info</span> = no pass/fail criteria; not included in pass rates</span>")
     }
     $null = $complianceHtml.AppendLine("<span class='fw-selector-actions'><button type='button' id='statusSelectAll' class='fw-action-btn'>All</button><button type='button' id='statusSelectNone' class='fw-action-btn'>None</button></span>")
     $null = $complianceHtml.AppendLine("</div>")
@@ -3401,8 +3399,7 @@ $html = @"
         .status-unknown.active { background: #f9fafb; color: #6b7280; border-color: #d1d5db; font-weight: 600; }
 
         /* Info status explanation note */
-        .info-status-note { display: flex; align-items: center; gap: 8px; padding: 8px 14px; margin: 0 0 12px; font-size: 0.82em; color: var(--m365a-medium-gray); background: var(--m365a-light-gray); border: 1px solid var(--m365a-border); border-radius: 6px; border-left: 3px solid var(--m365a-neutral); }
-        .info-status-note .badge { flex-shrink: 0; }
+        .info-note-inline { display: inline-flex; align-items: center; gap: 4px; font-size: 0.75em; color: var(--m365a-medium-gray); margin-left: 8px; }
 
         /* Dual-metric framework cards */
         .coverage-bar { margin-top: 6px; background: var(--m365a-border); border-radius: 4px; height: 6px; overflow: hidden; }
@@ -3418,7 +3415,7 @@ $html = @"
         .section-filter-label { font-weight: 600; font-size: 0.85em; color: var(--m365a-dark); margin-right: 4px; }
         .section-checkbox { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border: 1px solid var(--m365a-border); border-radius: 4px; font-size: 0.82em; cursor: pointer; transition: all 0.15s; background: var(--m365a-card-bg); user-select: none; }
         .section-checkbox:hover { border-color: var(--m365a-accent); }
-        .section-checkbox.active { background: var(--m365a-dark); color: #fff; border-color: var(--m365a-dark); }
+        .section-checkbox.active { background: #0d9488; color: #fff; border-color: #0d9488; }
         .section-checkbox input[type="checkbox"] { display: none; }
         .no-results { text-align: center; padding: 40px; color: var(--m365a-medium-gray); font-style: italic; }
 
@@ -3490,7 +3487,7 @@ $html = @"
         body.dark-theme .cloud-dod { background: #7F1D1D; color: #FCA5A5; border-color: #334155; }
 
         body.dark-theme .fw-checkbox.active { background: #3B82F6; color: #ffffff; border-color: #3B82F6; }
-        body.dark-theme .section-checkbox.active { background: #3B82F6; color: #ffffff; border-color: #3B82F6; }
+        body.dark-theme .section-checkbox.active { background: #0d9488; color: #ffffff; border-color: #0d9488; }
         body.dark-theme .status-fail.active { background: #7F1D1D; color: #FCA5A5; border-color: #991B1B; }
         body.dark-theme .status-warning.active { background: #78350F; color: #FCD34D; border-color: #92400E; }
         body.dark-theme .status-review.active { background: #1E3A5F; color: #93C5FD; border-color: #1E40AF; }
