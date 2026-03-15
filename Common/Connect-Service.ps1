@@ -247,6 +247,12 @@ try {
                 $connectParams['ApplicationId'] = $ClientId
                 $connectParams['CertificateThumbprint'] = $CertificateThumbprint
             }
+            elseif ($ClientId -and $ClientSecret) {
+                $secureSecret = ConvertTo-SecureString -String $ClientSecret -AsPlainText -Force
+                $credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $ClientId, $secureSecret
+                $connectParams['ServicePrincipal'] = $true
+                $connectParams['Credential'] = $credential
+            }
 
             Connect-PowerBIServiceAccount @connectParams -WarningAction SilentlyContinue
             Write-Verbose "Connected to Power BI ($M365Environment)"
