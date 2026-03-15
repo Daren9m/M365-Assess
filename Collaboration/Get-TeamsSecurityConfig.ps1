@@ -28,7 +28,7 @@ param(
     [string]$OutputPath
 )
 
-$ErrorActionPreference = 'Stop'
+$ErrorActionPreference = 'Continue'
 
 # Verify Graph connection
 try {

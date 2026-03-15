@@ -33,7 +33,7 @@ param(
     [string]$OutputPath
 )
 
-$ErrorActionPreference = 'Stop'
+$ErrorActionPreference = 'Continue'
 
 # Verify Graph connection
 try {
@@ -102,6 +102,7 @@ function Get-BreakGlassAccounts {
 try {
     Write-Verbose "Checking security defaults..."
     $secDefaults = Invoke-MgGraphRequest -Method GET -Uri '/v1.0/policies/identitySecurityDefaultsEnforcementPolicy' -ErrorAction Stop
+    if (-not $secDefaults) { throw "API returned null response" }
     $isEnabled = $secDefaults['isEnabled']
     Add-Setting -Category 'Security Defaults' -Setting 'Security Defaults Enabled' `
         -CurrentValue "$isEnabled" -RecommendedValue 'True (if no Conditional Access)' `
@@ -838,7 +839,7 @@ catch {
     }
 }
 
-if ($pimAvailable -and $pimRoleAssignments) {
+if ($pimAvailable -and $pimRoleAssignments -and $pimRoleAssignments['value']) {
     # CIS 5.3.1 -- PIM manages privileged roles (no permanent GA assignments)
     $gaRoleTemplateId = '62e90394-69f5-4237-9190-012177145e10'
     $permanentGA = @($pimRoleAssignments['value'] | Where-Object {
@@ -881,7 +882,7 @@ if ($pimAvailable) {
     }
 }
 
-if ($accessReviews) {
+if ($accessReviews -and $accessReviews['value']) {
     $allReviews = @($accessReviews['value'])
 
     # CIS 5.3.2 -- Guest access reviews
@@ -940,7 +941,7 @@ if ($pimAvailable) {
     }
 }
 
-if ($roleManagementPolicies) {
+if ($roleManagementPolicies -and $roleManagementPolicies['value']) {
     $allPolicies = @($roleManagementPolicies['value'])
 
     # CIS 5.3.4 -- GA activation approval
