@@ -2,6 +2,29 @@
 
 All notable changes to M365 Assess are documented here. This project uses [Conventional Commits](https://www.conventionalcommits.org/).
 
+## [0.9.1] - 2026-03-15
+
+### Changed
+- **Breaking:** `-ClientSecret` parameter now requires `[SecureString]` instead of plain text (#111)
+- EXO/Purview explicitly reject ClientSecret auth instead of silent fallthrough (#112)
+- Framework count in exec summary uses dynamic `$allFrameworkKeys.Count` instead of hardcoded 12 (#100)
+
+### Fixed
+- PowerBI 404/403 error parsing with actionable messages (#106)
+- SharePoint 401/403 guides users to consent `SharePointTenantSettings.Read.All` (#116)
+- Teams beta endpoint errors use try/catch + Write-Warning instead of SilentlyContinue (#115)
+- Null-safe `['value']` array access across 5 collector files (47 insertions) (#114)
+- PIM license vs config detection distinguishes "not configured" from "missing P2 license" (#117)
+- SOC2 SharePoint dependency probe with module-missing vs not-connected messaging (#110)
+- DeviceCodeCredential stray errors no longer crash Entra and Teams collectors
+- PowerBI child process no longer prompts for Service parameter
+
+### Added
+- 5 new Pester tests for PowerBI disconnected, 403, and 404 scenarios (#113)
+- COMPLIANCE.md updated to 149 automated checks, 233 registry entries (#99)
+- CONTRIBUTING.md with Pester testing guidance and PR template checklist (#101)
+- Registry README documenting CSV-to-JSON build pipeline (#102)
+
 ## [0.9.0] - 2026-03-14
 
 ### Added

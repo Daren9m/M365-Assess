@@ -3,7 +3,7 @@
     # Generated: 2026-03-08
 
     RootModule        = 'Invoke-M365Assessment.ps1'
-    ModuleVersion     = '0.9.0'
+    ModuleVersion     = '0.9.1'
     GUID              = 'f7e3b2a1-4c5d-6e8f-9a0b-1c2d3e4f5a6b'
     Author            = 'SelvageLabs'
     CompanyName       = 'Community'
@@ -98,7 +98,7 @@
             Tags         = @('Microsoft365', 'M365', 'Security', 'Assessment', 'EntraID', 'Exchange', 'Intune', 'Defender', 'SharePoint', 'Teams', 'PowerBI', 'ScubaGear', 'CIS')
             LicenseUri   = 'https://github.com/SelvageLabs/M365-Assess/blob/main/LICENSE'
             ProjectUri   = 'https://github.com/SelvageLabs/M365-Assess'
-            ReleaseNotes = 'v0.9.0 - Power BI collector (11 CIS 9.x checks), -ManagedIdentity and -ClientSecret auth, section reorder for optimal connections, validated issue fixes'
+            ReleaseNotes = 'v0.9.1 - Hardening and polish: SecureString for ClientSecret, null-safe array access, PIM license detection, improved error messages across PowerBI/SharePoint/Teams/EXO collectors'
         }
     }
 }
