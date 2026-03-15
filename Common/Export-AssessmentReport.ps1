@@ -3439,6 +3439,13 @@ $html = @"
         .matrix-table td { vertical-align: top; }
         .matrix-table tbody tr:nth-child(even) { background: transparent; }
         .matrix-table tbody tr.stripe-even td { background-color: rgba(148, 163, 184, 0.12); }
+        .matrix-table tbody tr:hover td { background-color: transparent; }
+        .matrix-table tbody tr.cis-row-pass:hover { background-color: var(--m365a-success); opacity: 0.85; }
+        .matrix-table tbody tr.cis-row-fail:hover { background-color: var(--m365a-danger); opacity: 0.85; }
+        .matrix-table tbody tr.cis-row-warning:hover { background-color: var(--m365a-warning); opacity: 0.85; }
+        .matrix-table tbody tr.cis-row-review:hover { background-color: var(--m365a-accent); opacity: 0.85; }
+        .matrix-table tbody tr.cis-row-info:hover { background-color: var(--m365a-neutral); opacity: 0.85; }
+        .matrix-table tbody tr.cis-row-unknown:hover { background-color: var(--m365a-medium-gray); opacity: 0.85; }
         .matrix-table .framework-refs { max-width: 180px; }
 
         /* ----------------------------------------------------------
