@@ -1772,9 +1772,9 @@ if ($allCisFindings.Count -gt 0 -and $controlRegistry.Count -gt 0) {
         $nistFwDef = Get-Content -Path $nistFwDefPath -Raw | ConvertFrom-Json
         if ($nistFwDef.scoring -and $nistFwDef.scoring.profiles) {
             foreach ($profileName in @('Low','Moderate','High','Privacy')) {
-                $profile = $nistFwDef.scoring.profiles.$profileName
-                if ($profile -and $profile.controlCount) {
-                    $catalogCounts["NIST-$profileName"] = [int]$profile.controlCount
+                $profileDef = $nistFwDef.scoring.profiles.$profileName
+                if ($profileDef -and $profileDef.controlCount) {
+                    $catalogCounts["NIST-$profileName"] = [int]$profileDef.controlCount
                 }
             }
         }
