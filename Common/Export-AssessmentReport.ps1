@@ -3425,6 +3425,8 @@ $html = @"
 
         /* Matrix table */
         .matrix-table td { vertical-align: top; }
+        .matrix-table tbody tr:nth-child(even) { background: transparent; }
+        .matrix-table tbody tr.stripe-even { background: var(--m365a-light-gray); }
         .matrix-table .framework-refs { max-width: 180px; }
 
         /* ----------------------------------------------------------
@@ -3895,6 +3897,17 @@ $html += @"
                     var show = sectionOk && statusOk;
                     row.style.display = show ? '' : 'none';
                     if (show) visibleCount++;
+                });
+
+                // 2b. Re-apply zebra striping to visible rows only
+                var visIdx = 0;
+                compRows.forEach(function(row) {
+                    if (row.style.display !== 'none') {
+                        row.classList.toggle('stripe-even', visIdx % 2 === 1);
+                        visIdx++;
+                    } else {
+                        row.classList.remove('stripe-even');
+                    }
                 });
 
                 // 3. No-results message
