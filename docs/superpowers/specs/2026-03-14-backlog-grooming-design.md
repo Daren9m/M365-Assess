@@ -37,7 +37,7 @@ Grooming session to identify issues/enhancements in the M365-Assess repo, create
 |-------|------|-------|-----------|
 | #88 | bug | fix: unsafe array access in Get-EntraSecurityConfig.ps1 | v0.8.4 |
 | #89 | bug | fix: unsafe array access in Export-AssessmentReport.ps1 | v0.8.4 |
-| #90 | enhancement | chore: track org attribution migration to SelvageLabs | v0.8.4 |
+| #90 | enhancement | chore: track org attribution migration to Galvnyz | v0.8.4 |
 | #91 | enhancement | chore: update CLAUDE.md testing policy to include Pester | v0.8.4 |
 | #92 | enhancement | chore: clean up duplicate v0.9.0 milestones | v0.8.4 (closed) |
 | #93 | enhancement | test: expand Pester coverage to all security collectors | v0.8.4 |

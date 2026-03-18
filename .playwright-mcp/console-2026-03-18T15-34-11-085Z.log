@@ -1,0 +1,7 @@
+[  267833ms] [ERROR] [2026-03-18T15:38:38.918Z] Error: Connection disconnected with error 'Error: WebSocket closed with status code: 1006 (no reason given).'. @ http://localhost:62080/_framework/blazor.web.js:0
+[  273181ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:62080/_blazor/negotiate?negotiateVersion=1:0
+[  273181ms] [WARNING] [2026-03-18T15:38:44.265Z] Warning: Error from HTTP request. TypeError: Failed to fetch. @ http://localhost:62080/_framework/blazor.web.js:0
+[  273181ms] [ERROR] [2026-03-18T15:38:44.265Z] Error: Failed to complete negotiation with the server: TypeError: Failed to fetch @ http://localhost:62080/_framework/blazor.web.js:0
+[  273181ms] [ERROR] [2026-03-18T15:38:44.266Z] Error: Failed to start the connection: Error: Failed to complete negotiation with the server: TypeError: Failed to fetch @ http://localhost:62080/_framework/blazor.web.js:0
+[  273181ms] [ERROR] [2026-03-18T15:38:44.266Z] Error: Error: Failed to complete negotiation with the server: TypeError: Failed to fetch @ http://localhost:62080/_framework/blazor.web.js:0
+[  273181ms] [ERROR] [2026-03-18T15:38:44.266Z] Error: Error: Failed to complete negotiation with the server: TypeError: Failed to fetch @ http://localhost:62080/_framework/blazor.web.js:0

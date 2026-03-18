@@ -132,7 +132,7 @@ If PSGallery is a v1.0.0 goal, the work should be scoped as a dedicated mileston
 2. Rename or alias the existing `.ps1` to avoid confusion.
 3. Validate the module loads cleanly with `Import-Module` and no top-level side effects.
 4. Fix `FileList` and remove `ScriptsToProcess`.
-5. Publish to PSGallery under the `SelvageLabs` account.
+5. Publish to PSGallery under the `Galvnyz` account.
 
 **Estimated effort:** M (3-5 days including testing) for a clean, correct PSGallery-compatible module structure.
 

@@ -1,0 +1,1006 @@
+- generic [ref=e2]:
+  - complementary [ref=e3]:
+    - generic [ref=e5]:
+      - generic [ref=e6]: 🛡
+      - generic [ref=e7]: M365 Remediate
+    - navigation [ref=e8]:
+      - list [ref=e9]:
+        - listitem [ref=e10]:
+          - link "📊 Dashboard" [ref=e11] [cursor=pointer]:
+            - /url: ""
+            - generic [ref=e12]: 📊
+            - generic [ref=e13]: Dashboard
+        - listitem [ref=e14]:
+          - link "🔌 Connect" [ref=e15] [cursor=pointer]:
+            - /url: connect
+            - generic [ref=e16]: 🔌
+            - generic [ref=e17]: Connect
+        - listitem [ref=e18]:
+          - link "📖 Catalog" [ref=e19] [cursor=pointer]:
+            - /url: catalog
+            - generic [ref=e20]: 📖
+            - generic [ref=e21]: Catalog
+        - listitem [ref=e22]:
+          - link "🧭 Guided Wizard" [ref=e23] [cursor=pointer]:
+            - /url: guided
+            - generic [ref=e24]: 🧭
+            - generic [ref=e25]: Guided Wizard
+        - listitem [ref=e26]:
+          - link "📋 Execution Log" [ref=e27] [cursor=pointer]:
+            - /url: log
+            - generic [ref=e28]: 📋
+            - generic [ref=e29]: Execution Log
+        - listitem [ref=e30]
+        - listitem [ref=e31]:
+          - link "📜 Script Generator" [ref=e32] [cursor=pointer]:
+            - /url: script
+            - generic [ref=e33]: 📜
+            - generic [ref=e34]: Script Generator
+        - listitem [ref=e35]:
+          - link "⚙ Configurator" [ref=e36] [cursor=pointer]:
+            - /url: automate
+            - generic [ref=e37]: ⚙
+            - generic [ref=e38]: Configurator
+    - generic [ref=e39]:
+      - button "🌙 Dark Mode" [ref=e40] [cursor=pointer]:
+        - generic [ref=e41]: 🌙
+        - generic [ref=e42]: Dark Mode
+      - generic [ref=e43]:
+        - generic [ref=e44]: DZM LLC
+        - generic [ref=e45]:
+          - generic [ref=e48]: Graph
+          - generic [ref=e51]: Exchange
+          - generic [ref=e54]: SharePoint
+          - generic [ref=e57]: Teams
+          - generic [ref=e60]: Writer
+  - main [ref=e61]:
+    - generic [ref=e62]:
+      - text: Connected to
+      - strong [ref=e63]: DZM LLC
+      - text: (dbb4b808...) via Reader
+    - article [ref=e64]:
+      - heading "Configurator" [level=1] [ref=e998]
+      - paragraph [ref=e999]: Bulk remediation with profiles, risk filters, and live progress tracking.
+      - generic [ref=e1000]:
+        - generic [ref=e1001]:
+          - heading "Remediation Profile" [level=3] [ref=e1002]
+          - paragraph [ref=e1003]: Select a predefined profile or build a custom selection.
+          - generic [ref=e1004]:
+            - button "Custom Select individual checks" [ref=e1005] [cursor=pointer]:
+              - strong [ref=e1006]: Custom
+              - generic [ref=e1007]: Select individual checks
+            - button "CIS Level 1 25 checks" [ref=e1008] [cursor=pointer]:
+              - strong [ref=e1009]: CIS Level 1
+              - generic [ref=e1010]: 25 checks
+            - button "CIS Level 2 45 checks" [ref=e1011] [cursor=pointer]:
+              - strong [ref=e1012]: CIS Level 2
+              - generic [ref=e1013]: 45 checks
+            - button "Quick Wins 12 checks" [ref=e1014] [cursor=pointer]:
+              - strong [ref=e1015]: Quick Wins
+              - generic [ref=e1016]: 12 checks
+        - generic [ref=e1017]:
+          - heading "Risk Filter" [level=3] [ref=e1018]
+          - paragraph [ref=e1019]: Limit execution to selected risk levels.
+          - generic [ref=e1020]:
+            - generic [ref=e1021] [cursor=pointer]:
+              - checkbox "Low" [checked] [ref=e1022]
+              - generic [ref=e1023]: Low
+            - generic [ref=e1024] [cursor=pointer]:
+              - checkbox "Medium" [checked] [ref=e1025]
+              - generic [ref=e1026]: Medium
+            - generic [ref=e1027] [cursor=pointer]:
+              - checkbox "High" [checked] [ref=e1028]
+              - generic [ref=e1029]: High
+            - generic [ref=e1030] [cursor=pointer]:
+              - checkbox "Critical" [checked] [ref=e1031]
+              - generic [ref=e1032]: Critical
+        - generic [ref=e1033]:
+          - heading "Execution Options" [level=3] [ref=e1034]
+          - generic [ref=e1035]:
+            - generic [ref=e1036] [cursor=pointer]:
+              - checkbox "Dry Run" [checked] [ref=e1037]
+              - generic [ref=e1038]: Dry Run
+            - paragraph [ref=e1039]: Verify current state and show what would change without applying. Safe to run anytime.
+            - generic [ref=e1040] [cursor=pointer]:
+              - checkbox "Capture Snapshots" [checked] [ref=e1041]
+              - generic [ref=e1042]: Capture Snapshots
+            - paragraph [ref=e1043]: Save pre-state for each check before remediation. Enables rollback from the execution log.
+        - generic [ref=e1044]:
+          - generic [ref=e1045]:
+            - heading "Selected Checks (152)" [level=3] [ref=e1046]
+            - generic [ref=e1047]:
+              - button "Select All" [ref=e1048] [cursor=pointer]
+              - button "Select None" [ref=e1049] [cursor=pointer]
+          - paragraph [ref=e1050]: Toggle individual checks on or off.
+          - generic [ref=e1051]:
+            - generic [ref=e1052]:
+              - generic [ref=e1053] [cursor=pointer]:
+                - heading "▼ Collaboration" [level=2] [ref=e1054]:
+                  - generic [ref=e1055]: ▼
+                  - text: Collaboration
+                - generic [ref=e1056]:
+                  - generic [ref=e1057]: 5 / 5 selected
+                  - button "All" [ref=e1058]
+                  - button "None" [ref=e1059]
+              - generic [ref=e1931]:
+                - generic [ref=e1932] [cursor=pointer]:
+                  - checkbox "SPO-SHARING-001 External Sharing Level High" [checked] [ref=e1933]
+                  - generic [ref=e1934]: SPO-SHARING-001
+                  - generic [ref=e1935]: External Sharing Level
+                  - generic [ref=e1936]: High
+                - generic [ref=e1937] [cursor=pointer]:
+                  - checkbox "SPO-SHARING-007 Default Sharing Link Type Medium" [checked] [ref=e1938]
+                  - generic [ref=e1939]: SPO-SHARING-007
+                  - generic [ref=e1940]: Default Sharing Link Type
+                  - generic [ref=e1941]: Medium
+                - generic [ref=e1942] [cursor=pointer]:
+                  - checkbox "SPO-SYNC-001 OneDrive Sync Client Restrictions Medium" [checked] [ref=e1943]
+                  - generic [ref=e1944]: SPO-SYNC-001
+                  - generic [ref=e1945]: OneDrive Sync Client Restrictions
+                  - generic [ref=e1946]: Medium
+                - generic [ref=e1947] [cursor=pointer]:
+                  - checkbox "TEAMS-EXTACCESS-001 Teams External Access Policy Medium" [checked] [ref=e1948]
+                  - generic [ref=e1949]: TEAMS-EXTACCESS-001
+                  - generic [ref=e1950]: Teams External Access Policy
+                  - generic [ref=e1951]: Medium
+                - generic [ref=e1952] [cursor=pointer]:
+                  - checkbox "TEAMS-GUEST-001 Teams Guest Access Policy Medium" [checked] [ref=e1953]
+                  - generic [ref=e1954]: TEAMS-GUEST-001
+                  - generic [ref=e1955]: Teams Guest Access Policy
+                  - generic [ref=e1956]: Medium
+            - generic [ref=e1086]:
+              - generic [ref=e1087] [cursor=pointer]:
+                - heading "▼ Compliance" [level=2] [ref=e1088]:
+                  - generic [ref=e1089]: ▼
+                  - text: Compliance
+                - generic [ref=e1090]:
+                  - generic [ref=e1091]: 3 / 3 selected
+                  - button "All" [ref=e1092]
+                  - button "None" [ref=e1093]
+              - generic [ref=e1094]:
+                - generic [ref=e1095] [cursor=pointer]:
+                  - checkbox "COMPLIANCE-AUDIT-001 Unified Audit Log High" [checked] [ref=e1096]
+                  - generic [ref=e1097]: COMPLIANCE-AUDIT-001
+                  - generic [ref=e1098]: Unified Audit Log
+                  - generic [ref=e1099]: High
+                - generic [ref=e1100] [cursor=pointer]:
+                  - checkbox "COMPLIANCE-DLP-002 Teams DLP Policy High" [checked] [ref=e1101]
+                  - generic [ref=e1102]: COMPLIANCE-DLP-002
+                  - generic [ref=e1103]: Teams DLP Policy
+                  - generic [ref=e1104]: High
+                - generic [ref=e1105] [cursor=pointer]:
+                  - checkbox "COMPLIANCE-LABELS-001 Sensitivity Label Policies Medium" [checked] [ref=e1106]
+                  - generic [ref=e1107]: COMPLIANCE-LABELS-001
+                  - generic [ref=e1108]: Sensitivity Label Policies
+                  - generic [ref=e1109]: Medium
+            - generic [ref=e1110]:
+              - generic [ref=e1111] [cursor=pointer]:
+                - heading "▼ Conditional Access" [level=2] [ref=e1112]:
+                  - generic [ref=e1113]: ▼
+                  - text: Conditional Access
+                - generic [ref=e1114]:
+                  - generic [ref=e1115]: 12 / 12 selected
+                  - button "All" [ref=e1116]
+                  - button "None" [ref=e1117]
+              - generic [ref=e1957]:
+                - generic [ref=e1958] [cursor=pointer]:
+                  - checkbox "CA-DEVICE-001 Managed Device Requirement High" [checked] [ref=e1959]
+                  - generic [ref=e1960]: CA-DEVICE-001
+                  - generic [ref=e1961]: Managed Device Requirement
+                  - generic [ref=e1962]: High
+                - generic [ref=e1963] [cursor=pointer]:
+                  - checkbox "CA-DEVICE-002 MFA Registration Device Requirement Medium" [checked] [ref=e1964]
+                  - generic [ref=e1965]: CA-DEVICE-002
+                  - generic [ref=e1966]: MFA Registration Device Requirement
+                  - generic [ref=e1967]: Medium
+                - generic [ref=e1968] [cursor=pointer]:
+                  - checkbox "CA-DEVICECODE-001 Device Code Flow Block High" [checked] [ref=e1969]
+                  - generic [ref=e1970]: CA-DEVICECODE-001
+                  - generic [ref=e1971]: Device Code Flow Block
+                  - generic [ref=e1972]: High
+                - generic [ref=e1973] [cursor=pointer]:
+                  - checkbox "CA-INTUNE-001 Intune Enrollment Sign-in Frequency Medium" [checked] [ref=e1974]
+                  - generic [ref=e1975]: CA-INTUNE-001
+                  - generic [ref=e1976]: Intune Enrollment Sign-in Frequency
+                  - generic [ref=e1977]: Medium
+                - generic [ref=e1978] [cursor=pointer]:
+                  - checkbox "CA-LEGACYAUTH-001 Legacy Auth Block Policy High" [checked] [ref=e1979]
+                  - generic [ref=e1980]: CA-LEGACYAUTH-001
+                  - generic [ref=e1981]: Legacy Auth Block Policy
+                  - generic [ref=e1982]: High
+                - generic [ref=e1983] [cursor=pointer]:
+                  - checkbox "CA-MFA-ADMIN-001 Admin MFA Conditional Access Policy High" [checked] [ref=e1984]
+                  - generic [ref=e1985]: CA-MFA-ADMIN-001
+                  - generic [ref=e1986]: Admin MFA Conditional Access Policy
+                  - generic [ref=e1987]: High
+                - generic [ref=e1988] [cursor=pointer]:
+                  - checkbox "CA-MFA-ALL-001 All-User MFA Policy High" [checked] [ref=e1989]
+                  - generic [ref=e1990]: CA-MFA-ALL-001
+                  - generic [ref=e1991]: All-User MFA Policy
+                  - generic [ref=e1992]: High
+                - generic [ref=e1993] [cursor=pointer]:
+                  - checkbox "CA-PHISHRES-001 Phishing-Resistant MFA for Admins High" [checked] [ref=e1994]
+                  - generic [ref=e1995]: CA-PHISHRES-001
+                  - generic [ref=e1996]: Phishing-Resistant MFA for Admins
+                  - generic [ref=e1997]: High
+                - generic [ref=e1998] [cursor=pointer]:
+                  - checkbox "CA-SIGNIN-FREQ-001 Admin Sign-in Frequency Medium" [checked] [ref=e1999]
+                  - generic [ref=e2000]: CA-SIGNIN-FREQ-001
+                  - generic [ref=e2001]: Admin Sign-in Frequency
+                  - generic [ref=e2002]: Medium
+                - generic [ref=e2003] [cursor=pointer]:
+                  - checkbox "CA-SIGNINRISK-001 Sign-in Risk Policy High" [checked] [ref=e2004]
+                  - generic [ref=e2005]: CA-SIGNINRISK-001
+                  - generic [ref=e2006]: Sign-in Risk Policy
+                  - generic [ref=e2007]: High
+                - generic [ref=e2008] [cursor=pointer]:
+                  - checkbox "CA-SIGNINRISK-002 Sign-in Risk Block Policy High" [checked] [ref=e2009]
+                  - generic [ref=e2010]: CA-SIGNINRISK-002
+                  - generic [ref=e2011]: Sign-in Risk Block Policy
+                  - generic [ref=e2012]: High
+                - generic [ref=e2013] [cursor=pointer]:
+                  - checkbox "CA-USERRISK-001 User Risk Policy High" [checked] [ref=e2014]
+                  - generic [ref=e2015]: CA-USERRISK-001
+                  - generic [ref=e2016]: User Risk Policy
+                  - generic [ref=e2017]: High
+            - generic [ref=e1179]:
+              - generic [ref=e1180] [cursor=pointer]:
+                - heading "▼ Defender for Office 365" [level=2] [ref=e1181]:
+                  - generic [ref=e1182]: ▼
+                  - text: Defender for Office 365
+                - generic [ref=e1183]:
+                  - generic [ref=e1184]: 11 / 11 selected
+                  - button "All" [ref=e1185]
+                  - button "None" [ref=e1186]
+              - generic [ref=e1187]:
+                - generic [ref=e1188] [cursor=pointer]:
+                  - checkbox "DEFENDER-ANTIMALWARE-001 Common Attachment Types Filter Medium" [checked] [ref=e1189]
+                  - generic [ref=e1190]: DEFENDER-ANTIMALWARE-001
+                  - generic [ref=e1191]: Common Attachment Types Filter
+                  - generic [ref=e1192]: Medium
+                - generic [ref=e1193] [cursor=pointer]:
+                  - checkbox "DEFENDER-ANTIMALWARE-002 Internal Sender Malware Notifications Medium" [checked] [ref=e1194]
+                  - generic [ref=e1195]: DEFENDER-ANTIMALWARE-002
+                  - generic [ref=e1196]: Internal Sender Malware Notifications
+                  - generic [ref=e1197]: Medium
+                - generic [ref=e1198] [cursor=pointer]:
+                  - checkbox "DEFENDER-ANTIPHISH-001 Anti-Phishing Policy Medium" [checked] [ref=e1199]
+                  - generic [ref=e1200]: DEFENDER-ANTIPHISH-001
+                  - generic [ref=e1201]: Anti-Phishing Policy
+                  - generic [ref=e1202]: Medium
+                - generic [ref=e1203] [cursor=pointer]:
+                  - checkbox "DEFENDER-ANTISPAM-001 Spam Policy Admin Notifications Medium" [checked] [ref=e1204]
+                  - generic [ref=e1205]: DEFENDER-ANTISPAM-001
+                  - generic [ref=e1206]: Spam Policy Admin Notifications
+                  - generic [ref=e1207]: Medium
+                - generic [ref=e1208] [cursor=pointer]:
+                  - checkbox "DEFENDER-ANTISPAM-002 Allowed Domains in Spam Filter High" [checked] [ref=e1209]
+                  - generic [ref=e1210]: DEFENDER-ANTISPAM-002
+                  - generic [ref=e1211]: Allowed Domains in Spam Filter
+                  - generic [ref=e1212]: High
+                - generic [ref=e1213] [cursor=pointer]:
+                  - checkbox "DEFENDER-MALWARE-002 File Type Filter Extensions Medium" [checked] [ref=e1214]
+                  - generic [ref=e1215]: DEFENDER-MALWARE-002
+                  - generic [ref=e1216]: File Type Filter Extensions
+                  - generic [ref=e1217]: Medium
+                - generic [ref=e1218] [cursor=pointer]:
+                  - checkbox "DEFENDER-OUTBOUND-001 Outbound Spam Filter Policy Medium" [checked] [ref=e1219]
+                  - generic [ref=e1220]: DEFENDER-OUTBOUND-001
+                  - generic [ref=e1221]: Outbound Spam Filter Policy
+                  - generic [ref=e1222]: Medium
+                - generic [ref=e1223] [cursor=pointer]:
+                  - checkbox "DEFENDER-PRIORITY-001 Priority Account Protection Medium" [checked] [ref=e1224]
+                  - generic [ref=e1225]: DEFENDER-PRIORITY-001
+                  - generic [ref=e1226]: Priority Account Protection
+                  - generic [ref=e1227]: Medium
+                - generic [ref=e1228] [cursor=pointer]:
+                  - checkbox "DEFENDER-PRIORITY-002 Strict Protection Preset Medium" [checked] [ref=e1229]
+                  - generic [ref=e1230]: DEFENDER-PRIORITY-002
+                  - generic [ref=e1231]: Strict Protection Preset
+                  - generic [ref=e1232]: Medium
+                - generic [ref=e1233] [cursor=pointer]:
+                  - checkbox "DEFENDER-SAFEATTACH-002 Safe Attachments for SPO/OD/Teams Medium" [checked] [ref=e1234]
+                  - generic [ref=e1235]: DEFENDER-SAFEATTACH-002
+                  - generic [ref=e1236]: Safe Attachments for SPO/OD/Teams
+                  - generic [ref=e1237]: Medium
+                - generic [ref=e1238] [cursor=pointer]:
+                  - checkbox "DEFENDER-ZAP-001 Teams ZAP Medium" [checked] [ref=e1239]
+                  - generic [ref=e1240]: DEFENDER-ZAP-001
+                  - generic [ref=e1241]: Teams ZAP
+                  - generic [ref=e1242]: Medium
+            - generic [ref=e1243]:
+              - generic [ref=e1244] [cursor=pointer]:
+                - heading "▼ DNS" [level=2] [ref=e1245]:
+                  - generic [ref=e1246]: ▼
+                  - text: DNS
+                - generic [ref=e1247]:
+                  - generic [ref=e1248]: 3 / 3 selected
+                  - button "All" [ref=e1249]
+                  - button "None" [ref=e1250]
+              - generic [ref=e1251]:
+                - generic [ref=e1252] [cursor=pointer]:
+                  - checkbox "DNS-DKIM-001 DKIM Signing High" [checked] [ref=e1253]
+                  - generic [ref=e1254]: DNS-DKIM-001
+                  - generic [ref=e1255]: DKIM Signing
+                  - generic [ref=e1256]: High
+                - generic [ref=e1257] [cursor=pointer]:
+                  - checkbox "DNS-DMARC-001 DMARC Record High" [checked] [ref=e1258]
+                  - generic [ref=e1259]: DNS-DMARC-001
+                  - generic [ref=e1260]: DMARC Record
+                  - generic [ref=e1261]: High
+                - generic [ref=e1262] [cursor=pointer]:
+                  - checkbox "DNS-SPF-001 SPF Record High" [checked] [ref=e1263]
+                  - generic [ref=e1264]: DNS-SPF-001
+                  - generic [ref=e1265]: SPF Record
+                  - generic [ref=e1266]: High
+            - generic [ref=e1267]:
+              - generic [ref=e1268] [cursor=pointer]:
+                - heading "▼ Entra" [level=2] [ref=e1269]:
+                  - generic [ref=e1270]: ▼
+                  - text: Entra
+                - generic [ref=e1271]:
+                  - generic [ref=e1272]: 48 / 48 selected
+                  - button "All" [ref=e1273]
+                  - button "None" [ref=e1274]
+              - generic [ref=e1275]:
+                - generic [ref=e1276] [cursor=pointer]:
+                  - checkbox "ENTRA-ADMIN-001 Global Administrator Count Medium" [checked] [ref=e1277]
+                  - generic [ref=e1278]: ENTRA-ADMIN-001
+                  - generic [ref=e1279]: Global Administrator Count
+                  - generic [ref=e1280]: Medium
+                - generic [ref=e1281] [cursor=pointer]:
+                  - checkbox "ENTRA-ADMIN-002 Entra Admin Center Restricted Low" [checked] [ref=e1282]
+                  - generic [ref=e1283]: ENTRA-ADMIN-002
+                  - generic [ref=e1284]: Entra Admin Center Restricted
+                  - generic [ref=e1285]: Low
+                - generic [ref=e1286] [cursor=pointer]:
+                  - checkbox "ENTRA-ADMIN-003 Emergency Access Accounts Critical" [checked] [ref=e1287]
+                  - generic [ref=e1288]: ENTRA-ADMIN-003
+                  - generic [ref=e1289]: Emergency Access Accounts
+                  - generic [ref=e1290]: Critical
+                - generic [ref=e1291] [cursor=pointer]:
+                  - checkbox "ENTRA-APPREG-001 Restrict App Registrations Low" [checked] [ref=e1292]
+                  - generic [ref=e1293]: ENTRA-APPREG-001
+                  - generic [ref=e1294]: Restrict App Registrations
+                  - generic [ref=e1295]: Low
+                - generic [ref=e1296] [cursor=pointer]:
+                  - checkbox "ENTRA-APPS-001 Third-Party Integrated Application Registration Medium" [checked] [ref=e1297]
+                  - generic [ref=e1298]: ENTRA-APPS-001
+                  - generic [ref=e1299]: Third-Party Integrated Application Registration
+                  - generic [ref=e1300]: Medium
+                - generic [ref=e1301] [cursor=pointer]:
+                  - checkbox "ENTRA-AUTHMETHOD-001 SMS Authentication Disabled Medium" [checked] [ref=e1302]
+                  - generic [ref=e1303]: ENTRA-AUTHMETHOD-001
+                  - generic [ref=e1304]: SMS Authentication Disabled
+                  - generic [ref=e1305]: Medium
+                - generic [ref=e1306] [cursor=pointer]:
+                  - checkbox "ENTRA-AUTHMETHOD-002 Email OTP Authentication Method Medium" [checked] [ref=e1307]
+                  - generic [ref=e1308]: ENTRA-AUTHMETHOD-002
+                  - generic [ref=e1309]: Email OTP Authentication Method
+                  - generic [ref=e1310]: Medium
+                - generic [ref=e1311] [cursor=pointer]:
+                  - checkbox "ENTRA-AUTHMETHOD-003 Authenticator Fatigue Protection Low" [checked] [ref=e1312]
+                  - generic [ref=e1313]: ENTRA-AUTHMETHOD-003
+                  - generic [ref=e1314]: Authenticator Fatigue Protection
+                  - generic [ref=e1315]: Low
+                - generic [ref=e1316] [cursor=pointer]:
+                  - checkbox "ENTRA-AUTHMETHOD-004 System-Preferred Multifactor Authentication Medium" [checked] [ref=e1317]
+                  - generic [ref=e1318]: ENTRA-AUTHMETHOD-004
+                  - generic [ref=e1319]: System-Preferred Multifactor Authentication
+                  - generic [ref=e1320]: Medium
+                - generic [ref=e1321] [cursor=pointer]:
+                  - checkbox "ENTRA-CA-002 Conditional Access Policy Coverage for All Users High" [checked] [ref=e1322]
+                  - generic [ref=e1323]: ENTRA-CA-002
+                  - generic [ref=e1324]: Conditional Access Policy Coverage for All Users
+                  - generic [ref=e1325]: High
+                - generic [ref=e1326] [cursor=pointer]:
+                  - checkbox "ENTRA-CA-003 Conditional Access Policy Role Exclusions High" [checked] [ref=e1327]
+                  - generic [ref=e1328]: ENTRA-CA-003
+                  - generic [ref=e1329]: Conditional Access Policy Role Exclusions
+                  - generic [ref=e1330]: High
+                - generic [ref=e1331] [cursor=pointer]:
+                  - checkbox "ENTRA-CLOUDADMIN-001 Cloud-Only Administrative Accounts High" [checked] [ref=e1332]
+                  - generic [ref=e1333]: ENTRA-CLOUDADMIN-001
+                  - generic [ref=e1334]: Cloud-Only Administrative Accounts
+                  - generic [ref=e1335]: High
+                - generic [ref=e1336] [cursor=pointer]:
+                  - checkbox "ENTRA-CLOUDADMIN-002 Administrative Account License Footprint Medium" [checked] [ref=e1337]
+                  - generic [ref=e1338]: ENTRA-CLOUDADMIN-002
+                  - generic [ref=e1339]: Administrative Account License Footprint
+                  - generic [ref=e1340]: Medium
+                - generic [ref=e1341] [cursor=pointer]:
+                  - checkbox "ENTRA-CONSENT-001 User Consent for Applications Low" [checked] [ref=e1342]
+                  - generic [ref=e1343]: ENTRA-CONSENT-001
+                  - generic [ref=e1344]: User Consent for Applications
+                  - generic [ref=e1345]: Low
+                - generic [ref=e1346] [cursor=pointer]:
+                  - checkbox "ENTRA-CONSENT-002 Admin Consent Workflow Low" [checked] [ref=e1347]
+                  - generic [ref=e1348]: ENTRA-CONSENT-002
+                  - generic [ref=e1349]: Admin Consent Workflow
+                  - generic [ref=e1350]: Low
+                - generic [ref=e1351] [cursor=pointer]:
+                  - checkbox "ENTRA-DEVICE-001 Entra ID Join Restriction Medium" [checked] [ref=e1352]
+                  - generic [ref=e1353]: ENTRA-DEVICE-001
+                  - generic [ref=e1354]: Entra ID Join Restriction
+                  - generic [ref=e1355]: Medium
+                - generic [ref=e1356] [cursor=pointer]:
+                  - checkbox "ENTRA-DEVICE-002 Maximum Devices Per User Medium" [checked] [ref=e1357]
+                  - generic [ref=e1358]: ENTRA-DEVICE-002
+                  - generic [ref=e1359]: Maximum Devices Per User
+                  - generic [ref=e1360]: Medium
+                - generic [ref=e1361] [cursor=pointer]:
+                  - checkbox "ENTRA-DEVICE-003 Global Administrator Local Admin During Entra Join Medium" [checked] [ref=e1362]
+                  - generic [ref=e1363]: ENTRA-DEVICE-003
+                  - generic [ref=e1364]: Global Administrator Local Admin During Entra Join
+                  - generic [ref=e1365]: Medium
+                - generic [ref=e1366] [cursor=pointer]:
+                  - checkbox "ENTRA-DEVICE-004 Local Administrator Assignment During Entra Join Medium" [checked] [ref=e1367]
+                  - generic [ref=e1368]: ENTRA-DEVICE-004
+                  - generic [ref=e1369]: Local Administrator Assignment During Entra Join
+                  - generic [ref=e1370]: Medium
+                - generic [ref=e1371] [cursor=pointer]:
+                  - checkbox "ENTRA-DEVICE-005 Local Administrator Password Solution (LAPS) Medium" [checked] [ref=e1372]
+                  - generic [ref=e1373]: ENTRA-DEVICE-005
+                  - generic [ref=e1374]: Local Administrator Password Solution (LAPS)
+                  - generic [ref=e1375]: Medium
+                - generic [ref=e1376] [cursor=pointer]:
+                  - checkbox "ENTRA-DEVICE-006 BitLocker Key Self-Service Recovery Medium" [checked] [ref=e1377]
+                  - generic [ref=e1378]: ENTRA-DEVICE-006
+                  - generic [ref=e1379]: BitLocker Key Self-Service Recovery
+                  - generic [ref=e1380]: Medium
+                - generic [ref=e1381] [cursor=pointer]:
+                  - checkbox "ENTRA-GROUP-001 Users Can Create Security Groups Low" [checked] [ref=e1382]
+                  - generic [ref=e1383]: ENTRA-GROUP-001
+                  - generic [ref=e1384]: Users Can Create Security Groups
+                  - generic [ref=e1385]: Low
+                - generic [ref=e1386] [cursor=pointer]:
+                  - checkbox "ENTRA-GROUP-003 Public Microsoft 365 Groups Medium" [checked] [ref=e1387]
+                  - generic [ref=e1388]: ENTRA-GROUP-003
+                  - generic [ref=e1389]: Public Microsoft 365 Groups
+                  - generic [ref=e1390]: Medium
+                - generic [ref=e1391] [cursor=pointer]:
+                  - checkbox "ENTRA-GUEST-001 Guest User Access Restriction Low" [checked] [ref=e1392]
+                  - generic [ref=e1393]: ENTRA-GUEST-001
+                  - generic [ref=e1394]: Guest User Access Restriction
+                  - generic [ref=e1395]: Low
+                - generic [ref=e1396] [cursor=pointer]:
+                  - checkbox "ENTRA-GUEST-002 Guest Invitation Policy Low" [checked] [ref=e1397]
+                  - generic [ref=e1398]: ENTRA-GUEST-002
+                  - generic [ref=e1399]: Guest Invitation Policy
+                  - generic [ref=e1400]: Low
+                - generic [ref=e1401] [cursor=pointer]:
+                  - checkbox "ENTRA-GUEST-003 Guest User Directory Access Restriction Medium" [checked] [ref=e1402]
+                  - generic [ref=e1403]: ENTRA-GUEST-003
+                  - generic [ref=e1404]: Guest User Directory Access Restriction
+                  - generic [ref=e1405]: Medium
+                - generic [ref=e1406] [cursor=pointer]:
+                  - checkbox "ENTRA-GUEST-004 Collaboration Invitation Restrictions Medium" [checked] [ref=e1407]
+                  - generic [ref=e1408]: ENTRA-GUEST-004
+                  - generic [ref=e1409]: Collaboration Invitation Restrictions
+                  - generic [ref=e1410]: Medium
+                - generic [ref=e1411] [cursor=pointer]:
+                  - checkbox "ENTRA-HYBRID-001 Password Hash Sync for Hybrid Deployments High" [checked] [ref=e1412]
+                  - generic [ref=e1413]: ENTRA-HYBRID-001
+                  - generic [ref=e1414]: Password Hash Sync for Hybrid Deployments
+                  - generic [ref=e1415]: High
+                - generic [ref=e1416] [cursor=pointer]:
+                  - checkbox "ENTRA-LINKEDIN-001 LinkedIn Account Connections Disabled Low" [checked] [ref=e1417]
+                  - generic [ref=e1418]: ENTRA-LINKEDIN-001
+                  - generic [ref=e1419]: LinkedIn Account Connections Disabled
+                  - generic [ref=e1420]: Low
+                - generic [ref=e1421] [cursor=pointer]:
+                  - checkbox "ENTRA-MFA-001 All Member Users MFA Capable High" [checked] [ref=e1422]
+                  - generic [ref=e1423]: ENTRA-MFA-001
+                  - generic [ref=e1424]: All Member Users MFA Capable
+                  - generic [ref=e1425]: High
+                - generic [ref=e1426] [cursor=pointer]:
+                  - checkbox "ENTRA-ORGSETTING-001 User Owned Apps and Services Medium" [checked] [ref=e1427]
+                  - generic [ref=e1428]: ENTRA-ORGSETTING-001
+                  - generic [ref=e1429]: User Owned Apps and Services
+                  - generic [ref=e1430]: Medium
+                - generic [ref=e1431] [cursor=pointer]:
+                  - checkbox "ENTRA-ORGSETTING-002 Microsoft Forms Internal Phishing Protection Low" [checked] [ref=e1432]
+                  - generic [ref=e1433]: ENTRA-ORGSETTING-002
+                  - generic [ref=e1434]: Microsoft Forms Internal Phishing Protection
+                  - generic [ref=e1435]: Low
+                - generic [ref=e1436] [cursor=pointer]:
+                  - checkbox "ENTRA-ORGSETTING-003 Third-Party Storage Services in Microsoft 365 on the Web Medium" [checked] [ref=e1437]
+                  - generic [ref=e1438]: ENTRA-ORGSETTING-003
+                  - generic [ref=e1439]: Third-Party Storage Services in Microsoft 365 on the Web
+                  - generic [ref=e1440]: Medium
+                - generic [ref=e1441] [cursor=pointer]:
+                  - checkbox "ENTRA-ORGSETTING-004 Shared Bookings Page Access Restriction Low" [checked] [ref=e1442]
+                  - generic [ref=e1443]: ENTRA-ORGSETTING-004
+                  - generic [ref=e1444]: Shared Bookings Page Access Restriction
+                  - generic [ref=e1445]: Low
+                - generic [ref=e1446] [cursor=pointer]:
+                  - checkbox "ENTRA-PASSWORD-001 Password Expiration Policy Low" [checked] [ref=e1447]
+                  - generic [ref=e1448]: ENTRA-PASSWORD-001
+                  - generic [ref=e1449]: Password Expiration Policy
+                  - generic [ref=e1450]: Low
+                - generic [ref=e1451] [cursor=pointer]:
+                  - checkbox "ENTRA-PASSWORD-002 Custom Banned Password List Medium" [checked] [ref=e1452]
+                  - generic [ref=e1453]: ENTRA-PASSWORD-002
+                  - generic [ref=e1454]: Custom Banned Password List
+                  - generic [ref=e1455]: Medium
+                - generic [ref=e1456] [cursor=pointer]:
+                  - checkbox "ENTRA-PASSWORD-003 Password Protection Enforcement Mode Medium" [checked] [ref=e1457]
+                  - generic [ref=e1458]: ENTRA-PASSWORD-003
+                  - generic [ref=e1459]: Password Protection Enforcement Mode
+                  - generic [ref=e1460]: Medium
+                - generic [ref=e1461] [cursor=pointer]:
+                  - checkbox "ENTRA-PASSWORD-004 Smart Lockout Threshold Settings Medium" [checked] [ref=e1462]
+                  - generic [ref=e1463]: ENTRA-PASSWORD-004
+                  - generic [ref=e1464]: Smart Lockout Threshold Settings
+                  - generic [ref=e1465]: Medium
+                - generic [ref=e1466] [cursor=pointer]:
+                  - checkbox "ENTRA-PASSWORD-005 On-Premises Password Protection Agents Medium" [checked] [ref=e1467]
+                  - generic [ref=e1468]: ENTRA-PASSWORD-005
+                  - generic [ref=e1469]: On-Premises Password Protection Agents
+                  - generic [ref=e1470]: Medium
+                - generic [ref=e1471] [cursor=pointer]:
+                  - checkbox "ENTRA-PERUSER-001 Per-User MFA Disabled Medium" [checked] [ref=e1472]
+                  - generic [ref=e1473]: ENTRA-PERUSER-001
+                  - generic [ref=e1474]: Per-User MFA Disabled
+                  - generic [ref=e1475]: Medium
+                - generic [ref=e1476] [cursor=pointer]:
+                  - checkbox "ENTRA-PIM-001 PIM Role Management High" [checked] [ref=e1477]
+                  - generic [ref=e1478]: ENTRA-PIM-001
+                  - generic [ref=e1479]: PIM Role Management
+                  - generic [ref=e1480]: High
+                - generic [ref=e1481] [cursor=pointer]:
+                  - checkbox "ENTRA-PIM-002 Access Reviews for Guest Users Medium" [checked] [ref=e1482]
+                  - generic [ref=e1483]: ENTRA-PIM-002
+                  - generic [ref=e1484]: Access Reviews for Guest Users
+                  - generic [ref=e1485]: Medium
+                - generic [ref=e1486] [cursor=pointer]:
+                  - checkbox "ENTRA-PIM-003 Access Reviews for Privileged Roles High" [checked] [ref=e1487]
+                  - generic [ref=e1488]: ENTRA-PIM-003
+                  - generic [ref=e1489]: Access Reviews for Privileged Roles
+                  - generic [ref=e1490]: High
+                - generic [ref=e1491] [cursor=pointer]:
+                  - checkbox "ENTRA-PIM-004 Global Administrator Role Activation Approval High" [checked] [ref=e1492]
+                  - generic [ref=e1493]: ENTRA-PIM-004
+                  - generic [ref=e1494]: Global Administrator Role Activation Approval
+                  - generic [ref=e1495]: High
+                - generic [ref=e1496] [cursor=pointer]:
+                  - checkbox "ENTRA-PIM-005 Privileged Role Administrator Activation Approval High" [checked] [ref=e1497]
+                  - generic [ref=e1498]: ENTRA-PIM-005
+                  - generic [ref=e1499]: Privileged Role Administrator Activation Approval
+                  - generic [ref=e1500]: High
+                - generic [ref=e1501] [cursor=pointer]:
+                  - checkbox "ENTRA-SECDEFAULT-001 Security Defaults Medium" [checked] [ref=e1502]
+                  - generic [ref=e1503]: ENTRA-SECDEFAULT-001
+                  - generic [ref=e1504]: Security Defaults
+                  - generic [ref=e1505]: Medium
+                - generic [ref=e1506] [cursor=pointer]:
+                  - checkbox "ENTRA-SSPR-001 Self-Service Password Reset for All Users Medium" [checked] [ref=e1507]
+                  - generic [ref=e1508]: ENTRA-SSPR-001
+                  - generic [ref=e1509]: Self-Service Password Reset for All Users
+                  - generic [ref=e1510]: Medium
+                - generic [ref=e1511] [cursor=pointer]:
+                  - checkbox "ENTRA-TENANT-001 Non-Admin Tenant Creation Restricted Low" [checked] [ref=e1512]
+                  - generic [ref=e1513]: ENTRA-TENANT-001
+                  - generic [ref=e1514]: Non-Admin Tenant Creation Restricted
+                  - generic [ref=e1515]: Low
+            - generic [ref=e1516]:
+              - generic [ref=e1517] [cursor=pointer]:
+                - heading "▼ Exchange Online" [level=2] [ref=e1518]:
+                  - generic [ref=e1519]: ▼
+                  - text: Exchange Online
+                - generic [ref=e1520]:
+                  - generic [ref=e1521]: 22 / 22 selected
+                  - button "All" [ref=e1522]
+                  - button "None" [ref=e1523]
+              - generic [ref=e1524]:
+                - generic [ref=e1525] [cursor=pointer]:
+                  - checkbox "EXO-ADDINS-001 Outlook Add-in Installation Medium" [checked] [ref=e1526]
+                  - generic [ref=e1527]: EXO-ADDINS-001
+                  - generic [ref=e1528]: Outlook Add-in Installation
+                  - generic [ref=e1529]: Medium
+                - generic [ref=e1530] [cursor=pointer]:
+                  - checkbox "EXO-ANTIPHISH-001 Anti-Phishing Policy Safety Tips Low" [checked] [ref=e1531]
+                  - generic [ref=e1532]: EXO-ANTIPHISH-001
+                  - generic [ref=e1533]: Anti-Phishing Policy Safety Tips
+                  - generic [ref=e1534]: Low
+                - generic [ref=e1535] [cursor=pointer]:
+                  - checkbox "EXO-ANTISPAM-001 Outbound Spam Notifications Low" [checked] [ref=e1536]
+                  - generic [ref=e1537]: EXO-ANTISPAM-001
+                  - generic [ref=e1538]: Outbound Spam Notifications
+                  - generic [ref=e1539]: Low
+                - generic [ref=e1540] [cursor=pointer]:
+                  - checkbox "EXO-AUDIT-001 Unified Audit Log Enabled Low" [checked] [ref=e1541]
+                  - generic [ref=e1542]: EXO-AUDIT-001
+                  - generic [ref=e1543]: Unified Audit Log Enabled
+                  - generic [ref=e1544]: Low
+                - generic [ref=e1545] [cursor=pointer]:
+                  - checkbox "EXO-AUDIT-002 Mailbox Auditing Enabled (Organization) Low" [checked] [ref=e1546]
+                  - generic [ref=e1547]: EXO-AUDIT-002
+                  - generic [ref=e1548]: Mailbox Auditing Enabled (Organization)
+                  - generic [ref=e1549]: Low
+                - generic [ref=e1550] [cursor=pointer]:
+                  - checkbox "EXO-AUDIT-003 Mailbox Audit Actions Medium" [checked] [ref=e1551]
+                  - generic [ref=e1552]: EXO-AUDIT-003
+                  - generic [ref=e1553]: Mailbox Audit Actions
+                  - generic [ref=e1554]: Medium
+                - generic [ref=e1555] [cursor=pointer]:
+                  - checkbox "EXO-AUTH-001 Modern Authentication Enabled Medium" [checked] [ref=e1556]
+                  - generic [ref=e1557]: EXO-AUTH-001
+                  - generic [ref=e1558]: Modern Authentication Enabled
+                  - generic [ref=e1559]: Medium
+                - generic [ref=e1560] [cursor=pointer]:
+                  - checkbox "EXO-AUTH-002 SMTP AUTH Protocol High" [checked] [ref=e1561]
+                  - generic [ref=e1562]: EXO-AUTH-002
+                  - generic [ref=e1563]: SMTP AUTH Protocol
+                  - generic [ref=e1564]: High
+                - generic [ref=e1565] [cursor=pointer]:
+                  - checkbox "EXO-CONNFILTER-001 IP Allow List High" [checked] [ref=e1566]
+                  - generic [ref=e1567]: EXO-CONNFILTER-001
+                  - generic [ref=e1568]: IP Allow List
+                  - generic [ref=e1569]: High
+                - generic [ref=e1570] [cursor=pointer]:
+                  - checkbox "EXO-CONNFILTER-002 Safe List Medium" [checked] [ref=e1571]
+                  - generic [ref=e1572]: EXO-CONNFILTER-002
+                  - generic [ref=e1573]: Safe List
+                  - generic [ref=e1574]: Medium
+                - generic [ref=e1575] [cursor=pointer]:
+                  - checkbox "EXO-DIRECTSEND-001 Direct Send Connector High" [checked] [ref=e1576]
+                  - generic [ref=e1577]: EXO-DIRECTSEND-001
+                  - generic [ref=e1578]: Direct Send Connector
+                  - generic [ref=e1579]: High
+                - generic [ref=e1580] [cursor=pointer]:
+                  - checkbox "EXO-DKIM-001 DKIM Signing Enabled Low" [checked] [ref=e1581]
+                  - generic [ref=e1582]: EXO-DKIM-001
+                  - generic [ref=e1583]: DKIM Signing Enabled
+                  - generic [ref=e1584]: Low
+                - generic [ref=e1585] [cursor=pointer]:
+                  - checkbox "EXO-EXTTAG-001 External Sender Tagging Low" [checked] [ref=e1586]
+                  - generic [ref=e1587]: EXO-EXTTAG-001
+                  - generic [ref=e1588]: External Sender Tagging
+                  - generic [ref=e1589]: Low
+                - generic [ref=e1590] [cursor=pointer]:
+                  - checkbox "EXO-FORWARD-001 Mail Forwarding Rules High" [checked] [ref=e1591]
+                  - generic [ref=e1592]: EXO-FORWARD-001
+                  - generic [ref=e1593]: Mail Forwarding Rules
+                  - generic [ref=e1594]: High
+                - generic [ref=e1595] [cursor=pointer]:
+                  - checkbox "EXO-LOCKBOX-001 Customer Lockbox Low" [checked] [ref=e1596]
+                  - generic [ref=e1597]: EXO-LOCKBOX-001
+                  - generic [ref=e1598]: Customer Lockbox
+                  - generic [ref=e1599]: Low
+                - generic [ref=e1600] [cursor=pointer]:
+                  - checkbox "EXO-MAILTIPS-001 MailTips Configuration Low" [checked] [ref=e1601]
+                  - generic [ref=e1602]: EXO-MAILTIPS-001
+                  - generic [ref=e1603]: MailTips Configuration
+                  - generic [ref=e1604]: Low
+                - generic [ref=e1605] [cursor=pointer]:
+                  - checkbox "EXO-MALWARE-001 Malware Filter Common Attachment Types Blocked Low" [checked] [ref=e1606]
+                  - generic [ref=e1607]: EXO-MALWARE-001
+                  - generic [ref=e1608]: Malware Filter Common Attachment Types Blocked
+                  - generic [ref=e1609]: Low
+                - generic [ref=e1610] [cursor=pointer]:
+                  - checkbox "EXO-OWA-001 Additional Storage Providers Medium" [checked] [ref=e1611]
+                  - generic [ref=e1612]: EXO-OWA-001
+                  - generic [ref=e1613]: Additional Storage Providers
+                  - generic [ref=e1614]: Medium
+                - generic [ref=e1615] [cursor=pointer]:
+                  - checkbox "EXO-SHAREDMBX-001 Shared Mailbox Sign-in Medium" [checked] [ref=e1616]
+                  - generic [ref=e1617]: EXO-SHAREDMBX-001
+                  - generic [ref=e1618]: Shared Mailbox Sign-in
+                  - generic [ref=e1619]: Medium
+                - generic [ref=e1620] [cursor=pointer]:
+                  - checkbox "EXO-SHARING-001 Calendar Sharing with External Users Restricted Low" [checked] [ref=e1621]
+                  - generic [ref=e1622]: EXO-SHARING-001
+                  - generic [ref=e1623]: Calendar Sharing with External Users Restricted
+                  - generic [ref=e1624]: Low
+                - generic [ref=e1625] [cursor=pointer]:
+                  - checkbox "EXO-TRANSPORT-001 Auto-Forwarding to External Blocked Medium" [checked] [ref=e1626]
+                  - generic [ref=e1627]: EXO-TRANSPORT-001
+                  - generic [ref=e1628]: Auto-Forwarding to External Blocked
+                  - generic [ref=e1629]: Medium
+                - generic [ref=e1630] [cursor=pointer]:
+                  - checkbox "EXO-TRANSPORT-002 External Sender Tagging Low" [checked] [ref=e1631]
+                  - generic [ref=e1632]: EXO-TRANSPORT-002
+                  - generic [ref=e1633]: External Sender Tagging
+                  - generic [ref=e1634]: Low
+            - generic [ref=e1635]:
+              - generic [ref=e1636] [cursor=pointer]:
+                - heading "▼ Intune" [level=2] [ref=e1637]:
+                  - generic [ref=e1638]: ▼
+                  - text: Intune
+                - generic [ref=e1639]:
+                  - generic [ref=e1640]: 6 / 6 selected
+                  - button "All" [ref=e1641]
+                  - button "None" [ref=e1642]
+              - generic [ref=e1643]:
+                - generic [ref=e1644] [cursor=pointer]:
+                  - checkbox "INTUNE-COMPLIANCE-001 Device Compliance Policies Configured High" [checked] [ref=e1645]
+                  - generic [ref=e1646]: INTUNE-COMPLIANCE-001
+                  - generic [ref=e1647]: Device Compliance Policies Configured
+                  - generic [ref=e1648]: High
+                - generic [ref=e1649] [cursor=pointer]:
+                  - checkbox "INTUNE-ENCRYPTION-001 BitLocker Encryption Policy Medium" [checked] [ref=e1650]
+                  - generic [ref=e1651]: INTUNE-ENCRYPTION-001
+                  - generic [ref=e1652]: BitLocker Encryption Policy
+                  - generic [ref=e1653]: Medium
+                - generic [ref=e1654] [cursor=pointer]:
+                  - checkbox "INTUNE-ENROLL-001 Personal Device Enrollment Restriction Medium" [checked] [ref=e1655]
+                  - generic [ref=e1656]: INTUNE-ENROLL-001
+                  - generic [ref=e1657]: Personal Device Enrollment Restriction
+                  - generic [ref=e1658]: Medium
+                - generic [ref=e1659] [cursor=pointer]:
+                  - checkbox "INTUNE-ENROLLMENT-001 Enrollment Restrictions for Personal Devices Medium" [checked] [ref=e1660]
+                  - generic [ref=e1661]: INTUNE-ENROLLMENT-001
+                  - generic [ref=e1662]: Enrollment Restrictions for Personal Devices
+                  - generic [ref=e1663]: Medium
+                - generic [ref=e1664] [cursor=pointer]:
+                  - checkbox "INTUNE-SECURITY-001 Windows Hello for Business Policy Low" [checked] [ref=e1665]
+                  - generic [ref=e1666]: INTUNE-SECURITY-001
+                  - generic [ref=e1667]: Windows Hello for Business Policy
+                  - generic [ref=e1668]: Low
+                - generic [ref=e1669] [cursor=pointer]:
+                  - checkbox "INTUNE-UPDATE-001 Windows Update for Business Rings Medium" [checked] [ref=e1670]
+                  - generic [ref=e1671]: INTUNE-UPDATE-001
+                  - generic [ref=e1672]: Windows Update for Business Rings
+                  - generic [ref=e1673]: Medium
+            - generic [ref=e1674]:
+              - generic [ref=e1675] [cursor=pointer]:
+                - heading "▼ Power BI" [level=2] [ref=e1676]:
+                  - generic [ref=e1677]: ▼
+                  - text: Power BI
+                - generic [ref=e1678]:
+                  - generic [ref=e1679]: 3 / 3 selected
+                  - button "All" [ref=e1680]
+                  - button "None" [ref=e1681]
+              - generic [ref=e1682]:
+                - generic [ref=e1683] [cursor=pointer]:
+                  - checkbox "PBI-TENANT-001 Publish to Web Disabled High" [checked] [ref=e1684]
+                  - generic [ref=e1685]: PBI-TENANT-001
+                  - generic [ref=e1686]: Publish to Web Disabled
+                  - generic [ref=e1687]: High
+                - generic [ref=e1688] [cursor=pointer]:
+                  - checkbox "PBI-TENANT-002 External Sharing Restricted Medium" [checked] [ref=e1689]
+                  - generic [ref=e1690]: PBI-TENANT-002
+                  - generic [ref=e1691]: External Sharing Restricted
+                  - generic [ref=e1692]: Medium
+                - generic [ref=e1693] [cursor=pointer]:
+                  - checkbox "PBI-TENANT-003 Service Principal API Access Medium" [checked] [ref=e1694]
+                  - generic [ref=e1695]: PBI-TENANT-003
+                  - generic [ref=e1696]: Service Principal API Access
+                  - generic [ref=e1697]: Medium
+            - generic [ref=e1698]:
+              - generic [ref=e1699] [cursor=pointer]:
+                - heading "▼ Purview" [level=2] [ref=e1700]:
+                  - generic [ref=e1701]: ▼
+                  - text: Purview
+                - generic [ref=e1702]:
+                  - generic [ref=e1703]: 2 / 2 selected
+                  - button "All" [ref=e1704]
+                  - button "None" [ref=e1705]
+              - generic [ref=e1706]:
+                - generic [ref=e1707] [cursor=pointer]:
+                  - checkbox "PURVIEW-AUDIT-001 Advanced Audit Enabled Medium" [checked] [ref=e1708]
+                  - generic [ref=e1709]: PURVIEW-AUDIT-001
+                  - generic [ref=e1710]: Advanced Audit Enabled
+                  - generic [ref=e1711]: Medium
+                - generic [ref=e1712] [cursor=pointer]:
+                  - checkbox "PURVIEW-RETENTION-001 Retention Policies Active High" [checked] [ref=e1713]
+                  - generic [ref=e1714]: PURVIEW-RETENTION-001
+                  - generic [ref=e1715]: Retention Policies Active
+                  - generic [ref=e1716]: High
+            - generic [ref=e1717]:
+              - generic [ref=e1718] [cursor=pointer]:
+                - heading "▼ Security" [level=2] [ref=e1719]:
+                  - generic [ref=e1720]: ▼
+                  - text: Security
+                - generic [ref=e1721]:
+                  - generic [ref=e1722]: 5 / 5 selected
+                  - button "All" [ref=e1723]
+                  - button "None" [ref=e1724]
+              - generic [ref=e1725]:
+                - generic [ref=e1726] [cursor=pointer]:
+                  - checkbox "COMPLIANCE-ALERTPOLICY-001 Default Alert Policies Enabled Medium" [checked] [ref=e1727]
+                  - generic [ref=e1728]: COMPLIANCE-ALERTPOLICY-001
+                  - generic [ref=e1729]: Default Alert Policies Enabled
+                  - generic [ref=e1730]: Medium
+                - generic [ref=e1731] [cursor=pointer]:
+                  - checkbox "COMPLIANCE-DLP-001 DLP Policies Active High" [checked] [ref=e1732]
+                  - generic [ref=e1733]: COMPLIANCE-DLP-001
+                  - generic [ref=e1734]: DLP Policies Active
+                  - generic [ref=e1735]: High
+                - generic [ref=e1736] [cursor=pointer]:
+                  - checkbox "DEFENDER-SAFEATTACH-001 Safe Attachments Global Policy High" [checked] [ref=e1737]
+                  - generic [ref=e1738]: DEFENDER-SAFEATTACH-001
+                  - generic [ref=e1739]: Safe Attachments Global Policy
+                  - generic [ref=e1740]: High
+                - generic [ref=e1741] [cursor=pointer]:
+                  - checkbox "DEFENDER-SAFELINKS-001 Safe Links Global Policy High" [checked] [ref=e1742]
+                  - generic [ref=e1743]: DEFENDER-SAFELINKS-001
+                  - generic [ref=e1744]: Safe Links Global Policy
+                  - generic [ref=e1745]: High
+                - generic [ref=e1746] [cursor=pointer]:
+                  - checkbox "DEFENDER-SECURESCORE-001 Microsoft Secure Score Medium" [checked] [ref=e1747]
+                  - generic [ref=e1748]: DEFENDER-SECURESCORE-001
+                  - generic [ref=e1749]: Microsoft Secure Score
+                  - generic [ref=e1750]: Medium
+            - generic [ref=e1751]:
+              - generic [ref=e1752] [cursor=pointer]:
+                - heading "▼ SharePoint Online" [level=2] [ref=e1753]:
+                  - generic [ref=e1754]: ▼
+                  - text: SharePoint Online
+                - generic [ref=e1755]:
+                  - generic [ref=e1756]: 14 / 14 selected
+                  - button "All" [ref=e1757]
+                  - button "None" [ref=e1758]
+              - generic [ref=e1759]:
+                - generic [ref=e1760] [cursor=pointer]:
+                  - checkbox "SPO-AUTH-001 Legacy Authentication Protocol High" [checked] [ref=e1761]
+                  - generic [ref=e1762]: SPO-AUTH-001
+                  - generic [ref=e1763]: Legacy Authentication Protocol
+                  - generic [ref=e1764]: High
+                - generic [ref=e1765] [cursor=pointer]:
+                  - checkbox "SPO-B2B-001 Azure AD B2B Integration Medium" [checked] [ref=e1766]
+                  - generic [ref=e1767]: SPO-B2B-001
+                  - generic [ref=e1768]: Azure AD B2B Integration
+                  - generic [ref=e1769]: Medium
+                - generic [ref=e1770] [cursor=pointer]:
+                  - checkbox "SPO-LOOP-002 Loop Sharing in OneDrive Low" [checked] [ref=e1771]
+                  - generic [ref=e1772]: SPO-LOOP-002
+                  - generic [ref=e1773]: Loop Sharing in OneDrive
+                  - generic [ref=e1774]: Low
+                - generic [ref=e1775] [cursor=pointer]:
+                  - checkbox "SPO-MALWARE-002 Disallow Infected File Download High" [checked] [ref=e1776]
+                  - generic [ref=e1777]: SPO-MALWARE-002
+                  - generic [ref=e1778]: Disallow Infected File Download
+                  - generic [ref=e1779]: High
+                - generic [ref=e1780] [cursor=pointer]:
+                  - checkbox "SPO-OD-001 OneDrive Sharing Capability High" [checked] [ref=e1781]
+                  - generic [ref=e1782]: SPO-OD-001
+                  - generic [ref=e1783]: OneDrive Sharing Capability
+                  - generic [ref=e1784]: High
+                - generic [ref=e1785] [cursor=pointer]:
+                  - checkbox "SPO-SCRIPT-001 Custom Script on Personal Sites High" [checked] [ref=e1786]
+                  - generic [ref=e1787]: SPO-SCRIPT-001
+                  - generic [ref=e1788]: Custom Script on Personal Sites
+                  - generic [ref=e1789]: High
+                - generic [ref=e1790] [cursor=pointer]:
+                  - checkbox "SPO-SESSION-001 Idle Session Timeout Medium" [checked] [ref=e1791]
+                  - generic [ref=e1792]: SPO-SESSION-001
+                  - generic [ref=e1793]: Idle Session Timeout
+                  - generic [ref=e1794]: Medium
+                - generic [ref=e1795] [cursor=pointer]:
+                  - checkbox "SPO-SHARING-002 Prevent External Users from Resharing Medium" [checked] [ref=e1796]
+                  - generic [ref=e1797]: SPO-SHARING-002
+                  - generic [ref=e1798]: Prevent External Users from Resharing
+                  - generic [ref=e1799]: Medium
+                - generic [ref=e1800] [cursor=pointer]:
+                  - checkbox "SPO-SHARING-003 Sharing Domain Restriction Mode Medium" [checked] [ref=e1801]
+                  - generic [ref=e1802]: SPO-SHARING-003
+                  - generic [ref=e1803]: Sharing Domain Restriction Mode
+                  - generic [ref=e1804]: Medium
+                - generic [ref=e1805] [cursor=pointer]:
+                  - checkbox "SPO-SHARING-004 Default Sharing Link Type Medium" [checked] [ref=e1806]
+                  - generic [ref=e1807]: SPO-SHARING-004
+                  - generic [ref=e1808]: Default Sharing Link Type
+                  - generic [ref=e1809]: Medium
+                - generic [ref=e1810] [cursor=pointer]:
+                  - checkbox "SPO-SHARING-005 External User Expiration Medium" [checked] [ref=e1811]
+                  - generic [ref=e1812]: SPO-SHARING-005
+                  - generic [ref=e1813]: External User Expiration
+                  - generic [ref=e1814]: Medium
+                - generic [ref=e1815] [cursor=pointer]:
+                  - checkbox "SPO-SHARING-006 Email Attestation Reauth Days Medium" [checked] [ref=e1816]
+                  - generic [ref=e1817]: SPO-SHARING-006
+                  - generic [ref=e1818]: Email Attestation Reauth Days
+                  - generic [ref=e1819]: Medium
+                - generic [ref=e1820] [cursor=pointer]:
+                  - checkbox "SPO-SHARING-008 External Sharing Security Group Medium" [checked] [ref=e1821]
+                  - generic [ref=e1822]: SPO-SHARING-008
+                  - generic [ref=e1823]: External Sharing Security Group
+                  - generic [ref=e1824]: Medium
+                - generic [ref=e1825] [cursor=pointer]:
+                  - checkbox "SPO-SYNC-002 Mac Sync Client Restriction Low" [checked] [ref=e1826]
+                  - generic [ref=e1827]: SPO-SYNC-002
+                  - generic [ref=e1828]: Mac Sync Client Restriction
+                  - generic [ref=e1829]: Low
+            - generic [ref=e1830]:
+              - generic [ref=e1831] [cursor=pointer]:
+                - heading "▼ Microsoft Teams" [level=2] [ref=e1832]:
+                  - generic [ref=e1833]: ▼
+                  - text: Microsoft Teams
+                - generic [ref=e1834]:
+                  - generic [ref=e1835]: 18 / 18 selected
+                  - button "All" [ref=e1836]
+                  - button "None" [ref=e1837]
+              - generic [ref=e1838]:
+                - generic [ref=e1839] [cursor=pointer]:
+                  - checkbox "TEAMS-APPS-001 Resource-Specific Consent for Chat Apps Low" [checked] [ref=e1840]
+                  - generic [ref=e1841]: TEAMS-APPS-001
+                  - generic [ref=e1842]: Resource-Specific Consent for Chat Apps
+                  - generic [ref=e1843]: Low
+                - generic [ref=e1844] [cursor=pointer]:
+                  - checkbox "TEAMS-APPS-002 Teams App Permission Policy Medium" [checked] [ref=e1845]
+                  - generic [ref=e1846]: TEAMS-APPS-002
+                  - generic [ref=e1847]: Teams App Permission Policy
+                  - generic [ref=e1848]: Medium
+                - generic [ref=e1849] [cursor=pointer]:
+                  - checkbox "TEAMS-CLIENT-001 External Cloud Storage Services Medium" [checked] [ref=e1850]
+                  - generic [ref=e1851]: TEAMS-CLIENT-001
+                  - generic [ref=e1852]: External Cloud Storage Services
+                  - generic [ref=e1853]: Medium
+                - generic [ref=e1854] [cursor=pointer]:
+                  - checkbox "TEAMS-CLIENT-002 Channel Email Integration Low" [checked] [ref=e1855]
+                  - generic [ref=e1856]: TEAMS-CLIENT-002
+                  - generic [ref=e1857]: Channel Email Integration
+                  - generic [ref=e1858]: Low
+                - generic [ref=e1859] [cursor=pointer]:
+                  - checkbox "TEAMS-EXTACCESS-002 External User Chat Initiation Medium" [checked] [ref=e1860]
+                  - generic [ref=e1861]: TEAMS-EXTACCESS-002
+                  - generic [ref=e1862]: External User Chat Initiation
+                  - generic [ref=e1863]: Medium
+                - generic [ref=e1864] [cursor=pointer]:
+                  - checkbox "TEAMS-EXTACCESS-003 External Domain Restrictions Medium" [checked] [ref=e1865]
+                  - generic [ref=e1866]: TEAMS-EXTACCESS-003
+                  - generic [ref=e1867]: External Domain Restrictions
+                  - generic [ref=e1868]: Medium
+                - generic [ref=e1869] [cursor=pointer]:
+                  - checkbox "TEAMS-EXTACCESS-004 Skype for Business Interop Medium" [checked] [ref=e1870]
+                  - generic [ref=e1871]: TEAMS-EXTACCESS-004
+                  - generic [ref=e1872]: Skype for Business Interop
+                  - generic [ref=e1873]: Medium
+                - generic [ref=e1874] [cursor=pointer]:
+                  - checkbox "TEAMS-INFO-001 Teams Service Status Low" [checked] [ref=e1875]
+                  - generic [ref=e1876]: TEAMS-INFO-001
+                  - generic [ref=e1877]: Teams Service Status
+                  - generic [ref=e1878]: Low
+                - generic [ref=e1879] [cursor=pointer]:
+                  - checkbox "TEAMS-MEETING-001 Anonymous Meeting Join High" [checked] [ref=e1880]
+                  - generic [ref=e1881]: TEAMS-MEETING-001
+                  - generic [ref=e1882]: Anonymous Meeting Join
+                  - generic [ref=e1883]: High
+                - generic [ref=e1884] [cursor=pointer]:
+                  - checkbox "TEAMS-MEETING-002 Anonymous/Dial-in Meeting Start Medium" [checked] [ref=e1885]
+                  - generic [ref=e1886]: TEAMS-MEETING-002
+                  - generic [ref=e1887]: Anonymous/Dial-in Meeting Start
+                  - generic [ref=e1888]: Medium
+                - generic [ref=e1889] [cursor=pointer]:
+                  - checkbox "TEAMS-MEETING-003 Lobby Bypass Scope Medium" [checked] [ref=e1890]
+                  - generic [ref=e1891]: TEAMS-MEETING-003
+                  - generic [ref=e1892]: Lobby Bypass Scope
+                  - generic [ref=e1893]: Medium
+                - generic [ref=e1894] [cursor=pointer]:
+                  - checkbox "TEAMS-MEETING-004 PSTN Lobby Bypass Medium" [checked] [ref=e1895]
+                  - generic [ref=e1896]: TEAMS-MEETING-004
+                  - generic [ref=e1897]: PSTN Lobby Bypass
+                  - generic [ref=e1898]: Medium
+                - generic [ref=e1899] [cursor=pointer]:
+                  - checkbox "TEAMS-MEETING-005 External Participant Control Medium" [checked] [ref=e1900]
+                  - generic [ref=e1901]: TEAMS-MEETING-005
+                  - generic [ref=e1902]: External Participant Control
+                  - generic [ref=e1903]: Medium
+                - generic [ref=e1904] [cursor=pointer]:
+                  - checkbox "TEAMS-MEETING-006 Anonymous Meeting Chat Medium" [checked] [ref=e1905]
+                  - generic [ref=e1906]: TEAMS-MEETING-006
+                  - generic [ref=e1907]: Anonymous Meeting Chat
+                  - generic [ref=e1908]: Medium
+                - generic [ref=e1909] [cursor=pointer]:
+                  - checkbox "TEAMS-MEETING-007 Default Presenter Role Medium" [checked] [ref=e1910]
+                  - generic [ref=e1911]: TEAMS-MEETING-007
+                  - generic [ref=e1912]: Default Presenter Role
+                  - generic [ref=e1913]: Medium
+                - generic [ref=e1914] [cursor=pointer]:
+                  - checkbox "TEAMS-MEETING-008 External Meeting Chat Medium" [checked] [ref=e1915]
+                  - generic [ref=e1916]: TEAMS-MEETING-008
+                  - generic [ref=e1917]: External Meeting Chat
+                  - generic [ref=e1918]: Medium
+                - generic [ref=e1919] [cursor=pointer]:
+                  - checkbox "TEAMS-MEETING-009 Automatic Meeting Recording Medium" [checked] [ref=e1920]
+                  - generic [ref=e1921]: TEAMS-MEETING-009
+                  - generic [ref=e1922]: Automatic Meeting Recording
+                  - generic [ref=e1923]: Medium
+                - generic [ref=e1924] [cursor=pointer]:
+                  - checkbox "TEAMS-REPORTING-001 User Security Reporting Medium" [checked] [ref=e1925]
+                  - generic [ref=e1926]: TEAMS-REPORTING-001
+                  - generic [ref=e1927]: User Security Reporting
+                  - generic [ref=e1928]: Medium
+        - button "Start Dry Run" [ref=e1930] [cursor=pointer]

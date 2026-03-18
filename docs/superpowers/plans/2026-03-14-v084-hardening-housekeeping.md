@@ -1377,7 +1377,7 @@ Insert above the `## [0.8.1]` line:
 - Edge case test for missing Global Administrator directory role
 
 ### Changed
-- Org attribution updated to SelvageLabs across repository
+- Org attribution updated to Galvnyz across repository
 - CLAUDE.md testing policy updated: Pester tests are now part of standard workflow (previously "on demand only")
 
 ### Fixed
@@ -1467,7 +1467,7 @@ gh pr create --title "chore: v0.8.4 hardening and housekeeping" --milestone "v0.
 
 - fix: unsafe array access in Get-EntraSecurityConfig.ps1 (#88)
 - fix: unsafe array access in Export-AssessmentReport.ps1 (#89)
-- chore: org attribution migration to SelvageLabs (#90)
+- chore: org attribution migration to Galvnyz (#90)
 - chore: update CLAUDE.md testing policy (#91)
 - test: Pester coverage for all 9 security collectors (#93)
 - docs: CHANGELOG entries for v0.8.2, v0.8.3, v0.8.4 (#94)

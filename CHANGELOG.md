@@ -95,7 +95,7 @@ All notable changes to M365 Assess are documented here. This project uses [Conve
 - Edge case test for missing Global Administrator directory role
 
 ### Changed
-- Org attribution updated to SelvageLabs across repository
+- Org attribution updated to Galvnyz across repository
 - CLAUDE.md testing policy updated: Pester tests are now part of standard workflow (previously "on demand only")
 
 ### Fixed

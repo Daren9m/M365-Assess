@@ -1,0 +1,1 @@
+[   63600ms] [ERROR] [2026-03-18T15:33:54.268Z] Error: Connection disconnected with error 'Error: WebSocket closed with status code: 1006 (no reason given).'. @ http://localhost:62080/_framework/blazor.web.js:0

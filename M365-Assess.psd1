@@ -5,9 +5,9 @@
     RootModule        = 'Invoke-M365Assessment.ps1'
     ModuleVersion     = '0.9.5'
     GUID              = 'f7e3b2a1-4c5d-6e8f-9a0b-1c2d3e4f5a6b'
-    Author            = 'SelvageLabs'
+    Author            = 'Galvnyz'
     CompanyName       = 'Community'
-    Copyright         = '(c) 2026 SelvageLabs. All rights reserved.'
+    Copyright         = '(c) 2026 Galvnyz. All rights reserved.'
     Description       = 'Comprehensive read-only Microsoft 365 security assessment tool for IT consultants and administrators. Covers Entra ID, Exchange Online, Intune, Defender, SharePoint, Teams, Purview, Active Directory, and CISA ScubaGear baselines.'
 
     # Minimum PowerShell version
@@ -98,8 +98,8 @@
     PrivateData       = @{
         PSData = @{
             Tags         = @('Microsoft365', 'M365', 'Security', 'Assessment', 'EntraID', 'Exchange', 'Intune', 'Defender', 'SharePoint', 'Teams', 'PowerBI', 'ScubaGear', 'CIS')
-            LicenseUri   = 'https://github.com/SelvageLabs/M365-Assess/blob/main/LICENSE'
-            ProjectUri   = 'https://github.com/SelvageLabs/M365-Assess'
+            LicenseUri   = 'https://github.com/Galvnyz/M365-Assess/blob/main/LICENSE'
+            ProjectUri   = 'https://github.com/Galvnyz/M365-Assess'
             ReleaseNotes = 'v0.9.5 - Code Quality: remove backtick continuations from all collectors, add robustness improvements, Pester regression guard'
         }
     }
