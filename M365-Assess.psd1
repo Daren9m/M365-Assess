@@ -25,9 +25,7 @@
     )
 
     # Scripts included in this module
-    ScriptsToProcess  = @(
-        'Common\Connect-Service.ps1'
-    )
+    ScriptsToProcess  = @()
 
     # Files included in this module package
     FileList          = @(

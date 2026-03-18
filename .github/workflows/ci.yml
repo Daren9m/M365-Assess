@@ -94,6 +94,36 @@ jobs:
           name: test-results
           path: test-results.xml
 
+  sync-checkid:
+    name: Sync CheckID Registry
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch CheckID data
+        run: |
+          TAG="v1.2.0"
+          BASE="https://raw.githubusercontent.com/Galvnyz/CheckID/$TAG/data"
+          curl -sL "$BASE/registry.json" -o controls/registry.json
+          for f in cis-m365-v6 nist-800-53-r5 soc2-tsc; do
+            curl -sL "$BASE/frameworks/$f.json" -o "controls/frameworks/$f.json"
+          done
+
+      - name: Check for changes
+        id: diff
+        run: |
+          git diff --quiet controls/ && echo "changed=false" >> "$GITHUB_OUTPUT" \
+            || echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Report status
+        run: |
+          if [ "${{ steps.diff.outputs.changed }}" = "true" ]; then
+            echo "::warning::CheckID data has updates — open a PR to sync controls/"
+            git diff --stat controls/
+          else
+            echo "CheckID data is up to date"
+          fi
+
   version-check:
     name: Version Consistency
     runs-on: windows-latest
