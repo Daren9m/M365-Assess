@@ -3448,7 +3448,21 @@ $html = @"
         .section-checkbox input[type="checkbox"] { display: none; }
         .no-results { text-align: center; padding: 40px; color: var(--m365a-medium-gray); font-style: italic; }
 
-        /* Expand/Collapse all buttons */
+        /* Global expand/collapse controls */
+        .report-controls {
+            display: flex; gap: 8px; justify-content: flex-end;
+            position: sticky; top: 0; z-index: 50;
+            padding: 8px 12px; margin: 0 -20px 12px -20px;
+            background: var(--m365a-card-bg); border-bottom: 1px solid var(--m365a-border);
+        }
+        .report-ctrl-btn {
+            padding: 5px 14px; border: 1px solid var(--m365a-border); border-radius: 4px;
+            background: var(--m365a-bg); cursor: pointer; font-size: 0.82em;
+            color: var(--m365a-text); transition: background 0.15s;
+        }
+        .report-ctrl-btn:hover { background: var(--m365a-hover-bg); }
+
+        /* Per-section expand/collapse buttons */
         .matrix-controls { display: flex; gap: 6px; margin: 8px 0; }
 
         /* Matrix table */
@@ -3690,6 +3704,7 @@ $html = @"
             .data-table th::after { display: none; }
             .data-table { page-break-inside: auto; }
             tr { page-break-inside: avoid; }
+            .report-controls { display: none; }
             .fw-selector { display: none; }
             .status-filter { display: none; }
             .section-filter { display: none; }
@@ -3827,6 +3842,11 @@ if ($allCisFindings.Count -gt 0 -and -not $SkipComplianceOverview) {
 }
 
 $html += @"
+
+        <div class="report-controls" id="reportControls">
+            <button type="button" id="expandAllGlobal" class="report-ctrl-btn" title="Expand all sections and tables">&#9660; Expand All</button>
+            <button type="button" id="collapseAllGlobal" class="report-ctrl-btn" title="Collapse all sections and tables">&#9650; Collapse All</button>
+        </div>
 
         $($sectionHtml.ToString())
 "@
@@ -4085,6 +4105,20 @@ $html += @"
                 }
             });
         });
+
+        // --- Global Expand/Collapse All ---
+        var expandAllGlobal = document.getElementById('expandAllGlobal');
+        var collapseAllGlobal = document.getElementById('collapseAllGlobal');
+        if (expandAllGlobal) {
+            expandAllGlobal.addEventListener('click', function() {
+                document.querySelectorAll('details').forEach(function(d) { d.open = true; });
+            });
+        }
+        if (collapseAllGlobal) {
+            collapseAllGlobal.addEventListener('click', function() {
+                document.querySelectorAll('details').forEach(function(d) { d.open = false; });
+            });
+        }
 
         // --- Table-level status filters (security config tables) ---
         document.querySelectorAll('.table-status-filter').forEach(function(filterBar) {
