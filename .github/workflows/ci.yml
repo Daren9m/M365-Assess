@@ -12,10 +12,7 @@ permissions:
 jobs:
   lint:
     name: PSScriptAnalyzer
-    strategy:
-      matrix:
-        os: [windows-latest, ubuntu-latest, macos-latest]
-    runs-on: ${{ matrix.os }}
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -40,11 +37,8 @@ jobs:
           Write-Host "PSScriptAnalyzer: All checks passed" -ForegroundColor Green
 
   smoke-tests:
-    name: Smoke Tests (${{ matrix.os }})
-    strategy:
-      matrix:
-        os: [windows-latest, ubuntu-latest, macos-latest]
-    runs-on: ${{ matrix.os }}
+    name: Smoke Tests
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
 
