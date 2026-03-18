@@ -56,6 +56,10 @@
     Skips the DLP Policies collector and its Purview (Security & Compliance)
     connection. Purview connection adds ~46 seconds of latency, so use this
     switch when DLP policy assessment is not needed.
+.PARAMETER SkipComplianceOverview
+    Omit the Compliance Overview section from the HTML report. Useful when
+    running a single section assessment where framework coverage cards are
+    not relevant.
 .EXAMPLE
     PS> .\Invoke-M365Assessment.ps1 -TenantId 'contoso.onmicrosoft.com'
 
@@ -137,7 +141,10 @@ param(
     [switch]$NoBranding,
 
     [Parameter()]
-    [switch]$SkipDLP
+    [switch]$SkipDLP,
+
+    [Parameter()]
+    [switch]$SkipComplianceOverview
 )
 
 $ErrorActionPreference = 'Stop'
@@ -2089,6 +2096,7 @@ if (Test-Path -Path $reportScriptPath) {
         if ($script:domainPrefix) { $reportParams['TenantName'] = $script:domainPrefix }
         elseif ($TenantId)        { $reportParams['TenantName'] = $TenantId }
         if ($NoBranding) { $reportParams['NoBranding'] = $true }
+        if ($SkipComplianceOverview) { $reportParams['SkipComplianceOverview'] = $true }
 
         $reportOutput = & $reportScriptPath @reportParams
         foreach ($line in $reportOutput) {

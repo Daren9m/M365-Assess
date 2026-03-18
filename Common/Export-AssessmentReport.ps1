@@ -28,6 +28,9 @@
     white-labeling reports delivered to clients.
 .PARAMETER SkipPdf
     Skip PDF generation even if wkhtmltopdf is available on the system.
+.PARAMETER SkipComplianceOverview
+    Omit the Compliance Overview section from the report. Useful when running
+    a single section assessment where framework coverage cards are not relevant.
 .EXAMPLE
     PS> .\Common\Export-AssessmentReport.ps1 -AssessmentFolder '.\M365-Assessment\Assessment_20260306_195618'
 
@@ -56,7 +59,10 @@ param(
     [switch]$NoBranding,
 
     [Parameter()]
-    [switch]$SkipPdf
+    [switch]$SkipPdf,
+
+    [Parameter()]
+    [switch]$SkipComplianceOverview
 )
 
 $ErrorActionPreference = 'Stop'
@@ -1746,7 +1752,7 @@ foreach ($c in $summary) {
     }
 }
 
-if ($allCisFindings.Count -gt 0 -and $controlRegistry.Count -gt 0) {
+if ($allCisFindings.Count -gt 0 -and $controlRegistry.Count -gt 0 -and -not $SkipComplianceOverview) {
 
     # Load framework catalog CSVs to get total control counts
     $catalogCounts = @{}
@@ -2030,7 +2036,7 @@ if ($issues.Count -gt 0) {
 }
 
 # Append conditional entries to TOC now that compliance/issues counts are known
-if ($allCisFindings.Count -gt 0 -and $controlRegistry.Count -gt 0) {
+if ($allCisFindings.Count -gt 0 -and $controlRegistry.Count -gt 0 -and -not $SkipComplianceOverview) {
     $null = $tocHtml.AppendLine("<li><a href='#compliance-overview'>Compliance Overview</a></li>")
 }
 if ($issues.Count -gt 0) {
@@ -3794,7 +3800,7 @@ $(if (-not $NoBranding) {
                             "<li><a href='#section-$tocId'>$tocLabel</a></li>`n"
                         }
                     })
-                    $( if ($allCisFindings.Count -gt 0 -and $controlRegistry.Count -gt 0) { "<li><a href='#compliance-overview'>Compliance Overview</a></li>`n" })
+                    $( if ($allCisFindings.Count -gt 0 -and $controlRegistry.Count -gt 0 -and -not $SkipComplianceOverview) { "<li><a href='#compliance-overview'>Compliance Overview</a></li>`n" })
                     $( if ($issues.Count -gt 0) { "<li><a href='#issues'>Technical Issues</a></li>`n" })
                 </ol>
             </div>
@@ -3809,7 +3815,7 @@ if ($issues.Count -gt 0) {
 "@
 }
 
-if ($allCisFindings.Count -gt 0) {
+if ($allCisFindings.Count -gt 0 -and -not $SkipComplianceOverview) {
     $nonPassingCount = @($allCisFindings | Where-Object { $_.Status -ne 'Pass' }).Count
     if ($nonPassingCount -gt 0) {
         $html += @"
@@ -3905,7 +3911,9 @@ $html += @"
             function applyAllFilters() {
                 var activeFw = getActive(fwCbs, '.fw-checkbox');
                 var activeStatus = getActive(statusCbs, '.status-checkbox');
-                var activeSections = getActive(sectionCbs, '.section-checkbox');
+                var activeSections = sectionCbs.length > 0
+                    ? getActive(sectionCbs, '.section-checkbox')
+                    : Array.from(new Set(Array.from(compRows).map(function(r) { return r.getAttribute('data-section') || ''; })));
 
                 // 1. Toggle framework columns and cards
                 allFwCols.forEach(function(el) {
