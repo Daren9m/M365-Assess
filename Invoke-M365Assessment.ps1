@@ -1352,6 +1352,30 @@ function Connect-RequiredService {
                         $script:resolvedTenantDisplayName = $orgInfo.DisplayName
                         Write-AssessmentLog -Level INFO -Message "Connected tenant: $($script:resolvedTenantDisplayName) ($($script:resolvedTenantDomain)) [ID: $($script:resolvedTenantId)]" -Section $SectionName
 
+                        # Prefetch DNS records for all verified domains in background
+                        # (runs while auth and other collectors proceed)
+                        if ('Email' -in $Section) {
+                            $verifiedDomainNames = @($orgInfo.VerifiedDomains | ForEach-Object { $_.Name })
+                            Write-AssessmentLog -Level INFO -Message "Prefetching DNS records for $($verifiedDomainNames.Count) verified domain(s) in background" -Section $SectionName
+                            $script:dnsPrefetchJobs = @()
+                            foreach ($vdName in $verifiedDomainNames) {
+                                $script:dnsPrefetchJobs += Start-ThreadJob -ScriptBlock {
+                                    param($d)
+                                    $spf   = Resolve-DnsName -Name $d -Type TXT -DnsOnly -ErrorAction SilentlyContinue
+                                    $dmarc = Resolve-DnsName -Name "_dmarc.$d" -Type TXT -DnsOnly -ErrorAction SilentlyContinue
+                                    $dkim1 = Resolve-DnsName -Name "selector1._domainkey.$d" -Type CNAME -DnsOnly -ErrorAction SilentlyContinue
+                                    $dkim2 = Resolve-DnsName -Name "selector2._domainkey.$d" -Type CNAME -DnsOnly -ErrorAction SilentlyContinue
+                                    $mtaSts = Resolve-DnsName -Name "_mta-sts.$d" -Type TXT -DnsOnly -ErrorAction SilentlyContinue
+                                    $tlsRpt = Resolve-DnsName -Name "_smtp._tls.$d" -Type TXT -DnsOnly -ErrorAction SilentlyContinue
+                                    [PSCustomObject]@{
+                                        Domain = $d; Spf = $spf; Dmarc = $dmarc
+                                        Dkim1 = $dkim1; Dkim2 = $dkim2
+                                        MtaSts = $mtaSts; TlsRpt = $tlsRpt
+                                    }
+                                } -ArgumentList $vdName
+                            }
+                        }
+
                         # Phase B: Rename folder/files to include domain prefix if not already set
                         if (-not $script:domainPrefix -and $script:resolvedTenantDomain -match '^([^.]+)\.onmicrosoft\.(com|us)$') {
                             $script:domainPrefix = $Matches[1]
@@ -1849,8 +1873,20 @@ foreach ($sectionName in $Section) {
 
         try {
             $acceptedDomains = Get-AcceptedDomain -ErrorAction Stop
+
+            # Collect prefetched DNS cache (started during Graph connect)
+            $dnsCache = @{}
+            if ($script:dnsPrefetchJobs) {
+                Write-Verbose "Waiting for DNS prefetch jobs..."
+                $prefetchResults = $script:dnsPrefetchJobs | Wait-Job | Receive-Job
+                $script:dnsPrefetchJobs | Remove-Job -Force
+                foreach ($pr in $prefetchResults) { $dnsCache[$pr.Domain] = $pr }
+                $script:dnsPrefetchJobs = $null
+            }
+
             $dnsResults = foreach ($domain in $acceptedDomains) {
                 $domainName = $domain.DomainName
+                $cached = $dnsCache[$domainName]
 
                 # ------- SPF -------
                 $spf = 'Not configured'
@@ -1859,7 +1895,7 @@ foreach ($sectionName in $Section) {
                 $spfDuplicates = 'No'
 
                 try {
-                    $txtRecords = @(Resolve-DnsName -Name $domainName -Type TXT -ErrorAction Stop)
+                    $txtRecords = if ($cached) { @($cached.Spf) } else { @(Resolve-DnsName -Name $domainName -Type TXT -DnsOnly -ErrorAction Stop) }
                     $spfRecords = @($txtRecords | Where-Object { $_.Strings -and ($_.Strings -join '' -match '^v=spf1') })
 
                     if ($spfRecords.Count -gt 1) {
@@ -1900,7 +1936,7 @@ foreach ($sectionName in $Section) {
                 $dmarcDuplicates = 'No'
 
                 try {
-                    $dmarcTxtRecords = @(Resolve-DnsName -Name "_dmarc.$domainName" -Type TXT -ErrorAction Stop)
+                    $dmarcTxtRecords = if ($cached) { @($cached.Dmarc) } else { @(Resolve-DnsName -Name "_dmarc.$domainName" -Type TXT -DnsOnly -ErrorAction Stop) }
                     $dmarcRecords = @($dmarcTxtRecords | Where-Object { $_.Strings -and ($_.Strings -join '' -match '^v=DMARC1') })
 
                     if ($dmarcRecords.Count -gt 1) {
@@ -1942,13 +1978,13 @@ foreach ($sectionName in $Section) {
                 $dkimSelector2 = 'Not configured'
 
                 try {
-                    $dkim1Records = Resolve-DnsName -Name "selector1._domainkey.$domainName" -Type CNAME -ErrorAction Stop
+                    $dkim1Records = if ($cached) { $cached.Dkim1 } else { Resolve-DnsName -Name "selector1._domainkey.$domainName" -Type CNAME -DnsOnly -ErrorAction Stop }
                     if ($dkim1Records.NameHost) { $dkimSelector1 = $dkim1Records.NameHost }
                 }
                 catch { Write-Verbose "DKIM selector1 lookup failed for $domainName`: $_" }
 
                 try {
-                    $dkim2Records = Resolve-DnsName -Name "selector2._domainkey.$domainName" -Type CNAME -ErrorAction Stop
+                    $dkim2Records = if ($cached) { $cached.Dkim2 } else { Resolve-DnsName -Name "selector2._domainkey.$domainName" -Type CNAME -DnsOnly -ErrorAction Stop }
                     if ($dkim2Records.NameHost) { $dkimSelector2 = $dkim2Records.NameHost }
                 }
                 catch { Write-Verbose "DKIM selector2 lookup failed for $domainName`: $_" }
@@ -1956,7 +1992,7 @@ foreach ($sectionName in $Section) {
                 # ------- MTA-STS (RFC 8461) -------
                 $mtaSts = 'Not configured'
                 try {
-                    $mtaStsRecords = @(Resolve-DnsName -Name "_mta-sts.$domainName" -Type TXT -ErrorAction Stop)
+                    $mtaStsRecords = if ($cached) { @($cached.MtaSts) } else { @(Resolve-DnsName -Name "_mta-sts.$domainName" -Type TXT -DnsOnly -ErrorAction Stop) }
                     $mtaStsRecord = $mtaStsRecords | Where-Object { $_.Strings -and ($_.Strings -join '' -match 'v=STSv1') } | Select-Object -First 1
                     if ($mtaStsRecord) {
                         $mtaSts = $mtaStsRecord.Strings -join ''
@@ -1967,7 +2003,7 @@ foreach ($sectionName in $Section) {
                 # ------- TLS-RPT (RFC 8460) -------
                 $tlsRpt = 'Not configured'
                 try {
-                    $tlsRptRecords = @(Resolve-DnsName -Name "_smtp._tls.$domainName" -Type TXT -ErrorAction Stop)
+                    $tlsRptRecords = if ($cached) { @($cached.TlsRpt) } else { @(Resolve-DnsName -Name "_smtp._tls.$domainName" -Type TXT -DnsOnly -ErrorAction Stop) }
                     $tlsRptRecord = $tlsRptRecords | Where-Object { $_.Strings -and ($_.Strings -join '' -match '^v=TLSRPTv1') } | Select-Object -First 1
                     if ($tlsRptRecord) {
                         $tlsRpt = $tlsRptRecord.Strings -join ''
