@@ -210,7 +210,7 @@ function Show-InteractiveWizard {
         Write-Host '      ╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝╚══════╝╚══════╝' -ForegroundColor DarkCyan
         Write-Host ''
         Write-Host '        ░▒▓█  M365 Environment Assessment  █▓▒░' -ForegroundColor DarkGray
-        Write-Host '        ░▒▓█  by  D A R E N 9 M            █▓▒░' -ForegroundColor DarkCyan
+        Write-Host '        ░▒▓█  by  G A L V N Y Z             █▓▒░' -ForegroundColor DarkCyan
         Write-Host ''
     }
 
