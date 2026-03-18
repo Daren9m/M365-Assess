@@ -516,13 +516,15 @@ function Resolve-M365Environment {
 }
 
 # ------------------------------------------------------------------
-# Detect interactive mode: no explicit parameters supplied
+# Detect interactive mode: no connection parameters supplied
+# The wizard should launch whenever the user hasn't told us HOW to
+# connect (TenantId, SkipConnection, or app-only auth). Passing
+# -Section alone should still trigger the wizard for tenant input.
 # ------------------------------------------------------------------
-$isInteractive = -not $PSBoundParameters.ContainsKey('Section') -and
-                 -not $PSBoundParameters.ContainsKey('TenantId') -and
+$isInteractive = -not $PSBoundParameters.ContainsKey('TenantId') -and
                  -not $PSBoundParameters.ContainsKey('SkipConnection') -and
                  -not $PSBoundParameters.ContainsKey('ClientId') -and
-                 -not $PSBoundParameters.ContainsKey('OutputFolder')
+                 -not $PSBoundParameters.ContainsKey('ManagedIdentity')
 
 if ($isInteractive -and [Environment]::UserInteractive) {
     try {
@@ -542,9 +544,14 @@ if ($isInteractive -and [Environment]::UserInteractive) {
         return
     }
 
-    # Override script parameters with wizard selections
-    $Section = $wizardParams['Section']
-    $OutputFolder = $wizardParams['OutputFolder']
+    # Override script parameters with wizard selections, but preserve
+    # any values the user already provided on the command line
+    if (-not $PSBoundParameters.ContainsKey('Section')) {
+        $Section = $wizardParams['Section']
+    }
+    if (-not $PSBoundParameters.ContainsKey('OutputFolder')) {
+        $OutputFolder = $wizardParams['OutputFolder']
+    }
 
     if ($wizardParams.ContainsKey('TenantId')) {
         $TenantId = $wizardParams['TenantId']
