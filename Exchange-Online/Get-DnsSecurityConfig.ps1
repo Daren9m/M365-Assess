@@ -122,8 +122,9 @@ else {
         $spfPresent = @()
         foreach ($domain in $authDomains) {
             $domainName = $domain.DomainName
-            $txtRecords = Resolve-DnsName -Name $domainName -Type TXT -DnsOnly -ErrorAction SilentlyContinue
-            $spfRecord = $txtRecords | Where-Object { $_.Strings -match '^v=spf1' }
+            $txtRecords = $null
+            try { $txtRecords = @(Resolve-DnsName -Name $domainName -Type TXT -DnsOnly -ErrorAction Stop) } catch { $txtRecords = @() }
+            $spfRecord = $txtRecords | Where-Object { $_.Strings -and $_.Strings -match '^v=spf1' }
             if ($spfRecord) { $spfPresent += $domainName }
             else { $spfMissing += $domainName }
         }
@@ -226,8 +227,9 @@ else {
         $dmarcStrong = @()
         foreach ($domain in $authDomains) {
             $domainName = $domain.DomainName
-            $dmarcRecords = Resolve-DnsName -Name "_dmarc.$domainName" -Type TXT -DnsOnly -ErrorAction SilentlyContinue
-            $dmarcRecord = $dmarcRecords | Where-Object { $_.Strings -match '^v=DMARC1' }
+            $dmarcRecords = $null
+            try { $dmarcRecords = @(Resolve-DnsName -Name "_dmarc.$domainName" -Type TXT -DnsOnly -ErrorAction Stop) } catch { $dmarcRecords = @() }
+            $dmarcRecord = $dmarcRecords | Where-Object { $_.Strings -and $_.Strings -match '^v=DMARC1' }
             if (-not $dmarcRecord) {
                 $dmarcMissing += $domainName
             }
