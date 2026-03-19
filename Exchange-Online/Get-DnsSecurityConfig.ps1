@@ -155,7 +155,7 @@ else {
         }
     }
     catch {
-        Write-Warning "Could not check SPF records: $_"
+        Write-Warning "SPF check error (v2): $_"
     }
 
     # ------------------------------------------------------------------
