@@ -1941,7 +1941,7 @@ if ($script:runDnsAuthentication) {
             $spfDuplicates = 'No'
 
             try {
-                $txtRecords = if ($cached) { @($cached.Spf) } else { @(Resolve-DnsName -Name $domainName -Type TXT -DnsOnly -ErrorAction Stop) }
+                $txtRecords = if ($cached -and $cached.PSObject.Properties['Spf']) { @($cached.Spf) } else { @(Resolve-DnsName -Name $domainName -Type TXT -DnsOnly -ErrorAction SilentlyContinue) }
                 $spfRecords = @($txtRecords | Where-Object { $_.Strings -and ($_.Strings -join '' -match '^v=spf1') })
 
                 if ($spfRecords.Count -gt 1) {
@@ -1980,7 +1980,7 @@ if ($script:runDnsAuthentication) {
             $dmarcDuplicates = 'No'
 
             try {
-                $dmarcTxtRecords = if ($cached) { @($cached.Dmarc) } else { @(Resolve-DnsName -Name "_dmarc.$domainName" -Type TXT -DnsOnly -ErrorAction Stop) }
+                $dmarcTxtRecords = if ($cached -and $cached.PSObject.Properties['Dmarc']) { @($cached.Dmarc) } else { @(Resolve-DnsName -Name "_dmarc.$domainName" -Type TXT -DnsOnly -ErrorAction SilentlyContinue) }
                 $dmarcRecords = @($dmarcTxtRecords | Where-Object { $_.Strings -and ($_.Strings -join '' -match '^v=DMARC1') })
 
                 if ($dmarcRecords.Count -gt 1) {
@@ -2019,13 +2019,13 @@ if ($script:runDnsAuthentication) {
             $dkimSelector2 = 'Not configured'
 
             try {
-                $dkim1Records = if ($cached) { $cached.Dkim1 } else { Resolve-DnsName -Name "selector1._domainkey.$domainName" -Type CNAME -DnsOnly -ErrorAction Stop }
+                $dkim1Records = if ($cached -and $cached.PSObject.Properties['Dkim1']) { $cached.Dkim1 } else { Resolve-DnsName -Name "selector1._domainkey.$domainName" -Type CNAME -DnsOnly -ErrorAction SilentlyContinue }
                 if ($dkim1Records.NameHost) { $dkimSelector1 = $dkim1Records.NameHost }
             }
             catch { Write-Verbose "DKIM selector1 lookup failed for $domainName`: $_" }
 
             try {
-                $dkim2Records = if ($cached) { $cached.Dkim2 } else { Resolve-DnsName -Name "selector2._domainkey.$domainName" -Type CNAME -DnsOnly -ErrorAction Stop }
+                $dkim2Records = if ($cached -and $cached.PSObject.Properties['Dkim2']) { $cached.Dkim2 } else { Resolve-DnsName -Name "selector2._domainkey.$domainName" -Type CNAME -DnsOnly -ErrorAction SilentlyContinue }
                 if ($dkim2Records.NameHost) { $dkimSelector2 = $dkim2Records.NameHost }
             }
             catch { Write-Verbose "DKIM selector2 lookup failed for $domainName`: $_" }
@@ -2033,7 +2033,7 @@ if ($script:runDnsAuthentication) {
             # ------- MTA-STS (RFC 8461) -------
             $mtaSts = 'Not configured'
             try {
-                $mtaStsRecords = if ($cached) { @($cached.MtaSts) } else { @(Resolve-DnsName -Name "_mta-sts.$domainName" -Type TXT -DnsOnly -ErrorAction Stop) }
+                $mtaStsRecords = if ($cached -and $cached.PSObject.Properties['MtaSts']) { @($cached.MtaSts) } else { @(Resolve-DnsName -Name "_mta-sts.$domainName" -Type TXT -DnsOnly -ErrorAction SilentlyContinue) }
                 $mtaStsRecord = $mtaStsRecords | Where-Object { $_.Strings -and ($_.Strings -join '' -match 'v=STSv1') } | Select-Object -First 1
                 if ($mtaStsRecord) {
                     $mtaSts = $mtaStsRecord.Strings -join ''
@@ -2044,7 +2044,7 @@ if ($script:runDnsAuthentication) {
             # ------- TLS-RPT (RFC 8460) -------
             $tlsRpt = 'Not configured'
             try {
-                $tlsRptRecords = if ($cached) { @($cached.TlsRpt) } else { @(Resolve-DnsName -Name "_smtp._tls.$domainName" -Type TXT -DnsOnly -ErrorAction Stop) }
+                $tlsRptRecords = if ($cached -and $cached.PSObject.Properties['TlsRpt']) { @($cached.TlsRpt) } else { @(Resolve-DnsName -Name "_smtp._tls.$domainName" -Type TXT -DnsOnly -ErrorAction SilentlyContinue) }
                 $tlsRptRecord = $tlsRptRecords | Where-Object { $_.Strings -and ($_.Strings -join '' -match '^v=TLSRPTv1') } | Select-Object -First 1
                 if ($tlsRptRecord) {
                     $tlsRpt = $tlsRptRecord.Strings -join ''
