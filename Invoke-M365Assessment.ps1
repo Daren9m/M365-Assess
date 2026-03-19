@@ -1628,7 +1628,7 @@ foreach ($sectionName in $Section) {
                 # cached tokens which may belong to a different tenant.
                 # IMPORTANT: ScubaGear passes Organization to Connect-MgGraph -TenantId.
                 # MSAL requires the *.onmicrosoft.com initial domain or tenant GUID —
-                # vanity domains (e.g. dz9m.com) are not reliably resolved as tenant hints.
+                # vanity domains (e.g. contoso.com) are not reliably resolved as tenant hints.
                 # Always prefer the resolved initial domain over user-supplied TenantId.
                 $scubaOrg = $null
                 if ($script:resolvedTenantDomain) {

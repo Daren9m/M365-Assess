@@ -12,6 +12,8 @@ CLAUDE.md
 .claudeignore/
 .claudeignore
 claudeignore
+docs/superpowers/
+.playwright-mcp/
 
 # Assessment output
 M365-Assessment/

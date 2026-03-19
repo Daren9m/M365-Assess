@@ -13,7 +13,7 @@
     Optional tenant name used in the output filename. If omitted, derived from the
     summary CSV filename.
 .EXAMPLE
-    .\Common\Export-ComplianceMatrix.ps1 -AssessmentFolder .\M365-Assessment\Assessment_20260311_033912_dzmlab
+    .\Common\Export-ComplianceMatrix.ps1 -AssessmentFolder .\M365-Assessment\Assessment_20260311_033912_contoso
 .NOTES
     Requires: ImportExcel module (Install-Module ImportExcel -Scope CurrentUser)
 #>
