@@ -64,6 +64,8 @@
     Omit the branded cover page from the HTML report.
 .PARAMETER SkipExecutiveSummary
     Omit the executive summary hero panel from the HTML report.
+.PARAMETER FrameworkFilter
+    Limit the compliance overview to specific framework families.
 .EXAMPLE
     PS> .\Invoke-M365Assessment.ps1 -TenantId 'contoso.onmicrosoft.com'
 
@@ -154,7 +156,11 @@ param(
     [switch]$SkipCoverPage,
 
     [Parameter()]
-    [switch]$SkipExecutiveSummary
+    [switch]$SkipExecutiveSummary,
+
+    [Parameter()]
+    [ValidateSet('CIS','NIST','ISO','STIG','PCI','CMMC','HIPAA','CISA','SOC2')]
+    [string[]]$FrameworkFilter
 )
 
 $ErrorActionPreference = 'Stop'
@@ -2206,6 +2212,7 @@ if (Test-Path -Path $reportScriptPath) {
         if ($SkipComplianceOverview) { $reportParams['SkipComplianceOverview'] = $true }
         if ($SkipCoverPage) { $reportParams['SkipCoverPage'] = $true }
         if ($SkipExecutiveSummary) { $reportParams['SkipExecutiveSummary'] = $true }
+        if ($FrameworkFilter) { $reportParams['FrameworkFilter'] = $FrameworkFilter }
 
         $reportOutput = & $reportScriptPath @reportParams
         foreach ($line in $reportOutput) {

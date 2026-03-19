@@ -37,6 +37,9 @@
 .PARAMETER SkipExecutiveSummary
     Omit the executive summary hero panel (donut chart, metrics, TOC, alert
     banners). Useful for data-only exports.
+.PARAMETER FrameworkFilter
+    Limit the compliance overview to specific framework families. Valid values:
+    CIS, NIST, ISO, STIG, PCI, CMMC, HIPAA, CISA, SOC2. Default: all frameworks.
 .EXAMPLE
     PS> .\Common\Export-AssessmentReport.ps1 -AssessmentFolder '.\M365-Assessment\Assessment_20260306_195618'
 
@@ -74,7 +77,11 @@ param(
     [switch]$SkipCoverPage,
 
     [Parameter()]
-    [switch]$SkipExecutiveSummary
+    [switch]$SkipExecutiveSummary,
+
+    [Parameter()]
+    [ValidateSet('CIS','NIST','ISO','STIG','PCI','CMMC','HIPAA','CISA','SOC2')]
+    [string[]]$FrameworkFilter
 )
 
 $ErrorActionPreference = 'Stop'
@@ -112,6 +119,23 @@ $frameworkLookup = @{
 $allFrameworkKeys = @('CIS-E3-L1','CIS-E3-L2','CIS-E5-L1','CIS-E5-L2','NIST-Low','NIST-Moderate','NIST-High','NIST-Privacy','NIST-CSF','ISO-27001','STIG','PCI-DSS','CMMC','HIPAA','CISA-SCuBA','SOC-2')
 $cisProfileKeys = @('CIS-E3-L1','CIS-E3-L2','CIS-E5-L1','CIS-E5-L2')
 $nistProfileKeys = @('NIST-Low','NIST-Moderate','NIST-High','NIST-Privacy')
+if ($FrameworkFilter) {
+    $fwPrefixMap = @{
+        'CIS'   = @('CIS-E3-L1','CIS-E3-L2','CIS-E5-L1','CIS-E5-L2')
+        'NIST'  = @('NIST-Low','NIST-Moderate','NIST-High','NIST-Privacy','NIST-CSF')
+        'ISO'   = @('ISO-27001')
+        'STIG'  = @('STIG')
+        'PCI'   = @('PCI-DSS')
+        'CMMC'  = @('CMMC')
+        'HIPAA' = @('HIPAA')
+        'CISA'  = @('CISA-SCuBA')
+        'SOC2'  = @('SOC-2')
+    }
+    $allowedKeys = @($FrameworkFilter | ForEach-Object { $fwPrefixMap[$_] } | ForEach-Object { $_ })
+    $allFrameworkKeys = @($allFrameworkKeys | Where-Object { $_ -in $allowedKeys })
+    $cisProfileKeys = @($cisProfileKeys | Where-Object { $_ -in $allFrameworkKeys })
+    $nistProfileKeys = @($nistProfileKeys | Where-Object { $_ -in $allFrameworkKeys })
+}
 
 # ------------------------------------------------------------------
 # Validate input
