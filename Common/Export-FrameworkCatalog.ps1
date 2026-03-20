@@ -35,10 +35,6 @@ function Export-FrameworkCatalog {
         [Parameter()][string]$TenantName
     )
 
-    if ($Mode -eq 'Standalone') {
-        return '<!-- Standalone mode not yet implemented -->'
-    }
-
     # --- Common: resolve framework mappings and score ---
     $scoredResult = Invoke-FrameworkScoring -Findings $Findings -Framework $Framework -ControlRegistry $ControlRegistry
 
@@ -46,8 +42,20 @@ function Export-FrameworkCatalog {
         return $scoredResult
     }
 
-    # --- Inline mode: render HTML fragment ---
-    return ConvertTo-CatalogInlineHtml -Framework $Framework -ScoredResult $scoredResult -MappedFindings $scoredResult.MappedFindings
+    if ($Mode -eq 'Inline') {
+        return ConvertTo-CatalogInlineHtml -Framework $Framework -ScoredResult $scoredResult -MappedFindings $scoredResult.MappedFindings
+    }
+
+    # --- Standalone mode: write complete HTML file ---
+    if (-not $OutputPath) {
+        throw 'Standalone mode requires the -OutputPath parameter.'
+    }
+    if (-not $TenantName) {
+        $TenantName = 'Unknown'
+    }
+    $standaloneContent = ConvertTo-CatalogStandaloneHtml -Framework $Framework -ScoredResult $scoredResult -MappedFindings $scoredResult.MappedFindings -TenantName $TenantName
+    $standaloneContent | Set-Content -Path $OutputPath -Encoding UTF8 -Force
+    return $OutputPath
 }
 
 # ---------------------------------------------------------------------------
@@ -268,6 +276,282 @@ function ConvertTo-CatalogInlineHtml {
     $null = $html.AppendLine("</details>")
 
     return $html.ToString()
+}
+
+# ---------------------------------------------------------------------------
+# Private: render Standalone HTML document for a single framework catalog
+# ---------------------------------------------------------------------------
+function ConvertTo-CatalogStandaloneHtml {
+    [CmdletBinding()]
+    param(
+        [hashtable]$Framework,
+        [hashtable]$ScoredResult,
+        [System.Collections.Generic.List[hashtable]]$MappedFindings,
+        [string]$TenantName
+    )
+
+    $fwLabel = $Framework.label
+    $fwCss = if ($Framework.css) { $Framework.css } else { 'fw-default' }
+    $summary = $ScoredResult.Summary
+    $groups = $ScoredResult.Groups
+    $assessmentDate = Get-Date -Format 'yyyy-MM-dd HH:mm'
+
+    # Get the inline body content (reuse the inline renderer's table logic)
+    $passRatePct = [math]::Round($summary.PassRate * 100, 1)
+    $passClass = if ($passRatePct -ge 80) { 'success' } elseif ($passRatePct -ge 60) { 'warning' } else { 'danger' }
+    $coveragePct = if ($summary.TotalControls -gt 0) { [math]::Min(100, [math]::Round(($summary.MappedControls / $summary.TotalControls) * 100, 0)) } else { 0 }
+
+    $body = [System.Text.StringBuilder]::new(8192)
+
+    # Cover / header section
+    $null = $body.AppendLine("<div class='catalog-header'>")
+    $null = $body.AppendLine("<h1><span class='fw-tag $fwCss' style='font-size: 0.9em; padding: 4px 12px;'>$fwLabel</span> Framework Catalog</h1>")
+    $null = $body.AppendLine("<p class='catalog-meta'>Tenant: <strong>$TenantName</strong> &bull; Generated: $assessmentDate &bull; Scoring: $($Framework.scoringMethod)</p>")
+    $null = $body.AppendLine("</div>")
+
+    # Summary stats
+    $null = $body.AppendLine("<div class='catalog-summary'>")
+    $null = $body.AppendLine("<div class='catalog-stats'>")
+    $null = $body.AppendLine("<span class='catalog-stat'><strong>Pass Rate:</strong> <span class='badge badge-$passClass'>$passRatePct%</span></span>")
+    $null = $body.AppendLine("<span class='catalog-stat'><strong>Mapped:</strong> $($summary.MappedControls) of $($summary.TotalControls) controls</span>")
+    $null = $body.AppendLine("</div>")
+    if ($summary.TotalControls -gt 0) {
+        $null = $body.AppendLine("<div class='coverage-bar'><div class='coverage-fill' style='width: $coveragePct%'></div></div>")
+        $null = $body.AppendLine("<div class='coverage-label'>$coveragePct% coverage</div>")
+    }
+    $null = $body.AppendLine("</div>")
+
+    # Group breakdown table
+    $null = $body.AppendLine("<h2>Group Breakdown</h2>")
+    $null = $body.AppendLine("<table class='catalog-groups'><thead><tr>")
+    $null = $body.AppendLine("<th>Group</th><th>Label</th><th>Mapped</th><th>Passed</th><th>Failed</th><th>Other</th><th>Pass Rate</th>")
+    $null = $body.AppendLine("</tr></thead><tbody>")
+
+    foreach ($group in $groups) {
+        $grpPassRate = if ($group.Mapped -gt 0) { [math]::Round(($group.Passed / $group.Mapped) * 100, 1) } else { 0 }
+        $grpClass = if ($group.Mapped -eq 0) { '' } elseif ($grpPassRate -ge 80) { 'success' } elseif ($grpPassRate -ge 60) { 'warning' } else { 'danger' }
+
+        $null = $body.AppendLine("<tr>")
+        $null = $body.AppendLine("<td><span class='fw-tag $fwCss'>$($group.Key)</span></td>")
+        $null = $body.AppendLine("<td>$($group.Label)</td>")
+        $totalDisplay = if ($group.Total -gt 0) { "$($group.Mapped)/$($group.Total)" } else { "$($group.Mapped)" }
+        $null = $body.AppendLine("<td>$totalDisplay</td>")
+        $null = $body.AppendLine("<td>$($group.Passed)</td>")
+        $null = $body.AppendLine("<td>$($group.Failed)</td>")
+        $null = $body.AppendLine("<td>$($group.Other)</td>")
+        $passDisplay = if ($group.Mapped -gt 0) { "$grpPassRate%" } else { '&mdash;' }
+        $badgeCss = switch ($grpClass) { 'success' { 'badge-success' } 'warning' { 'badge-warning' } 'danger' { 'badge-failed' } default { 'badge-neutral' } }
+        $null = $body.AppendLine("<td><span class='badge $badgeCss'>$passDisplay</span></td>")
+        $null = $body.AppendLine("</tr>")
+    }
+    $null = $body.AppendLine("</tbody></table>")
+
+    # Findings detail table
+    if ($MappedFindings.Count -gt 0) {
+        $null = $body.AppendLine("<h2>Detailed Findings ($($summary.MappedControls) mapped)</h2>")
+        $null = $body.AppendLine("<table class='cis-table catalog-findings'><thead><tr>")
+        $null = $body.AppendLine("<th>Status</th><th>Check ID</th><th>Setting</th><th>Control ID</th><th>Severity</th>")
+        $null = $body.AppendLine("</tr></thead><tbody>")
+
+        foreach ($mf in $MappedFindings) {
+            $finding = $mf.Finding
+            $statusBadge = switch ($finding.Status) {
+                'Pass'    { 'badge-success' }
+                'Fail'    { 'badge-failed' }
+                'Warning' { 'badge-warning' }
+                'Review'  { 'badge-info' }
+                'Info'    { 'badge-neutral' }
+                default   { 'badge-neutral' }
+            }
+            $severityBadge = switch ($finding.RiskSeverity) {
+                'Critical' { 'badge-critical' }
+                'High'     { 'badge-failed' }
+                'Medium'   { 'badge-warning' }
+                'Low'      { 'badge-info' }
+                default    { 'badge-neutral' }
+            }
+            $controlDisplay = $mf.ControlId -replace ';', '; '
+            $rowClass = if ($finding.Status -eq 'Pass') { 'cis-row-pass' } elseif ($finding.Status -eq 'Fail') { 'cis-row-fail' } else { '' }
+
+            $null = $body.AppendLine("<tr class='$rowClass'>")
+            $null = $body.AppendLine("<td><span class='badge $statusBadge'>$($finding.Status)</span></td>")
+            $null = $body.AppendLine("<td class='cis-id'>$($finding.CheckId)</td>")
+            $null = $body.AppendLine("<td>$($finding.Setting)</td>")
+            $null = $body.AppendLine("<td><span class='fw-tag $fwCss'>$controlDisplay</span></td>")
+            $null = $body.AppendLine("<td><span class='badge $severityBadge'>$($finding.RiskSeverity)</span></td>")
+            $null = $body.AppendLine("</tr>")
+        }
+        $null = $body.AppendLine("</tbody></table>")
+    }
+    else {
+        $null = $body.AppendLine("<p class='catalog-empty'>No assessed findings map to this framework.</p>")
+    }
+
+    $bodyContent = $body.ToString()
+
+    # Assemble full HTML document with embedded CSS
+    return @"
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>$fwLabel Catalog - $TenantName</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --m365a-primary: #2563EB;
+            --m365a-dark-primary: #1D4ED8;
+            --m365a-accent: #60A5FA;
+            --m365a-dark: #0F172A;
+            --m365a-dark-gray: #1E293B;
+            --m365a-medium-gray: #64748B;
+            --m365a-light-gray: #F1F5F9;
+            --m365a-border: #CBD5E1;
+            --m365a-white: #ffffff;
+            --m365a-success: #2ecc71;
+            --m365a-warning: #f39c12;
+            --m365a-danger: #e74c3c;
+            --m365a-info: #3498db;
+            --m365a-success-bg: #d4edda;
+            --m365a-warning-bg: #fff3cd;
+            --m365a-danger-bg: #f8d7da;
+            --m365a-info-bg: #d1ecf1;
+            --m365a-neutral: #6b7280;
+            --m365a-neutral-bg: #f3f4f6;
+            --m365a-body-bg: #ffffff;
+            --m365a-text: #1E293B;
+            --m365a-card-bg: #ffffff;
+            --m365a-hover-bg: #e8f4f8;
+        }
+        body.dark-theme {
+            --m365a-primary: #60A5FA;
+            --m365a-dark-primary: #93C5FD;
+            --m365a-accent: #3B82F6;
+            --m365a-dark: #F1F5F9;
+            --m365a-dark-gray: #E2E8F0;
+            --m365a-medium-gray: #94A3B8;
+            --m365a-light-gray: #1E293B;
+            --m365a-border: #334155;
+            --m365a-white: #0F172A;
+            --m365a-body-bg: #0F172A;
+            --m365a-text: #E2E8F0;
+            --m365a-card-bg: #1E293B;
+            --m365a-hover-bg: #1E3A5F;
+            --m365a-success: #34D399;
+            --m365a-warning: #FBBF24;
+            --m365a-danger: #F87171;
+            --m365a-info: #60A5FA;
+            --m365a-success-bg: #064E3B;
+            --m365a-warning-bg: #78350F;
+            --m365a-danger-bg: #7F1D1D;
+            --m365a-info-bg: #1E3A5F;
+            --m365a-neutral: #9ca3af;
+            --m365a-neutral-bg: #374151;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+            font-size: 13pt;
+            line-height: 1.5;
+            color: var(--m365a-text);
+            background: var(--m365a-body-bg);
+            padding: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 { font-size: 1.8em; margin-bottom: 8px; color: var(--m365a-dark); }
+        h2 { font-size: 1.3em; margin: 24px 0 12px; color: var(--m365a-dark); border-bottom: 2px solid var(--m365a-primary); padding-bottom: 6px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 10pt; }
+        th { background: var(--m365a-dark); color: #fff; padding: 10px 12px; text-align: left; font-weight: 600; font-size: 9pt; }
+        td { padding: 8px 12px; border-bottom: 1px solid var(--m365a-border); vertical-align: top; }
+        tr:nth-child(even) { background: var(--m365a-light-gray); }
+        tr:hover { background: var(--m365a-hover-bg); }
+        .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 8.5pt; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .badge-success { background: var(--m365a-success-bg); color: #155724; }
+        .badge-failed { background: var(--m365a-danger-bg); color: #721c24; }
+        .badge-warning { background: var(--m365a-warning-bg); color: #856404; }
+        .badge-info { background: var(--m365a-info-bg); color: #0c5460; }
+        .badge-neutral { background-color: var(--m365a-neutral-bg); color: var(--m365a-neutral); }
+        .badge-critical { background: #991b1b; color: #fef2f2; }
+        .fw-tag { display: inline-block; padding: 1px 5px; margin: 1px; border-radius: 3px; font-size: 0.72em; font-family: 'Consolas', 'Courier New', monospace; }
+        .fw-cis    { background: #e8f0fe; color: #1a56db; }
+        .fw-cis-l2 { background: #dbeafe; color: #1e40af; }
+        .fw-nist   { background: #e8f0fe; color: #1a56db; }
+        .fw-nist-high { background: #dbeafe; color: #1e40af; }
+        .fw-nist-privacy { background: #ede9fe; color: #5b21b6; }
+        .fw-csf   { background: #fef3c7; color: #92400e; }
+        .fw-iso   { background: #ecfdf5; color: #065f46; }
+        .fw-stig  { background: #f3e8ff; color: #6b21a8; }
+        .fw-pci   { background: #fef2f2; color: #991b1b; }
+        .fw-cmmc  { background: #f0fdfa; color: #134e4a; }
+        .fw-hipaa { background: #fdf2f8; color: #9d174d; }
+        .fw-scuba { background: #fff7ed; color: #9a3412; }
+        .fw-soc2  { background: #eff6ff; color: #1e3a5f; }
+        .fw-fedramp { background: #fef3c7; color: #78350f; }
+        .fw-essential8 { background: #ecfdf5; color: #14532d; }
+        .fw-mitre { background: #fef2f2; color: #7f1d1d; }
+        .fw-cisv8 { background: #e0f2fe; color: #0c4a6e; }
+        .fw-default { background: #e2e8f0; color: #334155; }
+        .cis-id { font-family: 'Consolas', 'Courier New', monospace; font-size: 0.9em; white-space: nowrap; }
+        .cis-row-pass { border-left: 3px solid var(--m365a-success); background-color: var(--m365a-success-bg); }
+        .cis-row-fail { border-left: 3px solid var(--m365a-danger); background-color: var(--m365a-danger-bg); }
+        .cis-row-pass:nth-child(even), .cis-row-fail:nth-child(even) { background-image: linear-gradient(rgba(0,0,0,0.06), rgba(0,0,0,0.06)); }
+        .coverage-bar { margin-top: 6px; background: var(--m365a-border); border-radius: 4px; height: 6px; overflow: hidden; }
+        .coverage-fill { height: 100%; border-radius: 4px; transition: width 0.3s; }
+        .catalog-summary .coverage-fill { background: var(--m365a-primary); }
+        .coverage-label { font-size: 0.65em; color: var(--m365a-medium-gray); margin-top: 2px; }
+        .catalog-header { margin-bottom: 24px; }
+        .catalog-meta { font-size: 0.85em; color: var(--m365a-medium-gray); }
+        .catalog-summary { margin-bottom: 20px; padding: 16px; background: var(--m365a-card-bg); border: 1px solid var(--m365a-border); border-radius: 6px; }
+        .catalog-stats { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 4px; }
+        .catalog-stat { font-size: 0.9em; }
+        .catalog-empty { color: var(--m365a-medium-gray); font-style: italic; padding: 20px; }
+        .theme-toggle { position: fixed; top: 16px; right: 16px; background: var(--m365a-card-bg); border: 1px solid var(--m365a-border); border-radius: 50%; width: 36px; height: 36px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; z-index: 100; }
+        .theme-toggle:hover { transform: scale(1.1); }
+        body:not(.dark-theme) .theme-icon-dark { display: none; }
+        body.dark-theme .theme-icon-light { display: none; }
+        body.dark-theme th { background: #1E3A5F; color: #E2E8F0; }
+        body.dark-theme .badge-success { background: #065F46; color: #6EE7B7; }
+        body.dark-theme .badge-failed { background: #7F1D1D; color: #FCA5A5; }
+        body.dark-theme .badge-warning { background: #78350F; color: #FCD34D; }
+        body.dark-theme .badge-info { background: #1E3A5F; color: #93C5FD; }
+        body.dark-theme .badge-neutral { background-color: var(--m365a-neutral-bg); color: var(--m365a-neutral); }
+        body.dark-theme .fw-cis    { background: #1E3A5F; color: #93C5FD; }
+        body.dark-theme .fw-cis-l2 { background: #1E3A5F; color: #60A5FA; }
+        body.dark-theme .fw-nist   { background: #1E3A5F; color: #93C5FD; }
+        body.dark-theme .fw-nist-high { background: #1E3A5F; color: #60A5FA; }
+        body.dark-theme .fw-nist-privacy { background: #2E1065; color: #C4B5FD; }
+        body.dark-theme .fw-csf    { background: #78350F; color: #FCD34D; }
+        body.dark-theme .fw-iso    { background: #064E3B; color: #6EE7B7; }
+        body.dark-theme .fw-stig   { background: #3B0764; color: #C4B5FD; }
+        body.dark-theme .fw-pci    { background: #7F1D1D; color: #FCA5A5; }
+        body.dark-theme .fw-cmmc   { background: #134E4A; color: #5EEAD4; }
+        body.dark-theme .fw-hipaa  { background: #831843; color: #F9A8D4; }
+        body.dark-theme .fw-scuba  { background: #7C2D12; color: #FDBA74; }
+        body.dark-theme .fw-soc2   { background: #1E3A5F; color: #60A5FA; }
+        body.dark-theme .fw-fedramp { background: #78350F; color: #FCD34D; }
+        body.dark-theme .fw-essential8 { background: #064E3B; color: #6EE7B7; }
+        body.dark-theme .fw-mitre  { background: #7F1D1D; color: #FCA5A5; }
+        body.dark-theme .fw-cisv8  { background: #164E63; color: #67E8F9; }
+        body.dark-theme .fw-default { background: #334155; color: #94A3B8; }
+        @media print { .theme-toggle { display: none; } body { padding: 20px; } }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" onclick="document.body.classList.toggle('dark-theme')" title="Toggle dark theme">
+        <span class="theme-icon-light">&#9790;</span>
+        <span class="theme-icon-dark">&#9788;</span>
+    </button>
+    $bodyContent
+    <footer style="margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--m365a-border); font-size: 0.75em; color: var(--m365a-medium-gray);">
+        Generated by M365-Assess Framework Catalog Engine
+    </footer>
+</body>
+</html>
+"@
 }
 
 # ---------------------------------------------------------------------------
