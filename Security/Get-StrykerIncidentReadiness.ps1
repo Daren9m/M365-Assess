@@ -345,7 +345,7 @@ try {
                     $countResponse = Invoke-MgGraphRequest -Uri $countUri -Method GET -Headers @{ 'ConsistencyLevel' = 'eventual' } -ErrorAction Stop
                     $memberCount = $countResponse
                 }
-                catch { }
+                catch { Write-Verbose "Could not get member count for group $($member.displayName)" }
                 $unprotectedGroups += "$($member.displayName) — Role: $($role.DisplayName), Members: $memberCount"
             }
         }
@@ -513,7 +513,7 @@ try {
                 $assignments += $a
             }
         }
-        catch { }
+        catch { Write-Verbose "Could not fetch role assignments for $($roleDef.displayName)" }
     }
 
     if (-not $assignments -or $assignments.Count -eq 0) {
