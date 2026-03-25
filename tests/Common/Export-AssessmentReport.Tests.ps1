@@ -193,6 +193,20 @@ Describe 'Export-AssessmentReport HTML structure' {
         }
     }
 
+    Context 'DNS subsection divider' {
+        It 'Should include dns-subsection-divider CSS class' {
+            $html | Should -Match 'dns-subsection-divider'
+        }
+
+        It 'Should include DNS subsection heading text' {
+            $html | Should -Match 'DNS Authentication'
+        }
+
+        It 'Should include source description for DNS tables' {
+            $html | Should -Match 'public DNS queries'
+        }
+    }
+
     Context 'Copy-to-clipboard for remediation' {
         It 'Should include copyRemediation JavaScript function' {
             $html | Should -Match 'function copyRemediation'

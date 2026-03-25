@@ -537,6 +537,7 @@ $sectionDescriptions = @{
 
 foreach ($sectionName in $sections) {
     $sectionCollectors = @($summary | Where-Object { $_.Section -eq $sectionName })
+    $dnsSubsectionRendered = $false
 
     # Reorder Email collectors for natural report flow
     if ($sectionName -eq 'Email') {
@@ -1588,6 +1589,17 @@ foreach ($sectionName in $sections) {
         $rowCount = @($data).Count
         $isScubaGear = ($c.FileName -eq '27-ScubaGear-Baseline.csv')
         $collectorDisplay = if ($c.FileName -eq '11-EXO-Email-Policies.csv') { 'EXO Email Policies' } else { $c.Collector }
+
+        # Insert DNS subsection divider before the first DNS table
+        $isDnsTable = $c.FileName -match '^12[b]?-DNS-'
+        if ($isDnsTable -and -not $dnsSubsectionRendered) {
+            $null = $sectionHtml.AppendLine("<div class='dns-subsection-divider'>")
+            $null = $sectionHtml.AppendLine("<h3>DNS Authentication</h3>")
+            $null = $sectionHtml.AppendLine("<p class='source-note'>The following data was retrieved via public DNS queries against each verified domain.</p>")
+            $null = $sectionHtml.AppendLine("</div>")
+            $dnsSubsectionRendered = $true
+        }
+
         $null = $sectionHtml.AppendLine("<details class='collector-detail'>")
         $null = $sectionHtml.AppendLine("<summary><h3>$(ConvertTo-HtmlSafe -Text $collectorDisplay) <span class='row-count'>($rowCount rows)</span></h3></summary>")
 
@@ -3136,6 +3148,25 @@ $html = @"
         .data-table th.sort-desc::after {
             content: ' \25BC';
             opacity: 0.8;
+        }
+
+        /* DNS subsection divider */
+        .dns-subsection-divider {
+            margin: 2rem 0 1rem;
+            padding: 0.75rem 1rem;
+            border-left: 4px solid var(--m365a-accent);
+            background: var(--m365a-bg-secondary, #f8f9fa);
+            border-radius: 0 6px 6px 0;
+        }
+        .dns-subsection-divider h3 {
+            margin: 0 0 0.25rem;
+            font-size: 1.05rem;
+            color: var(--m365a-text);
+        }
+        .dns-subsection-divider .source-note {
+            font-size: 0.85rem;
+            color: var(--m365a-text-secondary);
+            margin: 0;
         }
 
         /* Collapsible data sub-sections */
