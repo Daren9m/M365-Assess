@@ -916,7 +916,7 @@ foreach ($sectionName in $sections) {
                     $exoDonut = Get-SvgMultiDonut -Segments $exoSegments -CenterLabel "$exoTotal" -Size 130 -StrokeWidth 12
 
                     $null = $sectionHtml.AppendLine("<div class='email-dash-col'>")
-                    $null = $sectionHtml.AppendLine("<div class='email-dash-heading'>EXO Security Config <span class='source-badge source-exo'>EXO</span></div>")
+                    $null = $sectionHtml.AppendLine("<div class='email-dash-heading'>EXO Security Config <span class='source-badge source-exo'>Exch Online</span></div>")
                     $null = $sectionHtml.AppendLine("<div class='dash-panel'>")
                     $null = $sectionHtml.AppendLine("<div class='dash-panel-donut'>")
                     $null = $sectionHtml.AppendLine($exoDonut)
@@ -983,7 +983,7 @@ foreach ($sectionName in $sections) {
                 $publicClass = if ($publicConfirmed -eq $totalDomains) { 'success' } elseif ($publicConfirmed -gt 0) { 'warning' } else { 'danger' }
 
                 $null = $sectionHtml.AppendLine("<div class='email-dash-col'>")
-                $null = $sectionHtml.AppendLine("<div class='email-dash-heading'>Email Authentication <span class='source-badge source-dns'>DNS</span></div>")
+                $null = $sectionHtml.AppendLine("<div class='email-dash-heading'>Email Authentication <span class='source-badge source-dns'>Live DNS Check</span></div>")
 
                 # DNS stat cards — compact 2-column grid for column context
                 $null = $sectionHtml.AppendLine("<div class='dns-stats-col'>")
@@ -1025,7 +1025,7 @@ foreach ($sectionName in $sections) {
             # --- Below: Email Policies as responsive grid ---
             if ($hasPolicies) {
                 $null = $sectionHtml.AppendLine("<div class='email-dash-policies'>")
-                $null = $sectionHtml.AppendLine("<div class='email-dash-heading'>Email Policies <span class='source-badge source-exo'>EXO</span></div>")
+                $null = $sectionHtml.AppendLine("<div class='email-dash-heading'>Email Policies <span class='source-badge source-exo'>Exch Online</span></div>")
                 $null = $sectionHtml.AppendLine("<div class='policy-grid'>")
                 foreach ($policy in $polData) {
                     $policyEnabled = ($policy.Enabled -eq 'True')
@@ -3209,7 +3209,9 @@ $html = @"
             margin: 2rem 0 1rem;
             padding: 0.75rem 1rem;
             border-left: 4px solid var(--m365a-accent);
-            background: var(--m365a-bg-secondary, #f8f9fa);
+            background: var(--m365a-card-bg);
+            border: 1px solid var(--m365a-border);
+            border-left: 4px solid var(--m365a-accent);
             border-radius: 0 6px 6px 0;
         }
         .dns-subsection-divider h3 {
@@ -3219,7 +3221,7 @@ $html = @"
         }
         .dns-subsection-divider .source-note {
             font-size: 0.85rem;
-            color: var(--m365a-text-secondary);
+            color: var(--m365a-medium-gray);
             margin: 0;
         }
 
