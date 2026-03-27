@@ -65,3 +65,58 @@ Describe 'Module repair detection' {
         }
     }
 }
+
+Describe 'Module repair flow' {
+    BeforeAll {
+        $scriptPath = "$PSScriptRoot/../Invoke-M365Assessment.ps1"
+        $src = Get-Content -Path $scriptPath -Raw
+    }
+
+    Context 'Presentation' {
+        It 'Should display Module Issues Detected banner' {
+            $src | Should -Match 'Module Issues Detected'
+        }
+    }
+
+    Context 'Interactive repair' {
+        It 'Should prompt for Tier 1 installs' {
+            $src | Should -Match 'Install missing modules to CurrentUser scope'
+        }
+
+        It 'Should prompt separately for EXO downgrade' {
+            $src | Should -Match 'Proceed with EXO downgrade'
+        }
+
+        It 'Should call Install-Module directly with splatted params' {
+            $src | Should -Match 'Install-Module @installParams'
+        }
+
+        It 'Should not use Invoke-Expression' {
+            $src | Should -Not -Match 'Invoke-Expression.*InstallCmd'
+        }
+    }
+
+    Context 'Headless mode' {
+        It 'Should skip prompts when not interactive' {
+            $src | Should -Match 'if \(-not \$isInteractive\)'
+        }
+
+        It 'Should log errors for required issues in headless mode' {
+            $src | Should -Match "Write-AssessmentLog.*-Level ERROR.*Module issue"
+        }
+
+        It 'Should skip optional sections in headless mode' {
+            $src | Should -Match "Section.*Where-Object.*-ne.*PowerBI"
+        }
+    }
+
+    Context 'Re-validation' {
+        It 'Should re-run module detection after repairs' {
+            $src | Should -Match 'Re-validat'
+        }
+
+        It 'Should show manual steps when repairs fail' {
+            $src | Should -Match 'Unable to resolve all module issues'
+        }
+    }
+}
