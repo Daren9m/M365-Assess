@@ -39,8 +39,8 @@ Describe 'Module repair detection' {
             $src | Should -Match '\[switch\]\$NonInteractive'
         }
 
-        It 'Should derive isInteractive from NonInteractive' {
-            $src | Should -Match 'isInteractive.*=.*-not \$NonInteractive'
+        It 'Should use NonInteractive to gate headless module repair path' {
+            $src | Should -Match '\$NonInteractive\s+-or\s+-not\s+\[Environment\]::UserInteractive'
         }
     }
 
@@ -97,8 +97,8 @@ Describe 'Module repair flow' {
     }
 
     Context 'Headless mode' {
-        It 'Should skip prompts when not interactive' {
-            $src | Should -Match 'if \(-not \$isInteractive\)'
+        It 'Should skip prompts when NonInteractive or no user session' {
+            $src | Should -Match '\$NonInteractive\s+-or\s+-not\s+\[Environment\]::UserInteractive'
         }
 
         It 'Should log errors for required issues in headless mode' {

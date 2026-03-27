@@ -191,7 +191,6 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-$isInteractive = -not $NonInteractive
 
 # ------------------------------------------------------------------
 # Version — read from module manifest (single source of truth)
@@ -753,12 +752,12 @@ function Resolve-M365Environment {
 # connect (TenantId, SkipConnection, or app-only auth). Passing
 # -Section alone should still trigger the wizard for tenant input.
 # ------------------------------------------------------------------
-$isInteractive = -not $PSBoundParameters.ContainsKey('TenantId') -and
-                 -not $PSBoundParameters.ContainsKey('SkipConnection') -and
-                 -not $PSBoundParameters.ContainsKey('ClientId') -and
-                 -not $PSBoundParameters.ContainsKey('ManagedIdentity')
+$launchWizard = -not $PSBoundParameters.ContainsKey('TenantId') -and
+                -not $PSBoundParameters.ContainsKey('SkipConnection') -and
+                -not $PSBoundParameters.ContainsKey('ClientId') -and
+                -not $PSBoundParameters.ContainsKey('ManagedIdentity')
 
-if ($isInteractive -and [Environment]::UserInteractive) {
+if ($launchWizard -and [Environment]::UserInteractive) {
     try {
         $wizSplat = @{}
         if ($PSBoundParameters.ContainsKey('Section')) {
@@ -1553,7 +1552,7 @@ if (-not $SkipConnection) {
         $requiredIssues = @($repairActions | Where-Object { $_.Severity -eq 'Required' })
         $optionalIssues = @($repairActions | Where-Object { $_.Severity -eq 'Optional' })
 
-        if (-not $isInteractive) {
+        if ($NonInteractive -or -not [Environment]::UserInteractive) {
             # --- Headless: log and exit/skip ---
             if ($requiredIssues.Count -gt 0) {
                 foreach ($action in $requiredIssues) {
