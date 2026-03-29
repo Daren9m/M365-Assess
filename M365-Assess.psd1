@@ -2,13 +2,13 @@
     # Module manifest for M365-Assess
     # Generated: 2026-03-08
 
-    RootModule        = 'Invoke-M365Assessment.ps1'
+    RootModule        = 'M365-Assess.psm1'
     ModuleVersion     = '0.9.8'
     GUID              = 'f7e3b2a1-4c5d-6e8f-9a0b-1c2d3e4f5a6b'
     Author            = 'Galvnyz'
     CompanyName       = 'Community'
     Copyright         = '(c) 2026 Galvnyz. All rights reserved.'
-    Description       = 'Comprehensive read-only Microsoft 365 security assessment tool for IT consultants and administrators. Covers Entra ID, Exchange Online, Intune, Defender, SharePoint, Teams, Purview, Active Directory, and CISA ScubaGear baselines.'
+    Description       = 'Comprehensive read-only Microsoft 365 security assessment tool for IT consultants and administrators. Covers Entra ID, Exchange Online, Intune, Defender, SharePoint, Teams, Purview, and Active Directory.'
 
     # Minimum PowerShell version
     PowerShellVersion = '7.0'
@@ -24,11 +24,18 @@
         @{ ModuleName = 'Microsoft.Graph.Identity.SignIns';             ModuleVersion = '2.25.0' }
     )
 
+    # Functions to export from this module
+    FunctionsToExport = @('Invoke-M365Assessment')
+    CmdletsToExport   = @()
+    VariablesToExport = @()
+    AliasesToExport   = @()
+
     # Scripts included in this module
     ScriptsToProcess  = @()
 
     # Files included in this module package
     FileList          = @(
+        'M365-Assess.psm1'
         'Invoke-M365Assessment.ps1'
         'Common\Connect-Service.ps1'
         'Common\Resolve-DnsRecord.ps1'
@@ -69,7 +76,6 @@
         'Security\Get-ComplianceSecurityConfig.ps1'
         'Security\Get-StrykerIncidentReadiness.ps1'
         'Security\Get-LocalAdmins.ps1'
-        'Security\Invoke-ScubaGearScan.ps1'
         'Collaboration\Get-SharePointOneDriveReport.ps1'
         'Collaboration\Get-SharePointSecurityConfig.ps1'
         'Collaboration\Get-TeamsAccessReport.ps1'
@@ -102,10 +108,12 @@
     # Private data / PSData for PowerShell Gallery
     PrivateData       = @{
         PSData = @{
-            Tags         = @('Microsoft365', 'M365', 'Security', 'Assessment', 'EntraID', 'Exchange', 'Intune', 'Defender', 'SharePoint', 'Teams', 'PowerBI', 'ScubaGear', 'CIS')
+            Tags         = @('Microsoft365', 'M365', 'Security', 'Assessment', 'Compliance', 'Audit',
+                             'EntraID', 'Exchange', 'Intune', 'Defender', 'SharePoint', 'Teams',
+                             'PowerBI', 'CIS', 'NIST', 'SOC2', 'HIPAA', 'ZeroTrust', 'SecurityBaseline')
             LicenseUri   = 'https://github.com/Galvnyz/M365-Assess/blob/main/LICENSE'
             ProjectUri   = 'https://github.com/Galvnyz/M365-Assess'
-            ReleaseNotes = 'v0.9.8 - Stryker Incident Readiness: 9 new security checks ported from StrykerScan covering incident-response attack vectors'
+            ReleaseNotes = 'v0.9.8 - Stryker Incident Readiness: 9 new security checks covering incident-response attack vectors'
         }
     }
 }

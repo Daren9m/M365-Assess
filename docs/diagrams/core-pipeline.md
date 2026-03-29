@@ -52,7 +52,6 @@ graph TD
         RunScript --> AddSetting --> Progress
         AddSetting --> ExportCsv
 
-        ScubaNote["ScubaGear: PS 5.1 subprocess"]
         PBINote["PowerBI: isolated pwsh process"]
         SecScore["Secure Score: dual CSV output"]
     end

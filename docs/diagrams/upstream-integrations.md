@@ -88,7 +88,6 @@ graph LR
     EXOService -->|"Connect-ExchangeOnline"| ConnService
     PurviewService -->|"Connect-IPPSSession"| ConnService
     DNS -->|"Resolve-DnsName<br/>(ThreadJobs)"| DNSColl
-    PSGallery -->|"Install-Module<br/>(ScubaGear)"| Orchestrator
     AD -->|"Get-AD* cmdlets<br/>(optional)"| Orchestrator
 
     %% Internal data flow

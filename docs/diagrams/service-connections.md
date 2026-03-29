@@ -64,15 +64,6 @@ graph TD
         PBIConn --- PBIReason
     end
 
-    subgraph LegacyProcess["Subprocess (PowerShell 5.1)"]
-        ScubaConn["ScubaGear Authentication"]
-        ScubaRun["Invoke-ScubaGearScan"]
-        ScubaReason["Reason: ScubaGear requires<br/>Windows PowerShell 5.1 runtime"]
-
-        ScubaConn --> ScubaRun
-        ScubaConn --- ScubaReason
-    end
-
     subgraph BackgroundJobs["Background ThreadJobs"]
         DnsPrefetch["DNS Prefetch<br/>(started after Graph connect)"]
         DnsJobs["Start-ThreadJob per<br/>verified domain"]
@@ -83,7 +74,6 @@ graph TD
     end
 
     ConnSvc -.->|"IsChildProcess"| PBIConn
-    ConnSvc -.->|"IsScubaGear"| ScubaConn
     GraphConn -.->|"after first connect:<br/>resolve domain +<br/>start prefetch"| DnsPrefetch
 
     %% Styles

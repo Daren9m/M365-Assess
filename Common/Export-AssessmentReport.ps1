@@ -283,7 +283,7 @@ $totalCollectors = $summary.Count
 $sections = @($summary | Select-Object -ExpandProperty Section -Unique)
 
 # Preferred section display order — sections not listed keep their CSV order at the end
-$sectionDisplayOrder = @('Tenant','Identity','Hybrid','Licensing','Email','Intune','Security','Collaboration','PowerBI','Inventory','ActiveDirectory','ScubaGear','SOC2')
+$sectionDisplayOrder = @('Tenant','Identity','Hybrid','Licensing','Email','Intune','Security','Collaboration','PowerBI','Inventory','ActiveDirectory','SOC2')
 $sections = @(
     foreach ($s in $sectionDisplayOrder) { if ($sections -contains $s) { $s } }
     foreach ($s in $sections) { if ($sectionDisplayOrder -notcontains $s) { $s } }
@@ -497,14 +497,6 @@ function Get-SmartSortedData {
         }
     }
 
-    # ScubaGear baseline: failures first, then by Control ID
-    if ($columns -contains 'Control ID' -and $columns -contains 'Result') {
-        $resultPriority = @{ 'Fail' = 0; 'N/A' = 2; 'Pass' = 3 }
-        return @($Data | Sort-Object -Property @{
-            Expression = { if ($null -ne $resultPriority[$_.Result]) { $resultPriority[$_.Result] } else { 1 } }
-        }, 'Control ID')
-    }
-
     # Security Config collectors without CIS (Status column present)
     if ($columns -contains 'Status' -and $columns -contains 'RecommendedValue') {
         $statusPriority = @{ 'Fail' = 0; 'Warning' = 1; 'Review' = 2; 'Unknown' = 3; 'Pass' = 4 }
@@ -531,7 +523,6 @@ $sectionDescriptions = @{
     'Collaboration' = 'SharePoint, OneDrive, and Microsoft Teams configuration and access settings. Collaboration tools are where sensitive data lives &mdash; these controls govern sharing, guest access, and external communication. Misconfigured sharing settings are a common source of data exposure; anonymous sharing links and unrestricted guest access should be reviewed carefully. See <a href="https://learn.microsoft.com/en-us/microsoft-365/solutions/setup-secure-collaboration-with-teams" target="_blank">Microsoft secure collaboration guidance</a>.'
     'Hybrid'        = 'On-premises Active Directory synchronization and hybrid identity configuration. Hybrid sync health directly impacts authentication reliability and determines which identities are managed in the cloud vs. on-premises.'
     'Inventory'     = 'Per-object inventory of mailboxes, distribution lists, Microsoft 365 groups, Teams, SharePoint sites, and OneDrive accounts. Designed for M&amp;A due diligence, migration planning, and tenant-wide asset enumeration.'
-    'ScubaGear'     = 'CISA <a href="https://github.com/cisagov/ScubaGear" target="_blank">ScubaGear</a> baseline compliance scan assessing Microsoft 365 configuration against Secure Cloud Business Applications (SCuBA) security baselines. Controls are categorized as <strong>Shall</strong> (mandatory) or <strong>Should</strong> (recommended).'
     'SOC2'          = 'SOC 2 readiness assessment covering <strong>Security</strong> and <strong>Confidentiality</strong> trust principles plus a Common Criteria (CC1–CC9) organizational readiness checklist. Evaluates M365 controls against AICPA SOC 2 requirements, collects audit log evidence, and identifies non-technical governance controls required by auditors. <em>This tool assists with SOC 2 readiness &mdash; it does not constitute a SOC 2 audit or certification.</em>'
 }
 
@@ -1544,57 +1535,9 @@ foreach ($sectionName in $sections) {
         # DNS Authentication — visuals rendered in combined email dashboard above
 
         # ----------------------------------------------------------
-        # ScubaGear Baseline — summary cards + link to native report
-        # ----------------------------------------------------------
-        if ($c.FileName -eq '27-ScubaGear-Baseline.csv') {
-            $scubaData = @($data)
-            $totalControls = $scubaData.Count
-
-            # Result counts
-            $passCount = @($scubaData | Where-Object { $_.Result -eq 'Pass' }).Count
-            $failCount = @($scubaData | Where-Object { $_.Result -eq 'Fail' }).Count
-            $naCount = @($scubaData | Where-Object { $_.Result -eq 'N/A' }).Count
-            $warnCount = @($scubaData | Where-Object { $_.Result -notin @('Pass', 'Fail', 'N/A') -and $_.Result }).Count
-
-            # Criticality breakdown for failures
-            $shallFail = @($scubaData | Where-Object { $_.Result -eq 'Fail' -and $_.Criticality -match 'Shall' }).Count
-            $shouldFail = @($scubaData | Where-Object { $_.Result -eq 'Fail' -and $_.Criticality -match 'Should' }).Count
-
-            $passClass = if ($passCount -gt 0) { 'success' } else { '' }
-            $failClass = if ($failCount -eq 0) { 'success' } else { 'danger' }
-            $naClass = ''
-
-            $null = $sectionHtml.AppendLine("<div class='section-advisory'>")
-            $null = $sectionHtml.AppendLine("<strong>CISA SCuBA Baseline Compliance</strong>")
-            $null = $sectionHtml.AppendLine("<p>Results from the <a href='https://github.com/cisagov/ScubaGear' target='_blank'>CISA ScubaGear</a> tool assessing Microsoft 365 tenant configuration against Secure Cloud Business Applications (SCuBA) baselines. <strong>Shall</strong> controls are mandatory requirements; <strong>Should</strong> controls are recommended best practices.</p>")
-
-            # Link to native report if it exists
-            $scubaReportDir = Join-Path -Path $AssessmentFolder -ChildPath 'ScubaGear-Report'
-            $nativeReport = Get-ChildItem -Path $scubaReportDir -Filter 'BaselineReports.html' -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
-            if ($nativeReport) {
-                $relPath = $nativeReport.FullName.Substring($AssessmentFolder.Length + 1) -replace '\\', '/'
-                $null = $sectionHtml.AppendLine("<p>For the full interactive report with per-product breakdowns, open the <a href='$relPath' target='_blank'>ScubaGear Native Report</a>.</p>")
-            }
-            $null = $sectionHtml.AppendLine("</div>")
-
-            $null = $sectionHtml.AppendLine("<div class='exec-summary'>")
-            $null = $sectionHtml.AppendLine("<div class='stat-card $passClass'><div class='stat-value'>$passCount</div><div class='stat-label'>Pass</div><div class='stat-detail'>of $totalControls controls</div></div>")
-            $null = $sectionHtml.AppendLine("<div class='stat-card $failClass'><div class='stat-value'>$failCount</div><div class='stat-label'>Fail</div><div class='stat-detail'>$shallFail Shall / $shouldFail Should</div></div>")
-            $null = $sectionHtml.AppendLine("<div class='stat-card $naClass'><div class='stat-value'>$naCount</div><div class='stat-label'>N/A</div><div class='stat-detail'>Not applicable or not implemented</div></div>")
-            if ($warnCount -gt 0) {
-                $null = $sectionHtml.AppendLine("<div class='stat-card warning'><div class='stat-value'>$warnCount</div><div class='stat-label'>Warning</div></div>")
-            }
-            $null = $sectionHtml.AppendLine("</div>")
-
-            # Filter to key columns and add Result-based row coloring
-            $columns = @('Control ID', 'Requirement', 'Result', 'Criticality', 'Details')
-        }
-
-        # ----------------------------------------------------------
         # Standard data table rendering
         # ----------------------------------------------------------
         $rowCount = @($data).Count
-        $isScubaGear = ($c.FileName -eq '27-ScubaGear-Baseline.csv')
         $collectorDisplay = if ($c.FileName -eq '11-EXO-Email-Policies.csv') { 'EXO Email Policies' } else { $c.Collector }
 
         # Insert DNS subsection divider before the first DNS table
@@ -1674,14 +1617,6 @@ foreach ($sectionName in $sections) {
                 }
                 $null = $sectionHtml.AppendLine("<tr$rowClass>")
             }
-            elseif ($isScubaGear -and $row.Result) {
-                $rowClass = switch ($row.Result) {
-                    'Fail' { " class='cis-row-fail'" }
-                    'N/A'  { " class='cis-row-unknown'" }
-                    default { '' }
-                }
-                $null = $sectionHtml.AppendLine("<tr$rowClass>")
-            }
             else {
                 $null = $sectionHtml.AppendLine("<tr>")
             }
@@ -1702,18 +1637,6 @@ foreach ($sectionName in $sections) {
                         'Info'    { 'badge-neutral' }
                         'Unknown' { 'badge-skipped' }
                         default   { '' }
-                    }
-                    if ($badgeClass) {
-                        $val = "<span class='badge $badgeClass'>$val</span>"
-                    }
-                }
-                # ScubaGear Result column — badge styling
-                if ($isScubaGear -and $col -eq 'Result') {
-                    $badgeClass = switch ($val) {
-                        'Pass' { 'badge-complete' }
-                        'Fail' { 'badge-failed' }
-                        'N/A'  { 'badge-skipped' }
-                        default { '' }
                     }
                     if ($badgeClass) {
                         $val = "<span class='badge $badgeClass'>$val</span>"
