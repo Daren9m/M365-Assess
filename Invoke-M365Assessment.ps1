@@ -14,8 +14,8 @@
 .PARAMETER Section
     One or more assessment sections to run. Valid values: Tenant, Identity,
     Licensing, Email, Intune, Security, Collaboration, Hybrid, PowerBI,
-    Inventory, ActiveDirectory, ScubaGear, SOC2. Defaults to all standard
-    sections. Inventory, ActiveDirectory, ScubaGear, and SOC2 are opt-in only.
+    Inventory, ActiveDirectory, SOC2. Defaults to all standard
+    sections. Inventory, ActiveDirectory, and SOC2 are opt-in only.
 .PARAMETER TenantId
     Tenant ID or domain (e.g., 'contoso.onmicrosoft.com').
 .PARAMETER OutputFolder
@@ -34,9 +34,6 @@
     User principal name (e.g., 'admin@contoso.onmicrosoft.com') for interactive
     authentication to Exchange Online and Purview. Specifying this can bypass
     Windows Authentication Manager (WAM) broker errors on some systems.
-.PARAMETER ScubaProductNames
-    ScubaGear product codes to assess. Only used when the ScubaGear section is
-    selected. Defaults to all six products.
 .PARAMETER ManagedIdentity
     Use Azure managed identity authentication. Requires the script to be running
     on an Azure resource with a system-assigned or user-assigned managed identity
@@ -110,20 +107,12 @@
 
     Runs a full assessment using device code auth. You choose which browser profile
     to authenticate in (useful for multi-profile machines).
-.EXAMPLE
-    PS> .\Invoke-M365Assessment.ps1 -Section ScubaGear -TenantId 'contoso.onmicrosoft.com'
-
-    Runs only the CISA ScubaGear baseline compliance scan.
-.EXAMPLE
-    PS> .\Invoke-M365Assessment.ps1 -Section Tenant,Identity,ScubaGear -TenantId 'contoso.onmicrosoft.com'
-
-    Runs Tenant and Identity sections plus the ScubaGear baseline scan.
 #>
 #Requires -Version 7.0
 [CmdletBinding()]
 param(
     [Parameter()]
-    [ValidateSet('Tenant', 'Identity', 'Licensing', 'Email', 'Intune', 'Security', 'Collaboration', 'PowerBI', 'Hybrid', 'Inventory', 'ActiveDirectory', 'ScubaGear', 'SOC2')]
+    [ValidateSet('Tenant', 'Identity', 'Licensing', 'Email', 'Intune', 'Security', 'Collaboration', 'PowerBI', 'Hybrid', 'Inventory', 'ActiveDirectory', 'SOC2')]
     [string[]]$Section = @('Tenant', 'Identity', 'Licensing', 'Email', 'Intune', 'Security', 'Collaboration', 'PowerBI', 'Hybrid'),
 
     [Parameter()]
@@ -153,10 +142,6 @@ param(
 
     [Parameter()]
     [switch]$UseDeviceCode,
-
-    [Parameter()]
-    [ValidateSet('aad', 'defender', 'exo', 'powerplatform', 'sharepoint', 'teams')]
-    [string[]]$ScubaProductNames = @('aad', 'defender', 'exo', 'powerplatform', 'sharepoint', 'teams'),
 
     [Parameter()]
     [ValidateSet('commercial', 'gcc', 'gcchigh', 'dod')]
@@ -246,8 +231,7 @@ function Show-InteractiveWizard {
         '9'  = @{ Name = 'PowerBI';         Label = 'Power BI';                     Selected = $true }
         '10' = @{ Name = 'Inventory';       Label = 'M&A Inventory (opt-in)';       Selected = $false }
         '11' = @{ Name = 'ActiveDirectory'; Label = 'Active Directory (RSAT)';      Selected = $false }
-        '12' = @{ Name = 'ScubaGear';       Label = 'ScubaGear Baseline (PS 5.1)';  Selected = $false }
-        '13' = @{ Name = 'SOC2';            Label = 'SOC 2 Readiness (opt-in)';     Selected = $false }
+        '12' = @{ Name = 'SOC2';            Label = 'SOC 2 Readiness (opt-in)';     Selected = $false }
     }
 
     # --- Header ---
@@ -319,7 +303,7 @@ function Show-InteractiveWizard {
 
             switch ($userChoice.Trim().ToUpper()) {
                 'S' {
-                    $optInSections = @('Inventory', 'ActiveDirectory', 'ScubaGear')
+                    $optInSections = @('Inventory', 'ActiveDirectory')
                     $rebuilt = [ordered]@{}
                     foreach ($k in @($sections.Keys)) {
                         $rebuilt["$k"] = @{ Name = $sections[$k].Name; Label = $sections[$k].Label; Selected = ($sections[$k].Name -notin $optInSections) }
@@ -1230,7 +1214,6 @@ $sectionServiceMap = @{
     'Hybrid'           = @('Graph')
     'Inventory'        = @('Graph', 'ExchangeOnline')
     'ActiveDirectory'  = @()
-    'ScubaGear'        = @()
     'SOC2'             = @('Graph', 'Purview')
 }
 
@@ -1248,7 +1231,6 @@ $sectionScopeMap = @{
     'Hybrid'           = @('Organization.Read.All', 'Domain.Read.All')
     'Inventory'        = @('Group.Read.All', 'Team.ReadBasic.All', 'TeamMember.Read.All', 'Channel.ReadBasic.All', 'Reports.Read.All', 'Sites.Read.All', 'User.Read.All')
     'ActiveDirectory'  = @()
-    'ScubaGear'        = @()
     'SOC2'             = @('Policy.Read.All', 'RoleManagement.Read.Directory', 'SecurityEvents.Read.All', 'SecurityAlert.Read.All', 'AuditLog.Read.All', 'User.Read.All', 'Reports.Read.All', 'Directory.Read.All')
 }
 
@@ -1268,7 +1250,6 @@ $sectionModuleMap = @{
     'Hybrid'           = @('Microsoft.Graph.Identity.DirectoryManagement')
     'Inventory'        = @()
     'ActiveDirectory'  = @()
-    'ScubaGear'        = @()
     'SOC2'             = @('Microsoft.Graph.Identity.SignIns', 'Microsoft.Graph.Identity.DirectoryManagement', 'Microsoft.Graph.Security')
 }
 
@@ -1340,9 +1321,6 @@ $collectorMap = [ordered]@{
         @{ Name = '24-AD-DC-Health';           Script = 'ActiveDirectory\Get-ADDCHealthReport.ps1';    Label = 'AD DC Health'; Params = @{ SkipDcdiag = $true } }
         @{ Name = '25-AD-Replication';         Script = 'ActiveDirectory\Get-ADReplicationReport.ps1'; Label = 'AD Replication' }
         @{ Name = '26-AD-Security';            Script = 'ActiveDirectory\Get-ADSecurityReport.ps1';    Label = 'AD Security' }
-    )
-    'ScubaGear' = @(
-        @{ Name = '27-ScubaGear-Baseline'; Script = 'Security\Invoke-ScubaGearScan.ps1'; Label = 'CISA ScubaGear Baseline'; IsScubaGear = $true }
     )
     'SOC2' = @(
         @{ Name = '33-SOC2-Security-Controls';       Script = 'SOC2\Get-SOC2SecurityControls.ps1';       Label = 'SOC 2 Security Controls'; RequiredServices = @('Graph') }
@@ -1822,7 +1800,7 @@ function Connect-RequiredService {
             Write-AssessmentLog -Level INFO -Message "Connected to $svc successfully." -Section $SectionName
 
             # After first Graph connection, capture connected tenant domain for
-            # later use (e.g. ScubaGear PS5 invocation needs explicit Organization).
+            # later use (e.g. report headers, logging).
             if ($svc -eq 'Graph' -and -not $script:resolvedTenantDomain) {
                 try {
                     $orgInfo = Get-MgOrganization -ErrorAction Stop | Select-Object -First 1
@@ -2013,7 +1991,7 @@ $sectionOrder = @(
     'Inventory',        # EXO-dependent — run before Security's Purview collectors
     'Security',         # Graph → EXO (Defender) → Purview (DLP/Compliance)
     'Collaboration', 'PowerBI', 'Hybrid',
-    'ActiveDirectory', 'ScubaGear', 'SOC2'
+    'ActiveDirectory', 'SOC2'
 )
 $Section = $sectionOrder | Where-Object { $_ -in $Section }
 
@@ -2142,85 +2120,6 @@ foreach ($sectionName in $Section) {
             if ($collector.ContainsKey('HasSecondary') -and $collector.HasSecondary) {
                 $secondaryCsvPath = Join-Path -Path $assessmentFolder -ChildPath "$($collector.SecondaryName).csv"
                 $collectorParams['ImprovementActionsPath'] = $secondaryCsvPath
-            }
-
-            # Special handling for ScubaGear (PS5 invocation with passthrough params)
-            if ($collector.ContainsKey('IsScubaGear') -and $collector.IsScubaGear) {
-                $scubaServices = @{
-                    'aad'           = 'Entra ID (Azure AD)'
-                    'defender'      = 'Microsoft Defender'
-                    'exo'           = 'Exchange Online'
-                    'powerplatform' = 'Power Platform'
-                    'sharepoint'    = 'SharePoint Online'
-                    'teams'         = 'Microsoft Teams'
-                }
-                $productLabels = ($ScubaProductNames | ForEach-Object { if ($scubaServices.ContainsKey($_)) { $scubaServices[$_] } else { $_ } }) -join ', '
-                Write-Host "    ScubaGear runs in PS 5.1 and will authenticate separately for: $productLabels" -ForegroundColor Yellow
-
-                $collectorParams['ProductNames'] = $ScubaProductNames
-                $collectorParams['M365Environment'] = $M365Environment
-                $collectorParams['ScubaOutputPath'] = Join-Path -Path $assessmentFolder -ChildPath 'ScubaGear-Report'
-                $collectorParams['SkipModuleCheck'] = $false
-
-                # Organization is REQUIRED for ScubaGear — without it, PS5 reuses
-                # cached tokens which may belong to a different tenant.
-                # IMPORTANT: ScubaGear passes Organization to Connect-MgGraph -TenantId.
-                # MSAL requires the *.onmicrosoft.com initial domain or tenant GUID —
-                # vanity domains (e.g. contoso.com) are not reliably resolved as tenant hints.
-                # Always prefer the resolved initial domain over user-supplied TenantId.
-                $scubaOrg = $null
-                if ($script:resolvedTenantDomain) {
-                    $scubaOrg = $script:resolvedTenantDomain
-                }
-                if (-not $scubaOrg -and $TenantId) {
-                    # ScubaGear is running without a prior Graph connection (standalone mode).
-                    # We must resolve the onmicrosoft.com domain via a quick Graph connection,
-                    # because vanity domains are not reliable MSAL tenant hints.
-                    Write-Host "    Resolving tenant domain via Graph (standalone ScubaGear mode)..." -ForegroundColor Gray
-                    try {
-                        $scubaConnectParams = @{ Service = 'Graph'; Scopes = @('Organization.Read.All') }
-                        $scubaConnectParams['TenantId'] = $TenantId
-                        if ($M365Environment -ne 'commercial') {
-                            $scubaConnectParams['M365Environment'] = $M365Environment
-                        }
-                        $prevConsoleOut = [Console]::Out
-                        $prevConsoleError = [Console]::Error
-                        [Console]::SetOut([System.IO.TextWriter]::Null)
-                        [Console]::SetError([System.IO.TextWriter]::Null)
-                        try { & $connectServicePath @scubaConnectParams 2>$null 6>$null }
-                        finally {
-                            [Console]::SetOut($prevConsoleOut)
-                            [Console]::SetError($prevConsoleError)
-                        }
-                        $orgInfo = Get-MgOrganization -ErrorAction Stop | Select-Object -First 1
-                        $initialDomain = $orgInfo.VerifiedDomains | Where-Object { $_.IsInitial -eq $true } | Select-Object -First 1
-                        if ($initialDomain) {
-                            $scubaOrg = $initialDomain.Name
-                            Write-AssessmentLog -Level INFO -Message "Resolved tenant domain for ScubaGear: $scubaOrg (from $TenantId)" -Section $SectionName
-                        }
-                        Disconnect-MgGraph -ErrorAction SilentlyContinue | Out-Null
-                    }
-                    catch {
-                        Write-AssessmentLog -Level WARN -Message "Could not resolve tenant domain from Graph: $($_.Exception.Message)" -Section $SectionName
-                    }
-                    # Final fallback to user-supplied TenantId if resolution failed
-                    if (-not $scubaOrg) {
-                        $scubaOrg = $TenantId
-                    }
-                }
-                if ($scubaOrg) {
-                    $collectorParams['Organization'] = $scubaOrg
-                    Write-Host "    ScubaGear target tenant: $scubaOrg" -ForegroundColor Cyan
-                    Write-AssessmentLog -Level INFO -Message "ScubaGear Organization set to: $scubaOrg" -Section $SectionName
-                }
-                else {
-                    Write-Host "    WARNING: No tenant domain resolved — ScubaGear may authenticate to a cached/wrong tenant!" -ForegroundColor Red
-                    Write-Host "    Re-run with -TenantId to ensure the correct tenant is scanned." -ForegroundColor Red
-                    Write-AssessmentLog -Level WARN -Message "ScubaGear Organization parameter is empty. Pass -TenantId to ensure correct tenant." -Section $SectionName
-                }
-
-                if ($ClientId) { $collectorParams['AppId'] = $ClientId }
-                if ($CertificateThumbprint) { $collectorParams['CertificateThumbprint'] = $CertificateThumbprint }
             }
 
             # Child-process collectors (e.g., PowerBI) run in an isolated pwsh

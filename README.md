@@ -55,8 +55,6 @@ Install-Module ExchangeOnlineManagement -RequiredVersion 3.7.1 -Scope CurrentUse
 | **Microsoft.Graph** | `Install-Module Microsoft.Graph -Scope CurrentUser` |
 | **ExchangeOnlineManagement** | `Install-Module ExchangeOnlineManagement -Scope CurrentUser` |
 | **ImportExcel** *(optional)* | `Install-Module ImportExcel -Scope CurrentUser` for XLSX compliance matrix export |
-| **Windows PowerShell 5.1** *(optional)* | Required only for the [ScubaGear](docs/SCUBAGEAR.md) section. Ships with Windows. |
-
 ### Platform Support
 
 | Platform | Status |
@@ -117,21 +115,19 @@ During execution, the console displays real-time streaming progress for each sec
 | **Inventory** *(opt-in)* | Mailbox, Group, Teams, SharePoint, OneDrive Inventory | Per-object M&A inventory: mailboxes, distribution lists, M365 groups, Teams, SharePoint sites, OneDrive accounts |
 | **ActiveDirectory** *(opt-in)* | AD Domain & Forest, AD DC Health, AD Replication, AD Security | Domain/forest topology, DC health via dcdiag, replication partners and lag, password policies, privileged group membership. Requires RSAT or domain controller access. |
 | **SOC2** *(opt-in)* | Security Controls, Confidentiality Controls, Audit Evidence, Readiness Checklist | SOC 2 Trust Services Criteria assessment: security and confidentiality controls, 30-day audit log evidence collection, organizational readiness checklist for non-automatable criteria (CC1-CC5, CC8-CC9) |
-| **ScubaGear** *(opt-in)* | CISA Baseline Scan | CISA SCuBA security baseline compliance ([details](docs/SCUBAGEAR.md)). Windows only. |
-
 ```powershell
 # Run specific sections
 .\Invoke-M365Assessment.ps1 -Section Identity,Email -TenantId 'contoso.onmicrosoft.com'
 
 # Run everything including opt-in sections
-.\Invoke-M365Assessment.ps1 -Section Tenant,Identity,Licensing,Email,Intune,Security,Collaboration,PowerBI,Hybrid,Inventory,ActiveDirectory,SOC2,ScubaGear -TenantId 'contoso.onmicrosoft.com'
+.\Invoke-M365Assessment.ps1 -Section Tenant,Identity,Licensing,Email,Intune,Security,Collaboration,PowerBI,Hybrid,Inventory,ActiveDirectory,SOC2 -TenantId 'contoso.onmicrosoft.com'
 ```
 
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
-| `-Section` | string[] | Tenant, Identity, Licensing, Email, Intune, Security, Collaboration, PowerBI, Hybrid | Sections to assess. Add `Inventory`, `ScubaGear`, or other opt-in sections. |
+| `-Section` | string[] | Tenant, Identity, Licensing, Email, Intune, Security, Collaboration, PowerBI, Hybrid | Sections to assess. Add `Inventory`, `ActiveDirectory`, `SOC2` opt-in sections. |
 | `-TenantId` | string | *(wizard prompt)* | Tenant ID or `*.onmicrosoft.com` domain |
 | `-OutputFolder` | string | `.\M365-Assessment` | Base output directory |
 | `-SkipConnection` | switch | | Skip service connections (use pre-existing) |
@@ -141,7 +137,6 @@ During execution, the console displays real-time streaming progress for each sec
 | `-UseDeviceCode` | switch | | Use device code flow for headless environments |
 | `-NonInteractive` | switch | | Skip all interactive prompts; log errors and exit on required module issues, skip sections for optional ones |
 | `-ManagedIdentity` | switch | | Use Azure managed identity auth (VMs, App Service, Functions) |
-| `-ScubaProductNames` | string[] | aad, defender, exo, powerplatform, sharepoint, teams | ScubaGear products to scan |
 | `-M365Environment` | string | `commercial` | Cloud environment: `commercial`, `gcc`, `gcchigh`, `dod` |
 | `-NoBranding` | switch | | Generate report without M365 Assess branding |
 | `-SkipDLP` | switch | | Skip DLP collector and Purview connection (saves ~46s) |
@@ -296,7 +291,7 @@ M365-Assess/
   Networking/                     # Port scanning, DNS, connectivity
   PowerBI/                        # Power BI tenant security settings (CIS 9.x)
   Purview/                        # DLP policies, audit retention
-  Security/                       # Secure Score, Defender, DLP, ScubaGear
+  Security/                       # Secure Score, Defender, DLP, Incident Readiness
   Setup/                          # App Registration provisioning scripts
   docs/                           # Detailed documentation
 ```
@@ -309,7 +304,6 @@ M365-Assess/
 | [HTML Report](REPORT.md) | Report features, custom branding, `-NoBranding`, standalone generation |
 | [Compliance](COMPLIANCE.md) | 14 frameworks, XLSX export, CheckId system, control registry |
 | [Compatibility](docs/COMPATIBILITY.md) | Module versions, dependency matrix, known incompatibilities |
-| [ScubaGear](docs/SCUBAGEAR.md) | CISA baseline integration, first run, products, GCC support |
 | [CheckId Guide](docs/CheckId-Guide.md) | CheckId naming convention and mapping reference |
 | [Security](SECURITY.md) | Vulnerability reporting and security policy |
 

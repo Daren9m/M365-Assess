@@ -8,7 +8,7 @@
     Author            = 'Galvnyz'
     CompanyName       = 'Community'
     Copyright         = '(c) 2026 Galvnyz. All rights reserved.'
-    Description       = 'Comprehensive read-only Microsoft 365 security assessment tool for IT consultants and administrators. Covers Entra ID, Exchange Online, Intune, Defender, SharePoint, Teams, Purview, Active Directory, and CISA ScubaGear baselines.'
+    Description       = 'Comprehensive read-only Microsoft 365 security assessment tool for IT consultants and administrators. Covers Entra ID, Exchange Online, Intune, Defender, SharePoint, Teams, Purview, and Active Directory.'
 
     # Minimum PowerShell version
     PowerShellVersion = '7.0'
@@ -69,7 +69,6 @@
         'Security\Get-ComplianceSecurityConfig.ps1'
         'Security\Get-StrykerIncidentReadiness.ps1'
         'Security\Get-LocalAdmins.ps1'
-        'Security\Invoke-ScubaGearScan.ps1'
         'Collaboration\Get-SharePointOneDriveReport.ps1'
         'Collaboration\Get-SharePointSecurityConfig.ps1'
         'Collaboration\Get-TeamsAccessReport.ps1'
@@ -102,7 +101,7 @@
     # Private data / PSData for PowerShell Gallery
     PrivateData       = @{
         PSData = @{
-            Tags         = @('Microsoft365', 'M365', 'Security', 'Assessment', 'EntraID', 'Exchange', 'Intune', 'Defender', 'SharePoint', 'Teams', 'PowerBI', 'ScubaGear', 'CIS')
+            Tags         = @('Microsoft365', 'M365', 'Security', 'Assessment', 'EntraID', 'Exchange', 'Intune', 'Defender', 'SharePoint', 'Teams', 'PowerBI', 'CIS')
             LicenseUri   = 'https://github.com/Galvnyz/M365-Assess/blob/main/LICENSE'
             ProjectUri   = 'https://github.com/Galvnyz/M365-Assess'
             ReleaseNotes = 'v0.9.8 - Stryker Incident Readiness: 9 new security checks ported from StrykerScan covering incident-response attack vectors'

@@ -173,7 +173,6 @@ Not all sections work with all authentication methods. This matrix shows what wo
 | Inventory | Yes | Yes | Yes | Yes | Yes | |
 | ActiveDirectory | Yes | Yes | N/A | N/A | N/A | Runs locally via RSAT -- no cloud auth needed |
 | SOC2 | Yes | Yes | Yes | Partial | Yes | Purview collectors: no device code, managed identity, or client secret |
-| ScubaGear | Yes | N/A | Yes | N/A | N/A | **Windows only** -- requires PowerShell 5.1 |
 
 ### License Requirements
 
@@ -185,15 +184,13 @@ Not all sections work with all authentication methods. This matrix shows what wo
 | PIM checks (Entra) | E5 or Entra P2 | Falls back to Review status with manual verification steps |
 | Intune Security Config | E3 + Intune | Falls back to Review on permission errors |
 | DLP Policies | E3 + Purview | Skippable with `-SkipDLP` to avoid Purview connection |
-| ScubaGear | Varies by product | Reports N/A for unlicensed products |
 
 ### Platform Requirements
 
 | Requirement | Sections Affected |
 |-------------|-------------------|
-| **Windows + PowerShell 5.1** | ScubaGear only |
 | **RSAT or domain controller** | ActiveDirectory only |
-| **PowerShell 7.x** | All other sections (Windows, macOS, Linux) |
+| **PowerShell 7.x** | All sections (Windows, macOS, Linux) |
 
 ### Service Connections
 
