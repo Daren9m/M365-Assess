@@ -152,6 +152,7 @@ Describe 'Get-PowerBISecurityConfig - Edge Cases' {
                 return (@{ tenantSettings = @() } | ConvertTo-Json -Depth 5)
             }
 
+            . "$PSScriptRoot/../../src/M365-Assess/Orchestrator/AssessmentHelpers.ps1"
             . "$PSScriptRoot/../../src/M365-Assess/PowerBI/Get-PowerBISecurityConfig.ps1"
         }
 
@@ -187,6 +188,7 @@ Describe 'Get-PowerBISecurityConfig - Edge Cases' {
                 } | ConvertTo-Json -Depth 5)
             }
 
+            . "$PSScriptRoot/../../src/M365-Assess/Orchestrator/AssessmentHelpers.ps1"
             . "$PSScriptRoot/../../src/M365-Assess/PowerBI/Get-PowerBISecurityConfig.ps1"
         }
 
@@ -210,6 +212,7 @@ Describe 'Get-PowerBISecurityConfig - Edge Cases' {
 
             $errorOutput = $null
             try {
+                . "$PSScriptRoot/../../src/M365-Assess/Orchestrator/AssessmentHelpers.ps1"
                 . $PSScriptRoot/../../src/M365-Assess/PowerBI/Get-PowerBISecurityConfig.ps1
             }
             catch {
@@ -240,6 +243,7 @@ Describe 'Get-PowerBISecurityConfig - Edge Cases' {
             function global:Get-PowerBIAccessToken { return @{ 'Authorization' = 'Bearer test' } }
             function global:Invoke-PowerBIRestMethod { throw '403 Forbidden' }
 
+            . "$PSScriptRoot/../../src/M365-Assess/Orchestrator/AssessmentHelpers.ps1"
             . $PSScriptRoot/../../src/M365-Assess/PowerBI/Get-PowerBISecurityConfig.ps1
         }
 
@@ -270,6 +274,7 @@ Describe 'Get-PowerBISecurityConfig - Edge Cases' {
             function global:Get-PowerBIAccessToken { return @{ 'Authorization' = 'Bearer test' } }
             function global:Invoke-PowerBIRestMethod { throw '404 Not Found' }
 
+            . "$PSScriptRoot/../../src/M365-Assess/Orchestrator/AssessmentHelpers.ps1"
             . $PSScriptRoot/../../src/M365-Assess/PowerBI/Get-PowerBISecurityConfig.ps1
         }
 

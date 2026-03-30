@@ -226,6 +226,7 @@ Describe 'Get-EntraSecurityConfig - Edge Cases' {
                     }
                 }
             }
+            . "$PSScriptRoot/../../src/M365-Assess/Orchestrator/AssessmentHelpers.ps1"
             . "$PSScriptRoot/../../src/M365-Assess/Entra/Get-EntraSecurityConfig.ps1"
         }
 

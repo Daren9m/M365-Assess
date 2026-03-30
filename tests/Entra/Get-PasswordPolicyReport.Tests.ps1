@@ -78,6 +78,7 @@ Describe 'Get-PasswordPolicyReport - Edge Cases' {
         }
 
         It 'Throws an error when not connected' {
+            . "$PSScriptRoot/../../src/M365-Assess/Orchestrator/AssessmentHelpers.ps1"
             { & "$PSScriptRoot/../../src/M365-Assess/Entra/Get-PasswordPolicyReport.ps1" } | Should -Throw
         }
     }

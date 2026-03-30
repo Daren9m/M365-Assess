@@ -91,6 +91,7 @@ Describe 'Get-MfaReport - Edge Cases' {
     Context 'when no MFA registration details are returned' {
         BeforeAll {
             Mock Get-MgReportAuthenticationMethodUserRegistrationDetail { return @() }
+            . "$PSScriptRoot/../../src/M365-Assess/Orchestrator/AssessmentHelpers.ps1"
             $result = & "$PSScriptRoot/../../src/M365-Assess/Entra/Get-MfaReport.ps1"
         }
 

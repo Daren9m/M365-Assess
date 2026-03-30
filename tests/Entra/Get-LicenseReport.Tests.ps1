@@ -73,10 +73,12 @@ Describe 'Get-LicenseReport - Edge Cases' {
     Context 'when no SKUs are returned' {
         BeforeAll {
             Mock Get-MgSubscribedSku { return @() }
+            . "$PSScriptRoot/../../src/M365-Assess/Orchestrator/AssessmentHelpers.ps1"
             $result = & "$PSScriptRoot/../../src/M365-Assess/Entra/Get-LicenseReport.ps1"
         }
 
         It 'Returns empty result without error' {
+            . "$PSScriptRoot/../../src/M365-Assess/Orchestrator/AssessmentHelpers.ps1"
             { & "$PSScriptRoot/../../src/M365-Assess/Entra/Get-LicenseReport.ps1" } | Should -Not -Throw
         }
     }

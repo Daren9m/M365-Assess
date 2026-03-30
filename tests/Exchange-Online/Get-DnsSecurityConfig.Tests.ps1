@@ -165,6 +165,7 @@ Describe 'Get-DnsSecurityConfig - Missing Records' {
             return @()
         }
 
+        . "$PSScriptRoot/../../src/M365-Assess/Orchestrator/AssessmentHelpers.ps1"
         . "$PSScriptRoot/../../src/M365-Assess/Exchange-Online/Get-DnsSecurityConfig.ps1"
     }
 

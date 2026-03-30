@@ -85,6 +85,7 @@ Describe 'Get-UserSummary - Edge Cases' {
             Mock Invoke-MgGraphRequest {
                 return @{ value = @(); '@odata.nextLink' = $null }
             }
+            . "$PSScriptRoot/../../src/M365-Assess/Orchestrator/AssessmentHelpers.ps1"
             $result = & "$PSScriptRoot/../../src/M365-Assess/Entra/Get-UserSummary.ps1"
         }
 
@@ -99,6 +100,7 @@ Describe 'Get-UserSummary - Edge Cases' {
         }
 
         It 'Throws an error when not connected' {
+            . "$PSScriptRoot/../../src/M365-Assess/Orchestrator/AssessmentHelpers.ps1"
             { & "$PSScriptRoot/../../src/M365-Assess/Entra/Get-UserSummary.ps1" } | Should -Throw
         }
     }

@@ -123,6 +123,7 @@ Describe 'Get-GroupInventory' {
 
             $caughtError = $null
             try {
+                . "$PSScriptRoot/../../src/M365-Assess/Orchestrator/AssessmentHelpers.ps1"
                 . "$PSScriptRoot/../../src/M365-Assess/Inventory/Get-GroupInventory.ps1"
             }
             catch {
@@ -139,6 +140,7 @@ Describe 'Get-GroupInventory' {
             Mock Get-DistributionGroup { return @() }
             Mock Get-UnifiedGroup { return @() }
 
+            . "$PSScriptRoot/../../src/M365-Assess/Orchestrator/AssessmentHelpers.ps1"
             $output = . "$PSScriptRoot/../../src/M365-Assess/Inventory/Get-GroupInventory.ps1"
             $output | Should -BeNullOrEmpty
         }

@@ -139,6 +139,7 @@ Describe 'Get-CompliancePolicyReport - Unknown Platform' {
             )
         }
 
+        . "$PSScriptRoot/../../src/M365-Assess/Orchestrator/AssessmentHelpers.ps1"
         . "$PSScriptRoot/../../src/M365-Assess/Intune/Get-CompliancePolicyReport.ps1"
     }
 
@@ -176,6 +177,7 @@ Describe 'Get-CompliancePolicyReport - No AdditionalProperties' {
             )
         }
 
+        . "$PSScriptRoot/../../src/M365-Assess/Orchestrator/AssessmentHelpers.ps1"
         . "$PSScriptRoot/../../src/M365-Assess/Intune/Get-CompliancePolicyReport.ps1"
     }
 
@@ -201,6 +203,7 @@ Describe 'Get-CompliancePolicyReport - No Policies Configured' {
         # Return empty array to simulate no compliance policies
         Mock Get-MgDeviceManagementDeviceCompliancePolicy { return @() }
 
+        . "$PSScriptRoot/../../src/M365-Assess/Orchestrator/AssessmentHelpers.ps1"
         . "$PSScriptRoot/../../src/M365-Assess/Intune/Get-CompliancePolicyReport.ps1"
     }
 
@@ -228,6 +231,7 @@ Describe 'Get-CompliancePolicyReport - Not Connected' {
 
     It 'Does not call Get-MgDeviceManagementDeviceCompliancePolicy when not connected' {
         # Dot-source; script aborts at the connection guard with a terminating Write-Error
+        . "$PSScriptRoot/../../src/M365-Assess/Orchestrator/AssessmentHelpers.ps1"
         try { . "$PSScriptRoot/../../src/M365-Assess/Intune/Get-CompliancePolicyReport.ps1" } catch { }
         Should -Invoke Get-MgDeviceManagementDeviceCompliancePolicy -Times 0 -Exactly
     }

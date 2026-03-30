@@ -200,6 +200,7 @@ Describe 'Get-TeamsSecurityConfig - App-Only Auth Early Exit' {
         }
 
         # Capture the output from the collector
+        . "$PSScriptRoot/../../src/M365-Assess/Orchestrator/AssessmentHelpers.ps1"
         $script:collectorOutput = . "$PSScriptRoot/../../src/M365-Assess/Collaboration/Get-TeamsSecurityConfig.ps1"
     }
 
@@ -241,6 +242,7 @@ Describe 'Get-TeamsSecurityConfig - No Teams License' {
         }
 
         # Capture the output from the collector
+        . "$PSScriptRoot/../../src/M365-Assess/Orchestrator/AssessmentHelpers.ps1"
         $script:collectorOutput = . "$PSScriptRoot/../../src/M365-Assess/Collaboration/Get-TeamsSecurityConfig.ps1"
     }
 

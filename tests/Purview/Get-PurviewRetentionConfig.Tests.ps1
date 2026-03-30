@@ -132,6 +132,7 @@ Describe 'Get-PurviewRetentionConfig - No Policies' {
             return @()
         }
 
+        . "$PSScriptRoot/../../src/M365-Assess/Orchestrator/AssessmentHelpers.ps1"
         . "$PSScriptRoot/../../src/M365-Assess/Purview/Get-PurviewRetentionConfig.ps1"
     }
 
@@ -175,6 +176,7 @@ Describe 'Get-PurviewRetentionConfig - Test Mode Policies' {
             )
         }
 
+        . "$PSScriptRoot/../../src/M365-Assess/Orchestrator/AssessmentHelpers.ps1"
         . "$PSScriptRoot/../../src/M365-Assess/Purview/Get-PurviewRetentionConfig.ps1"
     }
 
@@ -196,6 +198,7 @@ Describe 'Get-PurviewRetentionConfig - Cmdlet Unavailable' {
         }
 
         # Do NOT define Get-RetentionCompliancePolicy — simulates no Purview connection
+        . "$PSScriptRoot/../../src/M365-Assess/Orchestrator/AssessmentHelpers.ps1"
         . "$PSScriptRoot/../../src/M365-Assess/Purview/Get-PurviewRetentionConfig.ps1"
     }
 

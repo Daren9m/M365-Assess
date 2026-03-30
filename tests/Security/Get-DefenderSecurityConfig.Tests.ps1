@@ -285,6 +285,7 @@ Describe 'Get-DefenderSecurityConfig - No Defender License' {
             })
         }
 
+        . "$PSScriptRoot/../../src/M365-Assess/Orchestrator/AssessmentHelpers.ps1"
         . "$PSScriptRoot/../../src/M365-Assess/Security/Get-DefenderSecurityConfig.ps1"
     }
 

@@ -342,6 +342,7 @@ Describe 'Get-SOC2SecurityControls - Fail Scenario' {
             throw 'Get-AdminAuditLogConfig : The term is not recognized'
         }
 
+        . "$PSScriptRoot/../../src/M365-Assess/Orchestrator/AssessmentHelpers.ps1"
         . "$PSScriptRoot/../../src/M365-Assess/SOC2/Get-SOC2SecurityControls.ps1"
     }
 
@@ -402,6 +403,7 @@ Describe 'Get-SOC2SecurityControls - No Graph Connection' {
         }
 
         try {
+            . "$PSScriptRoot/../../src/M365-Assess/Orchestrator/AssessmentHelpers.ps1"
             . "$PSScriptRoot/../../src/M365-Assess/SOC2/Get-SOC2SecurityControls.ps1" -ErrorAction SilentlyContinue
         }
         catch {

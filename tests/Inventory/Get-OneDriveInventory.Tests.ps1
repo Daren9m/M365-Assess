@@ -94,6 +94,7 @@ Describe 'Get-OneDriveInventory' {
 
             $caughtError = $null
             try {
+                . "$PSScriptRoot/../../src/M365-Assess/Orchestrator/AssessmentHelpers.ps1"
                 . "$PSScriptRoot/../../src/M365-Assess/Inventory/Get-OneDriveInventory.ps1"
             }
             catch {
@@ -112,6 +113,7 @@ Describe 'Get-OneDriveInventory' {
                 return @{ value = @(); '@odata.nextLink' = $null }
             }
 
+            . "$PSScriptRoot/../../src/M365-Assess/Orchestrator/AssessmentHelpers.ps1"
             $output = . "$PSScriptRoot/../../src/M365-Assess/Inventory/Get-OneDriveInventory.ps1"
             $output | Should -BeNullOrEmpty
         }

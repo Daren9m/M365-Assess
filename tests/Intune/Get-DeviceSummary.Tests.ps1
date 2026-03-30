@@ -114,6 +114,7 @@ Describe 'Get-DeviceSummary - No Devices Enrolled' {
         # Return empty array to simulate no enrolled devices
         Mock Get-MgDeviceManagementManagedDevice { return @() }
 
+        . "$PSScriptRoot/../../src/M365-Assess/Orchestrator/AssessmentHelpers.ps1"
         . "$PSScriptRoot/../../src/M365-Assess/Intune/Get-DeviceSummary.ps1"
     }
 
@@ -141,6 +142,7 @@ Describe 'Get-DeviceSummary - Not Connected' {
 
     It 'Does not call Get-MgDeviceManagementManagedDevice when not connected' {
         # Dot-source; script aborts at the connection guard with a terminating Write-Error
+        . "$PSScriptRoot/../../src/M365-Assess/Orchestrator/AssessmentHelpers.ps1"
         try { . "$PSScriptRoot/../../src/M365-Assess/Intune/Get-DeviceSummary.ps1" } catch { }
         Should -Invoke Get-MgDeviceManagementManagedDevice -Times 0 -Exactly
     }

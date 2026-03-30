@@ -140,6 +140,7 @@ Describe 'Get-EmailSecurityReport' {
 
             $caughtError = $null
             try {
+                . "$PSScriptRoot/../../src/M365-Assess/Orchestrator/AssessmentHelpers.ps1"
                 . "$PSScriptRoot/../../src/M365-Assess/Exchange-Online/Get-EmailSecurityReport.ps1"
             }
             catch {
@@ -158,6 +159,7 @@ Describe 'Get-EmailSecurityReport' {
             Mock Get-MalwareFilterPolicy { return @() }
             Mock Get-DkimSigningConfig { return @() }
 
+            . "$PSScriptRoot/../../src/M365-Assess/Orchestrator/AssessmentHelpers.ps1"
             $output = . "$PSScriptRoot/../../src/M365-Assess/Exchange-Online/Get-EmailSecurityReport.ps1"
             @($output).Count | Should -Be 0
         }
