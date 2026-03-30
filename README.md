@@ -26,7 +26,7 @@ Run a single command to produce CSV reports, a branded HTML assessment report, a
 
 ## Installation
 
-### From PSGallery (recommended)
+### From PSGallery (Coming Soon!!!)
 
 ```powershell
 Install-Module M365-Assess -Scope CurrentUser
