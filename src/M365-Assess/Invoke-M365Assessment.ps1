@@ -112,6 +112,8 @@
 
 function Invoke-M365Assessment {
 [CmdletBinding()]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'connectedServices',
+    Justification = 'Used by Connect-RequiredService in Orchestrator/ via parent scope')]
 param(
     [Parameter()]
     [ValidateSet('Tenant', 'Identity', 'Licensing', 'Email', 'Intune', 'Security', 'Collaboration', 'PowerBI', 'Hybrid', 'Inventory', 'ActiveDirectory', 'SOC2')]
@@ -436,7 +438,7 @@ Show-AssessmentHeader -TenantName $TenantId -OutputPath $assessmentFolder -LogPa
 # ------------------------------------------------------------------
 # Prepare service connections (lazy — connected per-section as needed)
 # ------------------------------------------------------------------
-$connectedServices = [System.Collections.Generic.HashSet[string]]::new()
+$connectedServices = [System.Collections.Generic.HashSet[string]]::new()  # used by Connect-RequiredService via scope
 $failedServices = [System.Collections.Generic.HashSet[string]]::new()
 
 # ------------------------------------------------------------------
