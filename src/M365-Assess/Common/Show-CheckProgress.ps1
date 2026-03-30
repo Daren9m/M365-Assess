@@ -114,7 +114,12 @@ function Initialize-CheckProgress {
 
     $global:CheckProgressState = $state
 
-    if ($totalChecks -eq 0) { return }
+    if ($totalChecks -eq 0) {
+        Write-Host ''
+        Write-Host '  No automated security checks queued for the selected sections.' -ForegroundColor DarkGray
+        Write-Host ''
+        return
+    }
 
     # Print status legend so users know what the symbols mean
     Write-Host ''
