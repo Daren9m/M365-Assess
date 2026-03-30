@@ -148,7 +148,7 @@ try {
             }
         }
 
-        $allNull = ($signInData.Values | Where-Object { $_ -ne $null }).Count -eq 0
+        $allNull = ($signInData.Values | Where-Object { $null -ne $_ }).Count -eq 0
         if ($allNull -and $adminsChecked -gt 0) {
             Add-Setting -Category 'Stale Admin Detection' -Setting 'Admin accounts inactive >90 days' `
                 -CurrentValue 'Sign-in activity data unavailable (AuditLog.Read.All may not be consented)' `

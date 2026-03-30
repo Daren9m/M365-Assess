@@ -349,7 +349,7 @@ try {
     Write-Verbose "Checking CA: Phishing-resistant MFA for admins..."
     $phishResPolicies = @($enabledPolicies | Where-Object {
         (Test-TargetAdminRole -Policy $_) -and
-        $_['grantControls']['authenticationStrength'] -ne $null
+        $null -ne $_['grantControls']['authenticationStrength']
     })
 
     if ($phishResPolicies.Count -gt 0) {

@@ -13,6 +13,7 @@
 **Read-only Microsoft 365 security assessment for IT consultants and administrators**
 
 [![CI](https://github.com/Galvnyz/M365-Assess/actions/workflows/ci.yml/badge.svg)](https://github.com/Galvnyz/M365-Assess/actions/workflows/ci.yml)
+[![Coverage](https://img.shields.io/badge/coverage-check%20CI-informational)](https://github.com/Galvnyz/M365-Assess/actions/workflows/ci.yml)
 [![PowerShell 7.x](https://img.shields.io/badge/PowerShell-7.x-blue?logo=powershell&logoColor=white)](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows)
 [![Read-Only](https://img.shields.io/badge/Operations-Read--Only-brightgreen)](.)
 [![Version](https://img.shields.io/badge/version-0.9.9-blue)](.)
@@ -26,7 +27,7 @@ Run a single command to produce CSV reports, a branded HTML assessment report, a
 
 ## Installation
 
-### From PSGallery (recommended)
+### From PSGallery (coming soon)
 
 ```powershell
 Install-Module M365-Assess -Scope CurrentUser
@@ -36,7 +37,9 @@ Install-Module ExchangeOnlineManagement -RequiredVersion 3.7.1 -Scope CurrentUse
 Invoke-M365Assessment -TenantId 'contoso.onmicrosoft.com'
 ```
 
-### From Source
+> PSGallery publishing is planned for the v1.0.0 release. Until then, install from source.
+
+### From Source (recommended)
 
 ```powershell
 git clone https://github.com/Galvnyz/M365-Assess.git
@@ -55,6 +58,8 @@ Invoke-M365Assessment -TenantId 'contoso.onmicrosoft.com'
 > This is not needed when using `git clone`.
 
 Results land in a timestamped folder with CSV data + HTML report + XLSX compliance matrix.
+
+> **New to M365 Assess?** See the [Quickstart guide](docs/QUICKSTART.md) for step-by-step setup on a fresh Windows machine.
 
 ## Prerequisites
 

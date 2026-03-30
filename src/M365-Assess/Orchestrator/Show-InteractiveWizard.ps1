@@ -18,6 +18,7 @@ function Show-InteractiveWizard {
     $cNormal  = 'White'
     $cMuted   = 'DarkGray'
     $cSuccess = 'Cyan'
+    $errorDisplayDelay = 1  # seconds to pause after validation errors
     $cError   = 'Magenta'
 
     # Section definitions with default selection state
@@ -132,7 +133,7 @@ function Show-InteractiveWizard {
                     if ($selectedNames.Count -eq 0) {
                         Write-Host ''
                         Write-Host '  ✗ Please select at least one section.' -ForegroundColor $cError
-                        Start-Sleep -Seconds 1
+                        Start-Sleep -Seconds $errorDisplayDelay
                     }
                     else {
                         $step1Done = $true
@@ -217,7 +218,7 @@ function Show-InteractiveWizard {
             }
             default {
                 Write-Host '  ✗ Please enter 1, 2, 3, or 4.' -ForegroundColor $cError
-                Start-Sleep -Seconds 1
+                Start-Sleep -Seconds $errorDisplayDelay
             }
         }
     }
@@ -381,7 +382,7 @@ function Show-InteractiveWizard {
                                 Write-Host ''
                                 Write-Host '  At least one framework must be selected. Filter disabled.' -ForegroundColor $cError
                                 $reportOptions['5'].Selected = $false
-                                Start-Sleep -Seconds 1
+                                Start-Sleep -Seconds $errorDisplayDelay
                             }
                         }
                         # When toggled off, reset all families to selected
