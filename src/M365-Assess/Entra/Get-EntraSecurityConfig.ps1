@@ -38,6 +38,7 @@ $ErrorActionPreference = 'Continue'
 
 # Verify Graph connection
 if (-not (Assert-GraphConnection)) { return }
+$context = Get-MgContext
 
 Import-Module -Name Microsoft.Graph.Identity.DirectoryManagement -ErrorAction SilentlyContinue
 Import-Module -Name Microsoft.Graph.Identity.SignIns -ErrorAction SilentlyContinue
