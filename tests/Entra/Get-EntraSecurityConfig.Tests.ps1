@@ -138,8 +138,9 @@ Describe 'Get-EntraSecurityConfig' {
             }
         }
 
-        # Run the collector by dot-sourcing it
+        # Run the collector by dot-sourcing it (orchestrator + all companion files)
         . "$PSScriptRoot/../../src/M365-Assess/Orchestrator/AssessmentHelpers.ps1"
+        . "$PSScriptRoot/../../src/M365-Assess/Common/SecurityConfigHelper.ps1"
         . "$PSScriptRoot/../../src/M365-Assess/Entra/Get-EntraSecurityConfig.ps1"
     }
 
@@ -227,6 +228,7 @@ Describe 'Get-EntraSecurityConfig - Edge Cases' {
                 }
             }
             . "$PSScriptRoot/../../src/M365-Assess/Orchestrator/AssessmentHelpers.ps1"
+            . "$PSScriptRoot/../../src/M365-Assess/Common/SecurityConfigHelper.ps1"
             . "$PSScriptRoot/../../src/M365-Assess/Entra/Get-EntraSecurityConfig.ps1"
         }
 

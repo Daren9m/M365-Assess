@@ -3,7 +3,7 @@ BeforeDiscovery {
     $collectorRoot = Join-Path $PSScriptRoot '../../src/M365-Assess'
     # Exclude Get-EntraSecurityConfig.ps1 (#256) and Get-DefenderSecurityConfig.ps1 (#257)
     # which will migrate during their v1.2.0 decomposition
-    $deferredCollectors = @('Get-EntraSecurityConfig.ps1', 'Get-DefenderSecurityConfig.ps1')
+    $deferredCollectors = @('Get-DefenderSecurityConfig.ps1')
     $script:CollectorFiles = Get-ChildItem -Path $collectorRoot -Recurse -Filter 'Get-*SecurityConfig.ps1' |
         Where-Object { $_.FullName -notlike '*node_modules*' -and $_.Name -notin $deferredCollectors }
 
