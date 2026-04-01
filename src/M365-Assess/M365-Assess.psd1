@@ -51,6 +51,7 @@
         'Orchestrator\Test-BlockedScripts.ps1'
         'Orchestrator\Test-GraphPermissions.ps1'
         'Orchestrator\Invoke-DnsAuthentication.ps1'
+        'Common\SecurityConfigHelper.ps1'
         'Common\Connect-Service.ps1'
         'Common\Resolve-DnsRecord.ps1'
         'Common\Export-AssessmentReport.ps1'
