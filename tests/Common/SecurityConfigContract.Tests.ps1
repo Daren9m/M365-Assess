@@ -1,0 +1,226 @@
+BeforeDiscovery {
+    # Discover all security-config collector scripts that should follow the contract
+    $collectorRoot = Join-Path $PSScriptRoot '../../src/M365-Assess'
+    # Exclude Get-EntraSecurityConfig.ps1 (#256) and Get-DefenderSecurityConfig.ps1 (#257)
+    # which will migrate during their v1.2.0 decomposition
+    $deferredCollectors = @('Get-EntraSecurityConfig.ps1', 'Get-DefenderSecurityConfig.ps1')
+    $script:CollectorFiles = Get-ChildItem -Path $collectorRoot -Recurse -Filter 'Get-*SecurityConfig.ps1' |
+        Where-Object { $_.FullName -notlike '*node_modules*' -and $_.Name -notin $deferredCollectors }
+
+    # Also include Purview retention collector (uses same contract)
+    $purviewFile = Get-ChildItem -Path $collectorRoot -Recurse -Filter 'Get-PurviewRetentionConfig.ps1'
+    if ($purviewFile) { $script:CollectorFiles += $purviewFile }
+}
+
+Describe 'SecurityConfigHelper.ps1 - Contract Functions' {
+    BeforeAll {
+        . "$PSScriptRoot/../../src/M365-Assess/Common/SecurityConfigHelper.ps1"
+
+        # Stub progress tracker so Add-SecuritySetting's guard check passes
+        function global:Update-CheckProgress {
+            param($CheckId, $Setting, $Status)
+        }
+    }
+
+    Context 'Initialize-SecurityConfig' {
+        BeforeAll {
+            $ctx = Initialize-SecurityConfig
+        }
+
+        It 'Returns a hashtable' {
+            $ctx | Should -BeOfType [hashtable]
+        }
+
+        It 'Contains a Settings key with an empty List' {
+            # Use direct variable assertion to avoid pipeline unwrapping of empty collections
+            ($null -ne $ctx.Settings) | Should -Be $true -Because 'Settings key must exist'
+            $ctx.Settings.GetType().Name | Should -Be 'List`1'
+            $ctx.Settings.Count | Should -Be 0
+        }
+
+        It 'Contains a CheckIdCounter key with an empty hashtable' {
+            $ctx.CheckIdCounter | Should -BeOfType [hashtable]
+            $ctx.CheckIdCounter.Count | Should -Be 0
+        }
+    }
+
+    Context 'Add-SecuritySetting' {
+        BeforeAll {
+            $ctx = Initialize-SecurityConfig
+            $settings = $ctx.Settings
+            $counter = $ctx.CheckIdCounter
+        }
+
+        It 'Adds a setting with all 7 required properties' {
+            Add-SecuritySetting -Settings $settings -CheckIdCounter $counter `
+                -Category 'Test' -Setting 'Test Setting' `
+                -CurrentValue 'True' -RecommendedValue 'True' `
+                -Status 'Pass' -CheckId 'TEST-001' -Remediation 'None needed'
+
+            $settings.Count | Should -Be 1
+            $s = $settings[0]
+            $s.PSObject.Properties.Name | Should -Contain 'Category'
+            $s.PSObject.Properties.Name | Should -Contain 'Setting'
+            $s.PSObject.Properties.Name | Should -Contain 'CurrentValue'
+            $s.PSObject.Properties.Name | Should -Contain 'RecommendedValue'
+            $s.PSObject.Properties.Name | Should -Contain 'Status'
+            $s.PSObject.Properties.Name | Should -Contain 'CheckId'
+            $s.PSObject.Properties.Name | Should -Contain 'Remediation'
+        }
+
+        It 'Auto-numbers CheckIds with .N suffix' {
+            $settings.Clear()
+            $counter.Clear()
+
+            Add-SecuritySetting -Settings $settings -CheckIdCounter $counter `
+                -Category 'Auth' -Setting 'First' `
+                -CurrentValue 'A' -RecommendedValue 'B' `
+                -Status 'Pass' -CheckId 'EXO-AUTH-001'
+
+            Add-SecuritySetting -Settings $settings -CheckIdCounter $counter `
+                -Category 'Auth' -Setting 'Second' `
+                -CurrentValue 'C' -RecommendedValue 'D' `
+                -Status 'Fail' -CheckId 'EXO-AUTH-001'
+
+            $settings[0].CheckId | Should -Be 'EXO-AUTH-001.1'
+            $settings[1].CheckId | Should -Be 'EXO-AUTH-001.2'
+        }
+
+        It 'Preserves empty CheckId when not provided' {
+            $settings.Clear()
+            $counter.Clear()
+
+            Add-SecuritySetting -Settings $settings -CheckIdCounter $counter `
+                -Category 'Info' -Setting 'No CheckId' `
+                -CurrentValue 'X' -RecommendedValue 'Y' `
+                -Status 'Info'
+
+            $settings[0].CheckId | Should -BeExactly ''
+        }
+
+        It 'Tracks independent CheckId sequences' {
+            $settings.Clear()
+            $counter.Clear()
+
+            Add-SecuritySetting -Settings $settings -CheckIdCounter $counter `
+                -Category 'A' -Setting 'First A' `
+                -CurrentValue '1' -RecommendedValue '2' `
+                -Status 'Pass' -CheckId 'TEST-AAA-001'
+
+            Add-SecuritySetting -Settings $settings -CheckIdCounter $counter `
+                -Category 'B' -Setting 'First B' `
+                -CurrentValue '3' -RecommendedValue '4' `
+                -Status 'Pass' -CheckId 'TEST-BBB-001'
+
+            Add-SecuritySetting -Settings $settings -CheckIdCounter $counter `
+                -Category 'A' -Setting 'Second A' `
+                -CurrentValue '5' -RecommendedValue '6' `
+                -Status 'Fail' -CheckId 'TEST-AAA-001'
+
+            $settings[0].CheckId | Should -Be 'TEST-AAA-001.1'
+            $settings[1].CheckId | Should -Be 'TEST-BBB-001.1'
+            $settings[2].CheckId | Should -Be 'TEST-AAA-001.2'
+        }
+
+        It 'Rejects invalid Status values' -ForEach @(
+            @{ BadStatus = 'N/A' }
+            @{ BadStatus = 'Error' }
+            @{ BadStatus = 'OK' }
+            @{ BadStatus = '' }
+        ) {
+            {
+                Add-SecuritySetting -Settings $settings -CheckIdCounter $counter `
+                    -Category 'Test' -Setting 'Bad Status' `
+                    -CurrentValue 'X' -RecommendedValue 'Y' `
+                    -Status $BadStatus
+            } | Should -Throw
+        }
+
+        It 'Accepts all valid Status values' -ForEach @(
+            @{ GoodStatus = 'Pass' }
+            @{ GoodStatus = 'Fail' }
+            @{ GoodStatus = 'Warning' }
+            @{ GoodStatus = 'Review' }
+            @{ GoodStatus = 'Info' }
+            @{ GoodStatus = 'Unknown' }
+        ) {
+            $testSettings = [System.Collections.Generic.List[PSCustomObject]]::new()
+            $testCounter = @{}
+            {
+                Add-SecuritySetting -Settings $testSettings -CheckIdCounter $testCounter `
+                    -Category 'Test' -Setting 'Good Status' `
+                    -CurrentValue 'X' -RecommendedValue 'Y' `
+                    -Status $GoodStatus
+            } | Should -Not -Throw
+        }
+    }
+
+    Context 'Export-SecurityConfigReport' {
+        BeforeAll {
+            $testSettings = @(
+                [PSCustomObject]@{ Category = 'A'; Setting = 'S1'; Status = 'Pass' }
+                [PSCustomObject]@{ Category = 'B'; Setting = 'S2'; Status = 'Fail' }
+            )
+        }
+
+        It 'Returns settings to pipeline when no OutputPath' {
+            $result = Export-SecurityConfigReport -Settings $testSettings -ServiceLabel 'Test'
+            # First output is the array of settings, second is the Write-Output string
+            $result.Count | Should -BeGreaterOrEqual 2
+        }
+
+        It 'Exports to CSV when OutputPath is provided' {
+            $tmpFile = Join-Path ([System.IO.Path]::GetTempPath()) "contract-test-$(Get-Random).csv"
+            try {
+                Export-SecurityConfigReport -Settings $testSettings -OutputPath $tmpFile -ServiceLabel 'Test'
+                Test-Path $tmpFile | Should -Be $true
+                $csv = Import-Csv $tmpFile
+                $csv.Count | Should -Be 2
+            }
+            finally {
+                if (Test-Path $tmpFile) { Remove-Item $tmpFile -Force }
+            }
+        }
+    }
+}
+
+Describe 'Collector Contract Compliance' -ForEach @(
+    $CollectorFiles | ForEach-Object {
+        @{ FileName = $_.Name; FilePath = $_.FullName; RelativePath = $_.FullName -replace [regex]::Escape((Resolve-Path "$PSScriptRoot/../..").Path + '\'), '' }
+    }
+) {
+
+    It '<FileName> dot-sources SecurityConfigHelper.ps1' {
+        $content = Get-Content -Path $FilePath -Raw
+        $content | Should -Match 'SecurityConfigHelper\.ps1' `
+            -Because "$FileName must use the shared contract helper"
+    }
+
+    It '<FileName> calls Initialize-SecurityConfig' {
+        $content = Get-Content -Path $FilePath -Raw
+        $content | Should -Match 'Initialize-SecurityConfig' `
+            -Because "$FileName must initialize settings via the contract"
+    }
+
+    It '<FileName> defines a thin-wrapper Add-Setting function' {
+        $content = Get-Content -Path $FilePath -Raw
+        $content | Should -Match 'function\s+Add-Setting' `
+            -Because "$FileName must define a local Add-Setting wrapper"
+        $content | Should -Match 'Add-SecuritySetting' `
+            -Because "$FileName Add-Setting must forward to Add-SecuritySetting"
+    }
+
+    It '<FileName> calls Export-SecurityConfigReport for output' {
+        $content = Get-Content -Path $FilePath -Raw
+        $content | Should -Match 'Export-SecurityConfigReport' `
+            -Because "$FileName must use the standard output handler"
+    }
+
+    It '<FileName> has no inline settings list construction' {
+        $content = Get-Content -Path $FilePath -Raw
+        # After migration, collectors should NOT have the raw List construction
+        # They should use Initialize-SecurityConfig instead
+        $content | Should -Not -Match '\[System\.Collections\.Generic\.List\[PSCustomObject\]\]::new\(\)' `
+            -Because "$FileName should use Initialize-SecurityConfig instead of raw List construction"
+    }
+}
