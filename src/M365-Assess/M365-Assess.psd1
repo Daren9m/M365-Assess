@@ -30,7 +30,22 @@
     )
 
     # Functions to export from this module
-    FunctionsToExport = @('Invoke-M365Assessment')
+    FunctionsToExport = @(
+        'Invoke-M365Assessment'
+        'Get-M365ExoSecurityConfig'
+        'Get-M365DnsSecurityConfig'
+        'Get-M365EntraSecurityConfig'
+        'Get-M365CASecurityConfig'
+        'Get-M365EntAppSecurityConfig'
+        'Get-M365IntuneSecurityConfig'
+        'Get-M365DefenderSecurityConfig'
+        'Get-M365ComplianceSecurityConfig'
+        'Get-M365SharePointSecurityConfig'
+        'Get-M365TeamsSecurityConfig'
+        'Get-M365FormsSecurityConfig'
+        'Get-M365PowerBISecurityConfig'
+        'Get-M365PurviewRetentionConfig'
+    )
     CmdletsToExport   = @()
     VariablesToExport = @()
     AliasesToExport   = @()
