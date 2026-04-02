@@ -312,10 +312,11 @@ $html = @"
             font-size: 16pt;
             font-weight: 700;
             letter-spacing: 0.5px;
+            color: #ffffff;
         }
         .hero-banner-meta {
             font-size: 10pt;
-            color: rgba(255,255,255,0.6);
+            color: rgba(255,255,255,0.65);
             margin-top: 4px;
         }
         body.dark-theme .hero-banner {
