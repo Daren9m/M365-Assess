@@ -79,9 +79,11 @@ function Add-SecuritySetting {
         [string]$Setting,
 
         [Parameter(Mandatory)]
+        [AllowEmptyString()]
         [string]$CurrentValue,
 
         [Parameter(Mandatory)]
+        [AllowEmptyString()]
         [string]$RecommendedValue,
 
         [Parameter(Mandatory)]
