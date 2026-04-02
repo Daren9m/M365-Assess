@@ -255,50 +255,46 @@ foreach ($sectionName in $sections) {
     $null = $sectionHtml.AppendLine("<details class='section' id='section-$sectionId' open>")
     $null = $sectionHtml.AppendLine("<summary><h2>$([System.Web.HttpUtility]::HtmlEncode($sectionName))</h2></summary>")
 
-    # Consolidated explainer: section description + callouts in one "Read More" toggle
+    # Expand/Collapse All buttons inline with section heading
+    $null = $sectionHtml.AppendLine("<div class='section-toolbar'><button type='button' class='expand-all-btn section-ctrl-btn'>&#9660; Expand All</button><button type='button' class='collapse-all-btn section-ctrl-btn'>&#9650; Collapse All</button></div>")
+
+    # Section description — visible by default (no Read More wrapper)
     $sectionDesc = $sectionDescriptions[$sectionName]
+    if ($sectionDesc) {
+        $null = $sectionHtml.AppendLine("<p class='section-description'>$sectionDesc</p>")
+    }
+
+    # Callouts — accordion types as collapsed sub-sections, simple callouts inline
     $callouts = $sectionCallouts[$sectionName]
-    if ($sectionDesc -or $callouts) {
-        $null = $sectionHtml.AppendLine("<details class='callout-readmore'>")
-        $null = $sectionHtml.AppendLine("<summary class='callout-readmore-toggle'>&#9432; Read More&hellip;</summary>")
-        $null = $sectionHtml.AppendLine("<div class='callout-readmore-body'>")
-        if ($sectionDesc) {
-            $null = $sectionHtml.AppendLine("<p class='section-description'>$sectionDesc</p>")
-        }
-        if ($callouts) {
-            $null = $sectionHtml.AppendLine("<div class='callout-cards'>")
-            foreach ($callout in $callouts) {
-                if ($callout.Type -eq 'accordion') {
-                    $null = $sectionHtml.AppendLine("<div class='callout-accordion'>")
-                    $null = $sectionHtml.AppendLine("<div class='callout-accordion-title'>$($callout.Title)</div>")
-                    foreach ($item in $callout.Items) {
-                        $null = $sectionHtml.AppendLine("<details class='accordion-item'>")
-                        $null = $sectionHtml.AppendLine("<summary class='accordion-item-title'>$($item.Title)</summary>")
-                        $null = $sectionHtml.AppendLine("<div class='accordion-item-body'>$($item.Body)</div>")
-                        $null = $sectionHtml.AppendLine("</details>")
-                    }
-                    if ($callout.Resources) {
-                        $links = ($callout.Resources | ForEach-Object { "<a href='$($_.Url)' target='_blank'>$($_.Label)</a>" }) -join ' &middot; '
-                        $null = $sectionHtml.AppendLine("<div class='accordion-resources'><strong>Resources:</strong> $links</div>")
-                    }
-                    $null = $sectionHtml.AppendLine("</div>")
+    if ($callouts) {
+        foreach ($callout in $callouts) {
+            if ($callout.Type -eq 'accordion') {
+                $null = $sectionHtml.AppendLine("<details class='callout-accordion'>")
+                $null = $sectionHtml.AppendLine("<summary class='callout-accordion-title'>$($callout.Title)</summary>")
+                foreach ($item in $callout.Items) {
+                    $null = $sectionHtml.AppendLine("<details class='accordion-item'>")
+                    $null = $sectionHtml.AppendLine("<summary class='accordion-item-title'>$($item.Title)</summary>")
+                    $null = $sectionHtml.AppendLine("<div class='accordion-item-body'>$($item.Body)</div>")
+                    $null = $sectionHtml.AppendLine("</details>")
                 }
-                else {
-                    $calloutType = $callout.Type
-                    $calloutTitle = $callout.Title
-                    $calloutBody = $callout.Body
-                    $icon = $calloutIcons[$calloutType]
-                    if (-not $icon) { $icon = '&#9432;' }
-                    $null = $sectionHtml.AppendLine("<div class='callout callout-$calloutType'>")
-                    $null = $sectionHtml.AppendLine("<div class='callout-title'><span class='callout-icon'>$icon</span> $calloutTitle</div>")
-                    $null = $sectionHtml.AppendLine("<div class='callout-body'>$calloutBody</div>")
-                    $null = $sectionHtml.AppendLine("</div>")
+                if ($callout.Resources) {
+                    $links = ($callout.Resources | ForEach-Object { "<a href='$($_.Url)' target='_blank'>$($_.Label)</a>" }) -join ' &middot; '
+                    $null = $sectionHtml.AppendLine("<div class='accordion-resources'><strong>Resources:</strong> $links</div>")
                 }
+                $null = $sectionHtml.AppendLine("</details>")
             }
-            $null = $sectionHtml.AppendLine("</div>")
+            else {
+                $calloutType = $callout.Type
+                $calloutTitle = $callout.Title
+                $calloutBody = $callout.Body
+                $icon = $calloutIcons[$calloutType]
+                if (-not $icon) { $icon = '&#9432;' }
+                $null = $sectionHtml.AppendLine("<div class='callout callout-$calloutType'>")
+                $null = $sectionHtml.AppendLine("<div class='callout-title'><span class='callout-icon'>$icon</span> $calloutTitle</div>")
+                $null = $sectionHtml.AppendLine("<div class='callout-body'>$calloutBody</div>")
+                $null = $sectionHtml.AppendLine("</div>")
+            }
         }
-        $null = $sectionHtml.AppendLine("</div>")
-        $null = $sectionHtml.AppendLine("</details>")
     }
 
     # Collector status — compact chip grid
