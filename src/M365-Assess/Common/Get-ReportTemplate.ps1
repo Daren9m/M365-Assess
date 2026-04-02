@@ -369,35 +369,29 @@ $html = @"
         /* ----------------------------------------------------------
            Inline Explanation Callouts
            ---------------------------------------------------------- */
-        /* Consolidated Read More callout toggle */
-        .callout-readmore {
-            margin: 0 0 16px 0;
+        /* Section toolbar — expand/collapse inline with heading */
+        .section-toolbar {
+            display: flex;
+            gap: 8px;
+            margin: -8px 0 12px 0;
         }
-        .callout-readmore-toggle {
-            font-size: 9.5pt;
-            font-weight: 600;
-            color: var(--m365a-accent);
+        .section-ctrl-btn {
+            font-size: 8pt;
+            padding: 3px 10px;
+            border-radius: 4px;
+            border: 1px solid var(--m365a-border);
+            background: var(--m365a-card-bg);
+            color: var(--m365a-medium-gray);
             cursor: pointer;
-            padding: 6px 0;
-            list-style: none;
         }
-        .callout-readmore-toggle::-webkit-details-marker { display: none; }
-        .callout-readmore-toggle:hover { text-decoration: underline; }
-        .callout-readmore-body {
-            margin-top: 12px;
-        }
-        .callout-readmore-body .section-description {
+        .section-ctrl-btn:hover { color: var(--m365a-accent); border-color: var(--m365a-accent); }
+        .section-description {
             font-size: 9.5pt;
             color: var(--m365a-medium-gray);
             line-height: 1.6;
-            margin: 0 0 12px 0;
+            margin: 0 0 14px 0;
         }
-        .callout-readmore-body .section-description a { color: var(--m365a-accent); }
-        .callout-cards {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
+        .section-description a { color: var(--m365a-accent); }
         .callout {
             flex: 1 1 280px;
             max-width: 480px;
@@ -435,9 +429,19 @@ $html = @"
             padding: 10px 14px;
             font-weight: 600;
             font-size: 9.5pt;
-            color: var(--m365a-dark);
-            border-bottom: 1px solid var(--m365a-border);
+            color: var(--m365a-accent);
+            cursor: pointer;
+            list-style: none;
         }
+        .callout-accordion-title::-webkit-details-marker { display: none; }
+        .callout-accordion-title::before {
+            content: '\25B6  ';
+            font-size: 8pt;
+            transition: transform 0.2s;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        details.callout-accordion[open] > .callout-accordion-title::before { transform: rotate(90deg); }
         .accordion-item {
             border-bottom: 1px solid var(--m365a-border);
         }
@@ -2234,9 +2238,10 @@ $html = @"
             .fw-col { display: table-cell !important; }
 
             /* --- Callouts: expand and simplify for print --- */
-            .callout-readmore { open: true; }
-            .callout-readmore-toggle { pointer-events: none; }
-            .callout-readmore-body { display: flex !important; }
+            .section-toolbar { display: none; }
+            .callout-accordion { border: none; }
+            .callout-accordion-title { pointer-events: none; }
+            .callout-accordion-title::before { content: ''; }
             .callout { border-left-width: 3px; page-break-inside: avoid; }
 
             /* --- Fix 8: Hide hover effects in print --- */
