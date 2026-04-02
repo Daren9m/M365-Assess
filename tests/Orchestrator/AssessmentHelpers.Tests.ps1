@@ -25,6 +25,7 @@ Describe 'Assert-GraphConnection' {
         }
 
         It 'should return false' {
+            $ErrorActionPreference = 'Continue'
             Assert-GraphConnection 2>$null | Should -Be $false
         }
     }
@@ -35,6 +36,7 @@ Describe 'Assert-GraphConnection' {
         }
 
         It 'should return false' {
+            $ErrorActionPreference = 'Continue'
             Assert-GraphConnection 2>$null | Should -Be $false
         }
     }
