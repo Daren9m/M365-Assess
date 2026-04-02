@@ -1788,6 +1788,170 @@ $html = @"
         }
 
         /* ----------------------------------------------------------
+           Paginated Navigation Layout
+           ---------------------------------------------------------- */
+        .report-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+        .report-nav {
+            position: sticky;
+            top: 0;
+            width: 250px;
+            min-width: 250px;
+            height: 100vh;
+            overflow-y: auto;
+            background: var(--m365a-card-bg);
+            border-right: 1px solid var(--m365a-border);
+            padding: 0;
+            z-index: 100;
+            flex-shrink: 0;
+        }
+        .nav-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 16px 12px;
+            border-bottom: 1px solid var(--m365a-border);
+            position: sticky;
+            top: 0;
+            background: var(--m365a-card-bg);
+            z-index: 1;
+        }
+        .nav-title { font-weight: 600; font-size: 11pt; flex-grow: 1; color: var(--m365a-text); }
+        .nav-toggle {
+            display: none;
+            background: var(--m365a-card-bg);
+            border: 1px solid var(--m365a-border);
+            border-radius: 4px;
+            padding: 4px 8px;
+            cursor: pointer;
+            font-size: 16px;
+            color: var(--m365a-text);
+            line-height: 1;
+        }
+        .nav-show-all {
+            font-size: 8pt;
+            padding: 4px 10px;
+            border-radius: 4px;
+            border: 1px solid var(--m365a-border);
+            background: var(--m365a-card-bg);
+            color: var(--m365a-text);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 0.15s, border-color 0.15s;
+        }
+        .nav-show-all:hover {
+            background: var(--m365a-hover-bg);
+            border-color: var(--m365a-accent);
+        }
+        .nav-show-all.active-toggle {
+            background: var(--m365a-accent);
+            color: #fff;
+            border-color: var(--m365a-accent);
+        }
+        .nav-theme-btn {
+            background: var(--m365a-card-bg);
+            border: 1px solid var(--m365a-border);
+            border-radius: 4px;
+            padding: 4px 8px;
+            cursor: pointer;
+            font-size: 14px;
+            line-height: 1;
+            color: var(--m365a-text);
+            transition: background 0.15s;
+        }
+        .nav-theme-btn:hover { background: var(--m365a-hover-bg); }
+        body:not(.dark-theme) .nav-theme-dark { display: none; }
+        body.dark-theme .nav-theme-light { display: none; }
+        .nav-list { list-style: none; padding: 8px 0; margin: 0; }
+        .nav-item a {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            color: var(--m365a-text);
+            text-decoration: none;
+            font-size: 9.5pt;
+            border-left: 3px solid transparent;
+            transition: background 0.15s, border-color 0.15s;
+        }
+        .nav-item a:hover { background: var(--m365a-hover-bg); }
+        .nav-item.active a {
+            border-left-color: var(--m365a-accent);
+            background: var(--m365a-hover-bg);
+            font-weight: 600;
+        }
+        .nav-badge {
+            margin-left: auto;
+            font-size: 8pt;
+            padding: 1px 6px;
+            border-radius: 8px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        .nav-badge-pass { background: var(--m365a-success-bg); color: var(--m365a-success-text); }
+        .nav-badge-fail { background: var(--m365a-danger-bg); color: var(--m365a-danger-text); }
+        .nav-badge-warn { background: var(--m365a-warning-bg); color: var(--m365a-warning-text); }
+        .nav-badge-info { background: var(--m365a-info-bg); color: var(--m365a-info-text); }
+        .nav-separator {
+            height: 1px;
+            background: var(--m365a-border);
+            margin: 6px 16px;
+        }
+
+        /* Page visibility */
+        .report-page { display: none; }
+        .report-page.page-active { display: block; }
+        .report-layout.show-all-mode .report-page { display: block; }
+
+        /* Content takes remaining width */
+        .report-layout .content {
+            flex: 1;
+            min-width: 0;
+            max-width: 100%;
+        }
+
+        /* Mobile hamburger overlay */
+        .nav-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 999;
+        }
+        .nav-overlay.nav-overlay-active { display: block; }
+
+        @media (max-width: 768px) {
+            .report-nav {
+                position: fixed;
+                left: -270px;
+                top: 0;
+                transition: left 0.3s ease;
+                z-index: 1000;
+                box-shadow: none;
+            }
+            .report-nav.nav-open {
+                left: 0;
+                box-shadow: 2px 0 12px rgba(0,0,0,0.25);
+            }
+            .nav-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                position: fixed;
+                top: 12px;
+                left: 12px;
+                z-index: 998;
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            }
+            .report-layout .content { width: 100%; }
+        }
+
+        /* ----------------------------------------------------------
            Print Styles
            ---------------------------------------------------------- */
         @media print {
@@ -1795,6 +1959,11 @@ $html = @"
             .section { page-break-inside: avoid; }
             body { font-size: 9pt; }
             .theme-toggle { display: none; }
+            .report-nav { display: none; }
+            .nav-toggle { display: none !important; }
+            .nav-overlay { display: none !important; }
+            .report-page { display: block !important; }
+            .report-layout { display: block; }
 
             /* --- Fix 6: Force light theme for print --- */
             body.dark-theme {
@@ -1946,12 +2115,7 @@ $html = @"
 $accentCss
 </head>
 <body>
-    <!-- Theme Toggle -->
     <a href="#main-content" class="skip-nav">Skip to main content</a>
-    <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode" title="Toggle light/dark mode">
-        <span class="theme-icon-light">&#9788;</span>
-        <span class="theme-icon-dark">&#9790;</span>
-    </button>
 
 $(if (-not $SkipCoverPage) {
 @"
@@ -1978,8 +2142,76 @@ $(if (-not $NoBranding) {
 "@
 })
 
-    <!-- Content -->
-    <main class="content" id="main-content" role="main">
+    <!-- Mobile nav overlay -->
+    <div class="nav-overlay" id="navOverlay"></div>
+    <!-- Mobile hamburger toggle (positioned fixed on small screens) -->
+    <button class="nav-toggle" id="navToggleMobile" aria-label="Toggle navigation">&#9776;</button>
+
+    <!-- Paginated Layout -->
+    <div class="report-layout" id="reportLayout">
+        <nav class="report-nav" id="reportNav" role="navigation" aria-label="Report sections">
+            <div class="nav-header">
+                <span class="nav-title">Sections</span>
+                <button class="nav-show-all" id="navShowAll" title="Toggle between paginated and scrollable view">Show All</button>
+                <button class="nav-theme-btn" id="navThemeToggle" aria-label="Toggle dark mode" title="Toggle light/dark mode">
+                    <span class="nav-theme-light">&#9788;</span>
+                    <span class="nav-theme-dark">&#9790;</span>
+                </button>
+            </div>
+            <ul class="nav-list" id="navList">
+"@
+
+# Build sidebar nav items
+if (-not $SkipExecutiveSummary) {
+    $html += "                <li class='nav-item active' data-page='exec-summary'><a href='#exec-summary'>Executive Summary</a></li>`n"
+}
+foreach ($navSection in $sections) {
+    if ($navSection -eq 'Tenant') {
+        $navPageId = 'section-tenant'
+        $navLabel = 'Organization Profile'
+    }
+    else {
+        $navPageId = "section-$(($navSection -replace '[^a-zA-Z0-9]', '-').ToLower())"
+        $navLabel = [System.Web.HttpUtility]::HtmlEncode($navSection)
+    }
+    $navBadge = ''
+    if ($sectionStatusCounts.ContainsKey($navSection)) {
+        $navCounts = $sectionStatusCounts[$navSection]
+        if ($navCounts.Fail -gt 0) {
+            $navBadge = "<span class='nav-badge nav-badge-fail'>$($navCounts.Fail)</span>"
+        }
+        elseif ($navCounts.Warning -gt 0) {
+            $navBadge = "<span class='nav-badge nav-badge-warn'>$($navCounts.Warning)</span>"
+        }
+        elseif ($navCounts.Pass -gt 0) {
+            $navBadge = "<span class='nav-badge nav-badge-pass'>&#10003;</span>"
+        }
+    }
+    $html += "                <li class='nav-item' data-page='$navPageId'><a href='#$navPageId'>$navLabel$navBadge</a></li>`n"
+}
+
+# Separator before extra sections
+$hasExtraSections = ($complianceHtml) -or ($catalogHtml) -or ($issues.Count -gt 0) -or ($allCisFindings.Count -gt 0)
+if ($hasExtraSections) {
+    $html += "                <li class='nav-separator' role='separator'></li>`n"
+}
+if ($complianceHtml) {
+    $html += "                <li class='nav-item' data-page='compliance-overview'><a href='#compliance-overview'>Compliance Overview</a></li>`n"
+}
+if ($catalogHtml) {
+    $html += "                <li class='nav-item' data-page='framework-catalogs'><a href='#framework-catalogs'>Framework Catalogs</a></li>`n"
+}
+if ($issues.Count -gt 0) {
+    $html += "                <li class='nav-item' data-page='issues'><a href='#issues'>Technical Issues</a></li>`n"
+}
+if ($allCisFindings.Count -gt 0) {
+    $html += "                <li class='nav-item' data-page='appendix-checks-run'><a href='#appendix-checks-run'>Appendix</a></li>`n"
+}
+
+$html += @"
+            </ul>
+        </nav>
+        <main class="content" id="main-content" role="main">
 "@
 
 if (-not $SkipExecutiveSummary) {
@@ -2005,6 +2237,7 @@ if (-not $SkipExecutiveSummary) {
 
     $html += @"
 
+        <div class="report-page" data-page="exec-summary" id="exec-summary">
         <!-- Executive Summary — Hero Panel -->
         <div class="exec-hero">
             <div class="exec-hero-left">
@@ -2096,6 +2329,7 @@ if (-not $SkipExecutiveSummary) {
 "@
         }
     }
+    $html += "`n        </div>" # close exec-summary report-page
 }
 else {
     # Compact scan header when executive summary is skipped
@@ -2128,35 +2362,43 @@ $html += @"
 if ($complianceHtml) {
     $html += @"
 
+        <div class="report-page" data-page="compliance-overview">
         <a id="compliance-overview"></a>
         <h1>Compliance Overview</h1>
         $complianceHtml
+        </div>
 "@
 }
 
 if ($catalogHtml) {
     $html += @"
 
+        <div class="report-page" data-page="framework-catalogs">
         <a id="framework-catalogs"></a>
         <h1>Framework Catalogs</h1>
         $catalogHtml
+        </div>
 "@
 }
 
 if ($issues.Count -gt 0) {
     $html += @"
 
+        <div class="report-page" data-page="issues">
         <a id="issues"></a>
         <h1>Technical Issues</h1>
         $($issuesHtml.ToString())
+        </div>
 "@
 }
 
 if ($checksRunHtml.Length -gt 0) {
     $html += @"
 
+        <div class="report-page" data-page="appendix-checks-run">
         <a id="appendix-checks-run"></a>
         $($checksRunHtml.ToString())
+        </div>
 "@
 }
 
@@ -2169,10 +2411,11 @@ $html += @"
             <p>$(Get-Date -Format 'MMMM d, yyyy h:mm tt')</p>
         </footer>
     </main>
+    </div> <!-- close report-layout -->
     <script>
-    // Theme toggle
+    // Theme toggle (sidebar button)
     (function() {
-        var toggle = document.getElementById('themeToggle');
+        var toggle = document.getElementById('navThemeToggle');
         var stored = localStorage.getItem('m365a-theme');
         if (stored === 'dark' || (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             document.body.classList.add('dark-theme');
@@ -2183,6 +2426,167 @@ $html += @"
                 localStorage.setItem('m365a-theme', document.body.classList.contains('dark-theme') ? 'dark' : 'light');
             });
         }
+    })();
+
+    // --- Paginated Navigation ---
+    (function() {
+        var layout = document.getElementById('reportLayout');
+        var nav = document.getElementById('reportNav');
+        var navList = document.getElementById('navList');
+        var showAllBtn = document.getElementById('navShowAll');
+        var navToggleMobile = document.getElementById('navToggleMobile');
+        var navOverlay = document.getElementById('navOverlay');
+        if (!layout || !navList) return;
+
+        var navItems = navList.querySelectorAll('.nav-item');
+        var pages = layout.querySelectorAll('.report-page');
+        var showAllMode = false;
+
+        function getPageIds() {
+            var ids = [];
+            navItems.forEach(function(item) {
+                var pageId = item.getAttribute('data-page');
+                if (pageId) ids.push(pageId);
+            });
+            return ids;
+        }
+
+        function navigateTo(pageId, pushState) {
+            if (showAllMode) {
+                // In show-all mode, just scroll to the element and highlight nav
+                setActiveNav(pageId);
+                var target = layout.querySelector('[data-page="' + pageId + '"]');
+                if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                if (pushState !== false) history.replaceState(null, '', '#' + pageId);
+                return;
+            }
+            // Hide all pages
+            pages.forEach(function(p) { p.classList.remove('page-active'); });
+            // Show target page
+            var target = layout.querySelector('.report-page[data-page="' + pageId + '"]');
+            if (target) {
+                target.classList.add('page-active');
+            } else if (pages.length > 0) {
+                // Fallback to first page
+                pages[0].classList.add('page-active');
+                pageId = pages[0].getAttribute('data-page');
+            }
+            setActiveNav(pageId);
+            // Scroll main content to top
+            var main = document.getElementById('main-content');
+            if (main) main.scrollTop = 0;
+            window.scrollTo(0, layout.offsetTop);
+            if (pushState !== false) history.pushState({ page: pageId }, '', '#' + pageId);
+            closeMobileNav();
+        }
+
+        function setActiveNav(pageId) {
+            navItems.forEach(function(item) {
+                if (item.getAttribute('data-page') === pageId) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        }
+
+        function getInitialPage() {
+            var hash = location.hash.replace('#', '');
+            if (hash) {
+                // Check if hash matches a data-page
+                var match = layout.querySelector('.report-page[data-page="' + hash + '"]');
+                if (match) return hash;
+                // Check if hash matches an element inside a report-page
+                var el = document.getElementById(hash);
+                if (el) {
+                    var parentPage = el.closest('.report-page');
+                    if (parentPage) return parentPage.getAttribute('data-page');
+                }
+            }
+            // Default to first nav item
+            if (navItems.length > 0) return navItems[0].getAttribute('data-page');
+            return null;
+        }
+
+        // Wire nav clicks
+        navItems.forEach(function(item) {
+            var link = item.querySelector('a');
+            if (link) {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    var pageId = item.getAttribute('data-page');
+                    navigateTo(pageId);
+                });
+            }
+        });
+
+        // Show All toggle
+        if (showAllBtn) {
+            showAllBtn.addEventListener('click', function() {
+                showAllMode = !showAllMode;
+                if (showAllMode) {
+                    layout.classList.add('show-all-mode');
+                    showAllBtn.textContent = 'Paginate';
+                    showAllBtn.classList.add('active-toggle');
+                    // Show all pages and keep current active highlighted
+                } else {
+                    layout.classList.remove('show-all-mode');
+                    showAllBtn.textContent = 'Show All';
+                    showAllBtn.classList.remove('active-toggle');
+                    // Re-navigate to currently active page
+                    var activeItem = navList.querySelector('.nav-item.active');
+                    var pageId = activeItem ? activeItem.getAttribute('data-page') : getInitialPage();
+                    navigateTo(pageId, false);
+                }
+            });
+        }
+
+        // Mobile hamburger
+        function openMobileNav() {
+            if (nav) nav.classList.add('nav-open');
+            if (navOverlay) navOverlay.classList.add('nav-overlay-active');
+        }
+        function closeMobileNav() {
+            if (nav) nav.classList.remove('nav-open');
+            if (navOverlay) navOverlay.classList.remove('nav-overlay-active');
+        }
+        if (navToggleMobile) {
+            navToggleMobile.addEventListener('click', function() {
+                if (nav && nav.classList.contains('nav-open')) {
+                    closeMobileNav();
+                } else {
+                    openMobileNav();
+                }
+            });
+        }
+        if (navOverlay) {
+            navOverlay.addEventListener('click', closeMobileNav);
+        }
+
+        // Browser back/forward
+        window.addEventListener('popstate', function(e) {
+            var pageId = (e.state && e.state.page) ? e.state.page : getInitialPage();
+            if (pageId) navigateTo(pageId, false);
+        });
+
+        // Keyboard navigation
+        navList.addEventListener('keydown', function(e) {
+            var pageIds = getPageIds();
+            var activeItem = navList.querySelector('.nav-item.active');
+            var currentId = activeItem ? activeItem.getAttribute('data-page') : '';
+            var idx = pageIds.indexOf(currentId);
+            if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+                e.preventDefault();
+                if (idx < pageIds.length - 1) navigateTo(pageIds[idx + 1]);
+            } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+                e.preventDefault();
+                if (idx > 0) navigateTo(pageIds[idx - 1]);
+            }
+        });
+
+        // Initialize: show the correct page on load
+        var initialPage = getInitialPage();
+        if (initialPage) navigateTo(initialPage, false);
     })();
 
     document.addEventListener('DOMContentLoaded', function() {

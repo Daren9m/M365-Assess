@@ -295,4 +295,103 @@ Describe 'Export-AssessmentReport HTML structure' {
             $html | Should -Match "var\(--m365a-review\)"
         }
     }
+
+    Context 'Paginated report navigation' {
+        It 'Should include report-layout wrapper div' {
+            $html | Should -Match 'class="report-layout"'
+            $html | Should -Match 'id="reportLayout"'
+        }
+
+        It 'Should include sidebar navigation element' {
+            $html | Should -Match 'class="report-nav"'
+            $html | Should -Match 'id="reportNav"'
+        }
+
+        It 'Should include nav list with nav items' {
+            $html | Should -Match 'class="nav-list"'
+            $html | Should -Match 'class=.nav-item'
+            $html | Should -Match 'data-page='
+        }
+
+        It 'Should include Show All toggle button' {
+            $html | Should -Match 'id="navShowAll"'
+            $html | Should -Match 'nav-show-all'
+        }
+
+        It 'Should include theme toggle in sidebar' {
+            $html | Should -Match 'id="navThemeToggle"'
+            $html | Should -Match 'nav-theme-btn'
+        }
+
+        It 'Should wrap sections in report-page containers' {
+            $html | Should -Match "class='report-page'"
+            $html | Should -Match "data-page='section-"
+        }
+
+        It 'Should include report-page CSS for page visibility' {
+            $html | Should -Match '\.report-page \{ display: none'
+            $html | Should -Match '\.report-page\.page-active \{ display: block'
+            $html | Should -Match '\.show-all-mode \.report-page \{ display: block'
+        }
+
+        It 'Should include navigation JavaScript with navigateTo function' {
+            $html | Should -Match 'function navigateTo'
+            $html | Should -Match 'function setActiveNav'
+            $html | Should -Match 'function getInitialPage'
+        }
+
+        It 'Should handle browser history with popstate listener' {
+            $html | Should -Match "addEventListener\('popstate'"
+        }
+
+        It 'Should support keyboard navigation with arrow keys' {
+            $html | Should -Match 'ArrowDown'
+            $html | Should -Match 'ArrowUp'
+        }
+
+        It 'Should include mobile hamburger toggle' {
+            $html | Should -Match 'id="navToggleMobile"'
+            $html | Should -Match 'nav-toggle'
+        }
+
+        It 'Should include mobile overlay element' {
+            $html | Should -Match 'id="navOverlay"'
+            $html | Should -Match 'nav-overlay'
+        }
+
+        It 'Should hide sidebar and show all pages in print styles' {
+            $html | Should -Match '@media print[\s\S]*?\.report-nav \{ display: none'
+            $html | Should -Match '@media print[\s\S]*?\.report-page \{ display: block !important'
+        }
+
+        It 'Should include mobile responsive CSS' {
+            $html | Should -Match '@media \(max-width: 768px\)'
+            $html | Should -Match '\.report-nav\.nav-open'
+        }
+
+        It 'Should include nav badge CSS classes' {
+            $html | Should -Match '\.nav-badge-pass'
+            $html | Should -Match '\.nav-badge-fail'
+        }
+
+        It 'Should wrap compliance overview in report-page container' {
+            $html | Should -Match 'data-page="compliance-overview"'
+        }
+
+        It 'Should wrap framework catalogs in report-page container' {
+            $html | Should -Match 'data-page="framework-catalogs"'
+        }
+
+        It 'Should wrap technical issues in report-page container' {
+            $html | Should -Match 'data-page="issues"'
+        }
+
+        It 'Should wrap appendix in report-page container' {
+            $html | Should -Match 'data-page="appendix-checks-run"'
+        }
+
+        It 'Should close report-layout div before closing body' {
+            $html | Should -Match 'close report-layout'
+        }
+    }
 }
