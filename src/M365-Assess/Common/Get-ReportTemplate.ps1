@@ -2606,10 +2606,14 @@ $html += @"
 
         function navigateTo(pageId, pushState) {
             if (showAllMode) {
-                // In show-all mode, just scroll to the element and highlight nav
+                // In show-all mode, scroll to the page content div
                 setActiveNav(pageId);
-                var target = layout.querySelector('[data-page="' + pageId + '"]');
-                if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                var target = layout.querySelector('.report-page[data-page="' + pageId + '"]');
+                if (target) {
+                    var rect = target.getBoundingClientRect();
+                    var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                    window.scrollTo({ top: rect.top + scrollTop - 10, behavior: 'smooth' });
+                }
                 if (pushState !== false) history.replaceState(null, '', '#' + pageId);
                 return;
             }
