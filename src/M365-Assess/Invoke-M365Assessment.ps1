@@ -690,7 +690,7 @@ foreach ($sectionName in $Section) {
                 $childOutputFile = [System.IO.Path]::ChangeExtension($childScriptFile, '.log')
                 $childErrFile    = [System.IO.Path]::ChangeExtension($childScriptFile, '.err')
                 Set-Content -Path $childScriptFile -Value ($scriptLines -join "`n") -Encoding UTF8
-                $childTimeoutSec = if ($UseDeviceCode -or (-not $IsWindows -and -not ($ClientId -and ($CertificateThumbprint -or $ClientSecret)))) { 120 } else { 30 }
+                $childTimeoutSec = if ($UseDeviceCode -or (-not $IsWindows -and -not ($ClientId -and ($CertificateThumbprint -or $ClientSecret)))) { 120 } else { 90 }
                 $childNeedsConsole = $UseDeviceCode -or (-not $IsWindows -and -not ($ClientId -and ($CertificateThumbprint -or $ClientSecret)))
                 try {
                     if ($childNeedsConsole) {
