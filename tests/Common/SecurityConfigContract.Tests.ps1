@@ -183,6 +183,43 @@ Describe 'SecurityConfigHelper.ps1 - Contract Functions' {
     }
 }
 
+Describe 'Adoption Signal Accumulator' {
+    BeforeAll {
+        . "$PSScriptRoot/../../src/M365-Assess/Common/SecurityConfigHelper.ps1"
+    }
+
+    It 'Should initialize with empty adoption signals' {
+        $ctx = Initialize-SecurityConfig
+        $signals = Get-AdoptionSignals
+        $signals.Count | Should -Be 0
+    }
+
+    It 'Should accumulate signals from Add-SecuritySetting' {
+        $ctx = Initialize-SecurityConfig
+        Add-SecuritySetting -Settings $ctx.Settings -CheckIdCounter $ctx.CheckIdCounter `
+            -Category 'Test' -Setting 'Test Setting' -CurrentValue 'True' `
+            -RecommendedValue 'True' -Status 'Pass' -CheckId 'TEST-001'
+
+        $signals = Get-AdoptionSignals
+        $signals.Count | Should -Be 1
+        $signals['TEST-001.1'].Status | Should -Be 'Pass'
+        $signals['TEST-001.1'].Setting | Should -Be 'Test Setting'
+    }
+
+    It 'Should return a clone (not a reference)' {
+        $ctx = Initialize-SecurityConfig
+        Add-SecuritySetting -Settings $ctx.Settings -CheckIdCounter $ctx.CheckIdCounter `
+            -Category 'Test' -Setting 'S1' -CurrentValue 'V1' `
+            -RecommendedValue 'R1' -Status 'Pass' -CheckId 'TEST-002'
+
+        $clone = Get-AdoptionSignals
+        $clone['INJECTED'] = @{ Status = 'Hacked' }
+
+        $original = Get-AdoptionSignals
+        $original.ContainsKey('INJECTED') | Should -Be $false
+    }
+}
+
 Describe 'Collector Contract Compliance' -ForEach @(
     $CollectorFiles | ForEach-Object {
         @{ FileName = $_.Name; FilePath = $_.FullName; RelativePath = $_.FullName -replace [regex]::Escape((Resolve-Path "$PSScriptRoot/../..").Path + '\'), '' }
