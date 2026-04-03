@@ -918,7 +918,6 @@ catch {
 try {
     Write-Verbose "Checking for unused privileged permissions..."
     $unusedPrivileged = @()
-    $thirtyDaysAgo = (Get-Date).AddDays(-30).ToString('yyyy-MM-ddTHH:mm:ssZ')
 
     foreach ($sp in $regularApps) {
         $appRoles = Get-SpAppRoleAssignments -SpId $sp['id']
