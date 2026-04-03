@@ -2189,6 +2189,101 @@ $html = @"
         }
 
         /* ----------------------------------------------------------
+           Value Opportunity
+           ---------------------------------------------------------- */
+        .value-hero {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            padding: 20px;
+            background: var(--m365a-card-bg);
+            border-radius: 8px;
+            border: 1px solid var(--m365a-border);
+            margin-bottom: 20px;
+        }
+        .value-hero-donut {
+            flex-shrink: 0;
+        }
+        .value-hero-stats {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .value-stat-card {
+            text-align: center;
+            padding: 12px 20px;
+            background: var(--m365a-bg);
+            border-radius: 6px;
+            border: 1px solid var(--m365a-border);
+            min-width: 100px;
+        }
+        .value-stat-value {
+            font-size: 20pt;
+            font-weight: 700;
+            color: var(--m365a-accent);
+        }
+        .value-stat-label {
+            font-size: 8pt;
+            text-transform: uppercase;
+            color: var(--m365a-medium-gray);
+            margin-top: 4px;
+        }
+        .value-hero-summary {
+            font-size: 10pt;
+            color: var(--m365a-medium-gray);
+            margin-top: 8px;
+        }
+        .value-categories {
+            margin-bottom: 20px;
+        }
+        .value-category-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 6px 0;
+        }
+        .value-category-label {
+            width: 160px;
+            font-size: 9pt;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        .value-category-bar {
+            flex: 1;
+            height: 18px;
+            background: var(--m365a-border);
+            border-radius: 4px;
+            display: flex;
+            overflow: hidden;
+        }
+        .value-bar-fill {
+            height: 100%;
+            transition: width 0.3s;
+        }
+        .value-bar-adopted { background: #10b981; }
+        .value-bar-partial { background: #f59e0b; }
+        .value-bar-gap { background: #ef4444; }
+        .value-category-pct {
+            width: 45px;
+            text-align: right;
+            font-size: 9pt;
+            font-weight: 600;
+        }
+        .value-roadmap-section {
+            margin-bottom: 16px;
+        }
+        .value-learn-link {
+            color: var(--m365a-accent);
+            text-decoration: none;
+            font-size: 8.5pt;
+        }
+        .value-learn-link:hover { text-decoration: underline; }
+        @media (max-width: 768px) {
+            .value-hero { flex-direction: column; }
+            .value-category-label { width: 120px; }
+        }
+
+        /* ----------------------------------------------------------
            Print Styles
            ---------------------------------------------------------- */
         @media print {
@@ -2344,6 +2439,10 @@ $html = @"
             .score-detail-row.donut-highlight { background: inherit; }
             .copy-btn { display: none; }
 
+            /* --- Value Opportunity print --- */
+            .value-hero { break-inside: avoid; }
+            .value-category-bar { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+
             @page {
                 size: letter;
                 margin: 0.75in;
@@ -2427,7 +2526,7 @@ foreach ($navSection in $sections) {
 }
 
 # Separator before extra sections
-$hasExtraSections = ($complianceHtml) -or ($catalogHtml) -or ($issues.Count -gt 0) -or ($allCisFindings.Count -gt 0)
+$hasExtraSections = ($complianceHtml) -or ($catalogHtml) -or ($valueOpportunityHtml) -or ($issues.Count -gt 0) -or ($allCisFindings.Count -gt 0)
 if ($hasExtraSections) {
     $html += "                <li class='nav-separator' role='separator'></li>`n"
 }
@@ -2438,6 +2537,10 @@ if ($complianceHtml) {
 if ($catalogHtml) {
     $navIconCatalogs = $navIcons['framework catalogs']
     $html += "                <li class='nav-item' data-page='framework-catalogs'><a href='#framework-catalogs'>$navIconCatalogs Framework Catalogs</a></li>`n"
+}
+if ($valueOpportunityHtml) {
+    $navIconValue = '<svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2C10.5523 2 11 2.44772 11 3V5.26756C12.8135 5.61337 14.3866 6.69752 15.3698 8.22729L17.2346 7.14877C17.7124 6.87242 18.3207 7.03737 18.5971 7.51513C18.8734 7.99289 18.7085 8.60122 18.2307 8.87756L16.3752 9.95058C16.6244 10.6038 16.7609 11.3127 16.7609 12.0547C16.7609 15.7866 13.7318 18.8157 10 18.8157C6.26817 18.8157 3.23911 15.7866 3.23911 12.0547C3.23911 8.69614 5.7041 5.89989 8.91304 5.34845V3C8.91304 2.44772 9.36075 2 9.91304 2H10ZM10 7.29389C7.37282 7.29389 5.23911 9.42759 5.23911 12.0547C5.23911 14.6819 7.37282 16.8157 10 16.8157C12.6272 16.8157 14.7609 14.6819 14.7609 12.0547C14.7609 9.42759 12.6272 7.29389 10 7.29389Z"/></svg>'
+    $html += "                <li class='nav-item' data-page='value-opportunity'><a href='#value-opportunity'>$navIconValue Value Opportunity</a></li>`n"
 }
 if ($issues.Count -gt 0) {
     $navIconIssues = $navIcons['technical issues']
@@ -2635,6 +2738,12 @@ if ($catalogHtml) {
         $catalogHtml
         </div>
 "@
+}
+
+if ($valueOpportunityHtml) {
+    $html += "`n        <div class='report-page' data-page='value-opportunity' id='value-opportunity'>"
+    $html += $valueOpportunityHtml
+    $html += "`n        </div>"
 }
 
 if ($issues.Count -gt 0) {

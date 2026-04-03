@@ -315,6 +315,38 @@ $errorCount = @($issues | Where-Object { $_.Severity -eq 'ERROR' }).Count
 $warningCount = @($issues | Where-Object { $_.Severity -eq 'WARNING' }).Count
 
 # ------------------------------------------------------------------
+# Value Opportunity analysis (if data available)
+# ------------------------------------------------------------------
+$valueOpportunityHtml = ''
+$voLicensePath = Join-Path -Path $AssessmentFolder -ChildPath '40-License-Utilization.csv'
+$voAdoptionPath = Join-Path -Path $AssessmentFolder -ChildPath '41-Feature-Adoption.csv'
+$voReadinessPath = Join-Path -Path $AssessmentFolder -ChildPath '42-Feature-Readiness.csv'
+$featureMapPath = Join-Path -Path $projectRoot -ChildPath 'controls' -AdditionalChildPath 'sku-feature-map.json'
+
+if ((Test-Path -Path $voLicensePath) -and (Test-Path -Path $voAdoptionPath) -and (Test-Path -Path $voReadinessPath) -and (Test-Path -Path $featureMapPath)) {
+    try {
+        . (Join-Path -Path $PSScriptRoot -ChildPath 'Build-ValueOpportunityHtml.ps1')
+        . (Join-Path -Path $projectRoot -ChildPath 'ValueOpportunity' -AdditionalChildPath 'Analyze-ValueOpportunity.ps1')
+
+        $featureMap = Get-Content -Path $featureMapPath -Raw | ConvertFrom-Json
+        $voLicense = Import-Csv -Path $voLicensePath
+        $voAdoption = Import-Csv -Path $voAdoptionPath
+        $voReadiness = Import-Csv -Path $voReadinessPath
+
+        # CSV import converts booleans to strings -- fix IsLicensed
+        foreach ($row in $voLicense) {
+            $row.IsLicensed = $row.IsLicensed -eq 'True'
+        }
+
+        $voAnalysis = Analyze-ValueOpportunity -LicenseUtilization $voLicense -FeatureAdoption $voAdoption -FeatureReadiness $voReadiness -FeatureMap $featureMap
+        $valueOpportunityHtml = Build-ValueOpportunityHtml -Analysis $voAnalysis
+    }
+    catch {
+        Write-Warning "Could not generate Value Opportunity report section: $_"
+    }
+}
+
+# ------------------------------------------------------------------
 # Build report content and assemble HTML (dot-sourced for shared scope)
 # ------------------------------------------------------------------
 # Build section HTML: data tables, dashboards, compliance, TOC, issues

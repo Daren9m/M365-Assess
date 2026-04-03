@@ -14,8 +14,8 @@
 .PARAMETER Section
     One or more assessment sections to run. Valid values: Tenant, Identity,
     Licensing, Email, Intune, Security, Collaboration, Hybrid, PowerBI,
-    Inventory, ActiveDirectory, SOC2. Defaults to all standard
-    sections. Inventory, ActiveDirectory, and SOC2 are opt-in only.
+    Inventory, ActiveDirectory, SOC2, ValueOpportunity. Defaults to all standard
+    sections. Inventory, ActiveDirectory, SOC2, and ValueOpportunity are opt-in only.
 .PARAMETER TenantId
     Tenant ID or domain (e.g., 'contoso.onmicrosoft.com').
 .PARAMETER OutputFolder
@@ -120,7 +120,7 @@ function Invoke-M365Assessment {
     Justification = 'Used by Connect-RequiredService in Orchestrator/ via parent scope')]
 param(
     [Parameter()]
-    [ValidateSet('Tenant', 'Identity', 'Licensing', 'Email', 'Intune', 'Security', 'Collaboration', 'PowerBI', 'Hybrid', 'Inventory', 'ActiveDirectory', 'SOC2')]
+    [ValidateSet('Tenant', 'Identity', 'Licensing', 'Email', 'Intune', 'Security', 'Collaboration', 'PowerBI', 'Hybrid', 'Inventory', 'ActiveDirectory', 'SOC2', 'ValueOpportunity')]
     [string[]]$Section = @('Tenant', 'Identity', 'Licensing', 'Email', 'Intune', 'Security', 'Collaboration', 'PowerBI', 'Hybrid'),
 
     [Parameter()]
@@ -538,7 +538,8 @@ $sectionOrder = @(
     'Inventory',        # EXO-dependent — run before Security's Purview collectors
     'Security',         # Graph → EXO (Defender) → Purview (DLP/Compliance)
     'Collaboration', 'PowerBI', 'Hybrid',
-    'ActiveDirectory', 'SOC2'
+    'ActiveDirectory', 'SOC2',
+    'ValueOpportunity'  # Must run last — reads adoption signals from all other sections
 )
 $Section = $sectionOrder | Where-Object { $_ -in $Section }
 

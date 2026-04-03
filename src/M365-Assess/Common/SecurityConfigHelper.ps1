@@ -29,6 +29,7 @@ function Initialize-SecurityConfig {
     [OutputType([hashtable])]
     param()
 
+    $script:AdoptionSignals = @{}
     @{
         Settings       = [System.Collections.Generic.List[PSCustomObject]]::new()
         CheckIdCounter = @{}
@@ -115,6 +116,16 @@ function Add-SecuritySetting {
         Remediation      = $Remediation
     })
 
+    # Accumulate adoption signal for Value Opportunity analysis
+    if ($CheckId) {
+        $script:AdoptionSignals[$subCheckId] = @{
+            Status       = $Status
+            Setting      = $Setting
+            CurrentValue = $CurrentValue
+            Category     = $Category
+        }
+    }
+
     # Invoke real-time progress tracking if available (set up by Show-CheckProgress.ps1)
     if ($CheckId -and (Get-Command -Name Update-CheckProgress -ErrorAction SilentlyContinue)) {
         Update-CheckProgress -CheckId $subCheckId -Setting $Setting -Status $Status
@@ -157,4 +168,26 @@ function Export-SecurityConfigReport {
     else {
         Write-Output $report
     }
+}
+
+function Get-AdoptionSignals {
+    <#
+    .SYNOPSIS
+        Returns a clone of the accumulated adoption signals.
+    .DESCRIPTION
+        Returns a thread-safe copy of the adoption signals hashtable that was
+        passively populated by Add-SecuritySetting calls during the assessment.
+        Used by the Value Opportunity collectors to determine feature adoption.
+    .EXAMPLE
+        $signals = Get-AdoptionSignals
+        $signals['ENTRA-PIM-001.1'].Status  # 'Pass' or 'Fail'
+    #>
+    [CmdletBinding()]
+    [OutputType([hashtable])]
+    param()
+
+    if ($script:AdoptionSignals) {
+        return $script:AdoptionSignals.Clone()
+    }
+    return @{}
 }

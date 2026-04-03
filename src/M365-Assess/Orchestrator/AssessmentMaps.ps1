@@ -15,6 +15,7 @@ $sectionServiceMap = @{
     'Inventory'        = @('Graph', 'ExchangeOnline')
     'ActiveDirectory'  = @()
     'SOC2'             = @('Graph', 'Purview')
+    'ValueOpportunity' = @('Graph')
 }
 
 # ------------------------------------------------------------------
@@ -32,6 +33,7 @@ $sectionScopeMap = @{
     'Inventory'        = @('Group.Read.All', 'Team.ReadBasic.All', 'TeamMember.Read.All', 'Channel.ReadBasic.All', 'Reports.Read.All', 'Sites.Read.All', 'User.Read.All')
     'ActiveDirectory'  = @()
     'SOC2'             = @('Policy.Read.All', 'RoleManagement.Read.Directory', 'SecurityEvents.Read.All', 'SecurityAlert.Read.All', 'AuditLog.Read.All', 'User.Read.All', 'Reports.Read.All', 'Directory.Read.All')
+    'ValueOpportunity' = @('Organization.Read.All')
 }
 
 # ------------------------------------------------------------------
@@ -51,6 +53,7 @@ $sectionModuleMap = @{
     'Inventory'        = @()
     'ActiveDirectory'  = @()
     'SOC2'             = @('Microsoft.Graph.Identity.SignIns', 'Microsoft.Graph.Identity.DirectoryManagement', 'Microsoft.Graph.Security')
+    'ValueOpportunity' = @('Microsoft.Graph.Identity.DirectoryManagement')
 }
 
 # ------------------------------------------------------------------
@@ -128,6 +131,11 @@ $collectorMap = [ordered]@{
         @{ Name = '34-SOC2-Confidentiality-Controls'; Script = 'SOC2\Get-SOC2ConfidentialityControls.ps1'; Label = 'SOC 2 Confidentiality Controls'; RequiredServices = @('Graph', 'Purview') }
         @{ Name = '35-SOC2-Audit-Evidence';           Script = 'SOC2\Get-SOC2AuditEvidence.ps1';           Label = 'SOC 2 Audit Evidence'; RequiredServices = @('Graph') }
         @{ Name = '36-SOC2-Readiness-Checklist';     Script = 'SOC2\Get-SOC2ReadinessChecklist.ps1';     Label = 'SOC 2 Readiness Checklist' }
+    )
+    'ValueOpportunity' = @(
+        @{ Name = '40-License-Utilization'; Script = 'ValueOpportunity\Get-LicenseUtilization.ps1'; Label = 'License Utilization'; RequiredServices = @('Graph') }
+        @{ Name = '41-Feature-Adoption';    Script = 'ValueOpportunity\Get-FeatureAdoption.ps1';    Label = 'Feature Adoption' }
+        @{ Name = '42-Feature-Readiness';   Script = 'ValueOpportunity\Get-FeatureReadiness.ps1';   Label = 'Feature Readiness' }
     )
 }
 
