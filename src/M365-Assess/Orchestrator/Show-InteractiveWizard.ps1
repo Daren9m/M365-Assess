@@ -36,6 +36,7 @@ function Show-InteractiveWizard {
         '10' = @{ Name = 'Inventory';       Label = 'M&A Inventory (opt-in)';       Selected = $false }
         '11' = @{ Name = 'ActiveDirectory'; Label = 'Active Directory (RSAT)';      Selected = $false }
         '12' = @{ Name = 'SOC2';            Label = 'SOC 2 Readiness (opt-in)';     Selected = $false }
+        '13' = @{ Name = 'ValueOpportunity'; Label = 'Value Opportunity (opt-in)';  Selected = $false }
     }
 
     # --- Header ---
