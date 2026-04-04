@@ -52,4 +52,10 @@ Describe 'SKU Feature Map Schema' {
             $f.learnUrl | Should -Match '^https://' -Because "$($f.featureId) needs a Learn URL"
         }
     }
+
+    It 'Should not use STANDARD sentinel in requiredServicePlans' {
+        foreach ($f in $map.features) {
+            $f.requiredServicePlans | Should -Not -Contain 'STANDARD' -Because "$($f.featureId) should use a real service plan ID, not the STANDARD sentinel"
+        }
+    }
 }
