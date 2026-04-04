@@ -23,6 +23,7 @@ The HTML report includes a **Compliance Overview** section that maps all assesse
 | Essential Eight | 8 | Coverage mapping |
 | CIS Controls v8 | 153 | Coverage mapping |
 | MITRE ATT&CK | varies | Coverage mapping |
+| Entra ID STIG V1R1 | 10 | DISA security controls for Entra ID |
 
 **CIS profiles** show a compliance score (pass rate against benchmarked controls). Other frameworks show coverage mapping, indicating which of your assessed findings align to that framework's controls.
 
@@ -34,6 +35,22 @@ The report's Compliance Overview pane provides:
 - **Coverage cards** showing pass rate for CIS profiles and mapped control coverage for other frameworks
 - **Status filter** to filter findings by Pass, Fail, Warning, Review, or Info
 - **Cross-reference matrix** table with every assessed finding and columns for each framework's mapped control IDs
+
+### License-Aware Check Gating
+
+Added in v1.5.0. When the assessment detects that a tenant lacks a specific service plan (e.g., `AAD_PREMIUM_P2` for Conditional Access authentication strengths), it skips checks that require that plan and marks them as "Not Licensed" in the report. This prevents false negatives for features the tenant cannot use. 25 checks are mapped to specific service plans in `controls/registry.json` via the `requiredServicePlans` field.
+
+### Quick Scan Mode
+
+The `-QuickScan` switch limits the assessment to Critical and High severity checks only, reducing execution time for rapid health checks. The report banner indicates when Quick Scan mode was used.
+
+### Application Security Cluster
+
+21 new `ENTRA-ENTAPP-*` checks audit enterprise application security including dangerous permissions, consent grants, credential hygiene, and app ownership.
+
+### Value Opportunity Analysis
+
+The `-Section ValueOpportunity` parameter enables license utilization and feature adoption analysis. Three collectors (`Get-LicenseUtilization`, `Get-FeatureAdoption`, `Get-FeatureReadiness`) assess which licensed M365 features are actively used, producing an adoption roadmap with quick wins.
 
 ## CheckId System
 

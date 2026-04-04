@@ -1,6 +1,6 @@
 # M365-Assess Cmdlet Reference
 
-> Module version: 1.2.0 | PowerShell 7.0+ required
+> Module version: 1.6.0 | PowerShell 7.0+ required
 >
 > All 15 exported functions from the `M365-Assess` module.
 
@@ -44,6 +44,13 @@
 ### Setup
 
 - [Grant-M365AssessConsent](#grant-m365assessconsent) -- App registration provisioning
+
+### Value Opportunity
+
+- [Get-LicenseUtilization](#get-licenseutilization) -- License utilization against feature map
+- [Get-FeatureAdoption](#get-featureadoption) -- Feature adoption scoring from assessment signals
+- [Get-FeatureReadiness](#get-featurereadiness) -- Prerequisite readiness for non-adopted features
+- [Measure-ValueOpportunity](#measure-valueopportunity) -- Unified adoption analysis and roadmap
 
 ---
 
@@ -562,4 +569,142 @@ Grant-M365AssessConsent -TenantId 'contoso.onmicrosoft.com' `
     -ClientId '00000000-0000-0000-0000-000000000000' `
     -CertificateThumbprint 'ABC123DEF456' `
     -SkipExchangeRbac -SkipComplianceRoles
+```
+
+---
+
+## Value Opportunity
+
+### Get-LicenseUtilization
+
+Cross-references tenant licenses against the feature map to determine which features are covered by the tenant's subscriptions.
+
+**Description:**
+For each feature defined in `controls/sku-feature-map.json`, checks whether the tenant holds any of the required service plans (from `Get-MgSubscribedSku`). Outputs per-feature license status with the source plan names that satisfy the requirement. Makes no additional API calls beyond the tenant license data passed in via `-TenantLicenses`. Called by the orchestrator as a data collector or dot-sourced by tests.
+
+**Required Permissions:** Microsoft Graph -- `Organization.Read.All` (to retrieve subscribed SKUs via `Resolve-TenantLicenses`).
+
+**Parameters:**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `TenantLicenses` | hashtable | Yes | Tenant license data from `Resolve-TenantLicenses`. Must contain an `ActiveServicePlans` property (HashSet of service plan names). |
+| `FeatureMap` | object | Yes | Parsed `sku-feature-map.json` object containing `features` and `categories` arrays. |
+| `OutputPath` | string | No | Path to export results as CSV. If not specified, results are returned to the pipeline. |
+
+**Output:** Array of PSCustomObjects with `FeatureId`, `FeatureName`, `Category`, `IsLicensed`, `SourcePlans`, `EffortTier`, and `LearnUrl` properties.
+
+**Examples:**
+
+```powershell
+# Run as standalone script via orchestrator
+.\ValueOpportunity\Get-LicenseUtilization.ps1 -ProjectRoot 'C:\M365-Assess' -AssessmentFolder '.\output'
+
+# Call function directly after dot-sourcing
+. .\Get-LicenseUtilization.ps1
+$result = Get-LicenseUtilization -TenantLicenses $licenses -FeatureMap $featureMap
+```
+
+---
+
+### Get-FeatureAdoption
+
+Scores feature adoption by cross-referencing assessment signals accumulated during the run against each feature's mapped check IDs.
+
+**Description:**
+For each feature in `sku-feature-map.json`, determines adoption state by matching signals stored in `$global:AdoptionSignals` against the feature's `checkIds`. Features without a license from `LicenseUtilization` are marked `NotLicensed` and skipped. Adoption states are `Adopted` (all checks pass), `Partial` (some pass), `NotAdopted` (none pass), or `Unknown` (no signals found). Optionally reads supplemental CSV signals from the assessment folder for depth metrics. Makes zero new API calls.
+
+**Required Permissions:** None -- reads from in-memory signals and assessment output CSVs only.
+
+**Parameters:**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `AdoptionSignals` | hashtable | Yes | Signal dictionary keyed by `CheckId.SubId` with `Status` values. Populated by `Add-SecuritySetting` across collectors. |
+| `LicenseUtilization` | PSCustomObject[] | Yes | Output from `Get-LicenseUtilization`. Used to gate scoring to licensed features only. |
+| `FeatureMap` | object | Yes | Parsed `sku-feature-map.json` object. |
+| `AssessmentFolder` | string | Yes | Path to assessment output folder containing sibling CSVs for depth metric evaluation. |
+| `OutputPath` | string | No | Path to export results as CSV. If not specified, results are returned to the pipeline. |
+
+**Output:** Array of PSCustomObjects with `FeatureId`, `FeatureName`, `Category`, `AdoptionState`, `AdoptionScore`, `PassedChecks`, `TotalChecks`, and `DepthMetric` properties.
+
+**Examples:**
+
+```powershell
+# Run as standalone script via orchestrator
+.\ValueOpportunity\Get-FeatureAdoption.ps1 -ProjectRoot 'C:\M365-Assess' -AssessmentFolder '.\output'
+
+# Call function directly after dot-sourcing
+. .\Get-FeatureAdoption.ps1
+$result = Get-FeatureAdoption -AdoptionSignals $signals -LicenseUtilization $licData -FeatureMap $featureMap -AssessmentFolder '.\output'
+```
+
+---
+
+### Get-FeatureReadiness
+
+Checks prerequisites for non-adopted licensed features and reports whether each feature is ready to enable.
+
+**Description:**
+For each feature in `sku-feature-map.json`, determines readiness state based on license status and prerequisite adoption. Features lacking a license are marked `NotLicensed`. Licensed features with unmet prerequisites (from the `prerequisites` field in the feature map) are marked `Blocked` with the list of missing prerequisites. Features with all prerequisites met are marked `Ready`. Makes zero API calls; reads entirely from the outputs of `Get-LicenseUtilization` and `Get-FeatureAdoption`.
+
+**Required Permissions:** None -- reads from sibling collector outputs only.
+
+**Parameters:**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `LicenseUtilization` | PSCustomObject[] | Yes | Output from `Get-LicenseUtilization`. |
+| `FeatureAdoption` | PSCustomObject[] | Yes | Output from `Get-FeatureAdoption`. Used to evaluate prerequisite adoption state. |
+| `FeatureMap` | object | Yes | Parsed `sku-feature-map.json` object. |
+| `OutputPath` | string | No | Path to export results as CSV. If not specified, results are returned to the pipeline. |
+
+**Output:** Array of PSCustomObjects with `FeatureId`, `FeatureName`, `Category`, `ReadinessState`, `Blockers`, `EffortTier`, and `LearnUrl` properties.
+
+**Examples:**
+
+```powershell
+# Run as standalone script via orchestrator
+.\ValueOpportunity\Get-FeatureReadiness.ps1 -ProjectRoot 'C:\M365-Assess' -AssessmentFolder '.\output'
+
+# Call function directly after dot-sourcing
+. .\Get-FeatureReadiness.ps1
+$result = Get-FeatureReadiness -LicenseUtilization $licData -FeatureAdoption $adoptionData -FeatureMap $featureMap
+```
+
+---
+
+### Measure-ValueOpportunity
+
+Merges license utilization, feature adoption, and readiness data into a unified adoption analysis.
+
+**Description:**
+Produces an overall adoption percentage across all licensed features, a per-category breakdown with adoption scores, a phased roadmap grouping non-adopted licensed features by effort tier (Quick Win, Medium, Strategic), a gap matrix by category, and a list of non-licensed features. All calculations are derived from the three Value Opportunity collector outputs -- no additional API calls are made. Called by the report renderer to populate the Value Opportunity HTML section.
+
+**Required Permissions:** None -- derived analysis only.
+
+**Parameters:**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `LicenseUtilization` | PSCustomObject[] | Yes | Output from `Get-LicenseUtilization`. |
+| `FeatureAdoption` | PSCustomObject[] | Yes | Output from `Get-FeatureAdoption`. |
+| `FeatureReadiness` | PSCustomObject[] | Yes | Output from `Get-FeatureReadiness`. |
+| `FeatureMap` | object | Yes | Parsed `sku-feature-map.json` object (for category names and effort tier resolution). |
+
+**Output:** Hashtable with keys: `OverallAdoptionPct` (int), `LicensedFeatureCount` (int), `AdoptedFeatureCount` (int), `PartialFeatureCount` (int), `GapCount` (int), `CategoryBreakdown` (array), `Roadmap` (hashtable keyed by effort tier), `GapMatrix` (array), `NotLicensedFeatures` (array).
+
+**Examples:**
+
+```powershell
+# Typically called from the report builder; can also be used interactively
+. .\Measure-ValueOpportunity.ps1
+$analysis = Measure-ValueOpportunity `
+    -LicenseUtilization $licData `
+    -FeatureAdoption $adoptionData `
+    -FeatureReadiness $readinessData `
+    -FeatureMap $featureMap
+
+$analysis.OverallAdoptionPct   # Overall adoption percentage
+$analysis.Roadmap.'Quick Win'  # Features ready to enable with low effort
 ```
