@@ -401,12 +401,6 @@ $html = @"
             cursor: pointer;
         }
         .section-ctrl-btn:hover { color: var(--m365a-accent); border-color: var(--m365a-accent); }
-        .section-description {
-            font-size: 9.5pt;
-            color: var(--m365a-medium-gray);
-            line-height: 1.6;
-            margin: 0 0 14px 0;
-        }
         .section-description a { color: var(--m365a-accent); }
         .callout {
             flex: 1 1 280px;
@@ -1636,6 +1630,7 @@ $html = @"
         .data-table th {
             cursor: pointer;
             user-select: none;
+            transition: background 0.15s ease;
         }
 
         .data-table th:hover { background: var(--m365a-dark-gray); }
@@ -2212,7 +2207,7 @@ $html = @"
         .value-stat-card {
             text-align: center;
             padding: 12px 20px;
-            background: var(--m365a-bg);
+            background: var(--m365a-neutral-bg);
             border-radius: 6px;
             border: 1px solid var(--m365a-border);
             min-width: 100px;
@@ -2260,9 +2255,9 @@ $html = @"
             height: 100%;
             transition: width 0.3s;
         }
-        .value-bar-adopted { background: #10b981; }
-        .value-bar-partial { background: #f59e0b; }
-        .value-bar-gap { background: #ef4444; }
+        .value-bar-adopted { background: var(--m365a-success); }
+        .value-bar-partial { background: var(--m365a-warning); }
+        .value-bar-gap { background: var(--m365a-danger); }
         .value-category-pct {
             width: 45px;
             text-align: right;
