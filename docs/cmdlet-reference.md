@@ -92,6 +92,8 @@ Orchestrates all M365 assessment collector scripts to produce a folder of CSV re
 | `FrameworkExport` | string[] | No | Generate standalone per-framework HTML catalog exports. Specify framework families or `All`. |
 | `CisBenchmarkVersion` | string | No | CIS benchmark version for rendering. Defaults to `v6`. Set to `v7` when v7 data is available. |
 | `NonInteractive` | switch | No | Suppress all interactive prompts. Missing required modules log the fix command and exit. Missing optional modules skip the section with a warning. Use for CI/CD and headless environments. |
+| `QuickScan` | switch | No | Run only Critical and High severity checks. Collectors with no qualifying checks are skipped. Report shows a "Quick Scan Mode" banner. |
+| `DryRun` | switch | No | Show a dry-run preview of sections, services, Graph scopes, and check counts without connecting or collecting data. Useful for validating configuration before a real run. |
 
 **Output:** Assessment folder containing CSV reports, an HTML report, optional XLSX compliance matrix, and optional PDF.
 
@@ -118,6 +120,12 @@ Invoke-M365Assessment -TenantId 'contoso.onmicrosoft.com' `
 
 # Device code auth for multi-profile machines
 Invoke-M365Assessment -TenantId 'contoso.onmicrosoft.us' -UseDeviceCode
+
+# Quick scan -- Critical and High severity only
+Invoke-M365Assessment -TenantId 'contoso.onmicrosoft.com' -QuickScan
+
+# Dry run -- preview what would happen without connecting
+Invoke-M365Assessment -TenantId 'contoso.onmicrosoft.com' -DryRun
 ```
 
 ---
