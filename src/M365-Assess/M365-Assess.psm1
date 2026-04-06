@@ -210,6 +210,8 @@ Export-ModuleMember -Function @(
     'Get-M365PowerBISecurityConfig'
     'Get-M365PurviewRetentionConfig'
     'Grant-M365AssessConsent'
-    'Save-M365ConnectionProfile'
+    'New-M365ConnectionProfile'
+    'Set-M365ConnectionProfile'
+    'Remove-M365ConnectionProfile'
     'Get-M365ConnectionProfile'
 )
