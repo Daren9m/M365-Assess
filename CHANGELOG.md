@@ -4,6 +4,27 @@ All notable changes to M365 Assess are documented here. This project uses [Conve
 
 ## [Unreleased]
 
+## [1.7.0] - 2026-04-06
+
+### Added
+- **`-DryRun` switch** -- preview sections, services, Graph scopes, and check counts without connecting or collecting data. Useful for first-time setup validation and CI/CD dry runs. (#363)
+- **5 new Conditional Access security checks** -- report-only policy detection (CA-REPORTONLY-001), trusted IP named location risk (CA-NAMEDLOC-001), persistent browser without device compliance (CA-SESSION-001), combined risk policy anti-pattern (CA-RISKPOLICY-001), Tier-0 role coverage gaps (CA-ROLECOVERAGE-001). Registry: 298 entries (214 automated). (#368)
+- **Enriched sidebar nav badges** -- sections without security findings now show contextual badges: gray "skip" for skipped sections, neutral item count for inventory/data sections. (#374)
+- **License-skipped check details in compliance overview** -- callout now lists each skipped check by ID, name, and required service plan instead of just a count. (#360)
+
+### Changed
+- **Framework catalog "Findings" renamed to "Automated Checks"** -- clarifies the distinction between our security checks and the framework's control definitions. Coverage column now shows percentages with hover tooltip for fractions. (#369, #374)
+- **Framework scoring aligned** -- Info-status findings excluded from pass rate denominators in both ComplianceOverview and FrameworkCatalog. Warning and Review shown as separate columns in catalog group tables instead of lumped "Other". (#369, #373)
+- **Section header layout** -- collector chips moved directly under heading for visibility, callouts wrapped in flex container for side-by-side display, duplicate Expand/Collapse buttons removed. (#351, #356)
+- **Persistent banners** -- hero banner and QuickScan banner now visible on every page in paginated mode, not just the overview. (#356, #359)
+- **All 15 framework tags colored** -- fixed CSS class mismatches for Essential Eight, CIS Controls v8, and Entra STIG. Each framework now has a unique color in both light and dark mode. (#374)
+- **Chip error text widened** -- max-width increased from 140px to 280px, expanded state unlimited. Collector chip max-width increased from 340px to 480px. (#356)
+
+### Fixed
+- **License gating ran before Graph connection** -- `Resolve-TenantLicenses` called `Get-MgSubscribedSku` before Graph connected, causing a warning on every run and silently disabling license gating. Moved to post-Graph-connect block with isolated error handling. (#353, #355)
+- **Services not disconnected after assessment** -- Graph, EXO, and Purview sessions now cleanly disconnect after assessment completes. (#354, #355)
+- **Progress summary printed twice** -- silent initialization before connection, authoritative summary with license data printed once after Graph connects. (#355)
+
 ## [1.6.0] - 2026-04-03
 
 ### Added
