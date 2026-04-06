@@ -226,7 +226,7 @@ param(
                     [System.Management.Automation.CompletionResult]::new($_, $_, 'ParameterValue', $profiles[$_]['tenantId'])
                 }
             }
-            catch { }
+            catch { Write-Verbose "Profile completer: $_" }
         }
     })]
     [string]$ConnectionProfile
