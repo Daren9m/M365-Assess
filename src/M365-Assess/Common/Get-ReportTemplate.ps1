@@ -402,7 +402,19 @@ $html = @"
         }
         .section-ctrl-btn:hover { color: var(--m365a-accent); border-color: var(--m365a-accent); }
         .section-description a { color: var(--m365a-accent); }
-        .callout-row { display: flex; flex-wrap: wrap; gap: 12px; margin: 0 0 12px 0; }
+        .callout-wrapper { margin: 0 0 12px 0; }
+        .callout-toggle {
+            cursor: pointer;
+            font-size: 9pt;
+            font-weight: 600;
+            color: var(--m365a-accent);
+            list-style: none;
+            padding: 4px 0;
+        }
+        .callout-toggle::-webkit-details-marker { display: none; }
+        .callout-toggle::before { content: '\25B6\00A0'; font-size: 8pt; display: inline-block; transition: transform 0.2s; }
+        details.callout-wrapper[open] > .callout-toggle::before { transform: rotate(90deg); }
+        .callout-row { display: flex; flex-wrap: wrap; gap: 12px; margin: 8px 0 0 0; }
         .callout {
             flex: 1 1 280px;
             max-width: 480px;
