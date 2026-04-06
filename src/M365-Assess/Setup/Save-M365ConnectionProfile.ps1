@@ -139,8 +139,9 @@ function New-M365ConnectionProfile {
     $configPath = Get-ProfileConfigPath
     $config = Read-ProfileConfig -ConfigPath $configPath
 
-    if ($config['profiles'].ContainsKey($ProfileName)) {
-        Write-Error "Profile '$ProfileName' already exists. Use Set-M365ConnectionProfile to update it, or Remove-M365ConnectionProfile to delete it first."
+    $existingKey = $config['profiles'].Keys | Where-Object { $_ -eq $ProfileName } | Select-Object -First 1
+    if ($existingKey) {
+        Write-Error "Profile '$existingKey' already exists. Use Set-M365ConnectionProfile to update it, or Remove-M365ConnectionProfile to delete it first."
         return
     }
 
@@ -265,12 +266,14 @@ function Remove-M365ConnectionProfile {
         return
     }
 
-    if (-not $config['profiles'].ContainsKey($ProfileName)) {
+    # Case-insensitive lookup
+    $matchKey = $config['profiles'].Keys | Where-Object { $_ -eq $ProfileName } | Select-Object -First 1
+    if (-not $matchKey) {
         Write-Error "Profile '$ProfileName' not found. Use Get-M365ConnectionProfile to list available profiles."
         return
     }
 
-    $config['profiles'].Remove($ProfileName)
+    $config['profiles'].Remove($matchKey)
     Write-ProfileConfig -Config $config -ConfigPath $configPath
     Write-Host "  Removed connection profile '$ProfileName'." -ForegroundColor Yellow
 }

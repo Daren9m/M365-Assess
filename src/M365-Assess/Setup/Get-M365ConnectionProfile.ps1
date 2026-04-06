@@ -54,10 +54,12 @@ function Get-M365ConnectionProfile {
     }
 
     if ($ProfileName) {
-        if ($profiles.ContainsKey($ProfileName)) {
-            $p = $profiles[$ProfileName]
+        # Case-insensitive lookup
+        $matchKey = $profiles.Keys | Where-Object { $_ -eq $ProfileName } | Select-Object -First 1
+        if ($matchKey) {
+            $p = $profiles[$matchKey]
             return [PSCustomObject]@{
-                Name        = $ProfileName
+                Name        = $matchKey
                 TenantId    = $p['tenantId']
                 AuthMethod  = $p['authMethod']
                 ClientId    = $p['clientId']

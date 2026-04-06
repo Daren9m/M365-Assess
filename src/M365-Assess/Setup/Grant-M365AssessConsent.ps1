@@ -837,11 +837,8 @@ function Grant-M365AssessConsent {
         if (Test-Path -Path $profileHelper) {
             . $profileHelper
 
-            # Derive a profile name: user-specified, or extract from TenantId
-            $resolvedProfileName = if ($ProfileName) {
-                $ProfileName
-            }
-            elseif ($TenantId -match '^([^.]+)\.onmicrosoft\.(com|us)$') {
+            # Derive tenant prefix for naming
+            $tenantPrefix = if ($TenantId -match '^([^.]+)\.onmicrosoft\.(com|us)$') {
                 $Matches[1]
             }
             elseif ($TenantId -match '^([^.]+)\.') {
@@ -851,22 +848,37 @@ function Grant-M365AssessConsent {
                 $TenantId
             }
 
+            # Check for existing profile matching this TenantId -- update it instead of creating a duplicate
+            $existingProfiles = @(Get-M365ConnectionProfile -ErrorAction SilentlyContinue)
+            $existingMatch = $existingProfiles | Where-Object { $_.TenantId -eq $TenantId } | Select-Object -First 1
+
+            $resolvedProfileName = if ($ProfileName) {
+                $ProfileName
+            }
+            elseif ($existingMatch) {
+                $existingMatch.Name
+            }
+            else {
+                "$tenantPrefix-AppReg"
+            }
+
             $appName = if ($AppDisplayName) { $AppDisplayName }
                        elseif ($app) { $app.DisplayName }
                        else { '' }
 
             $profileParams = @{
-                ProfileName          = $resolvedProfileName
-                TenantId             = $TenantId
-                AuthMethod           = 'Certificate'
-                ClientId             = $ClientId
+                ProfileName           = $resolvedProfileName
+                TenantId              = $TenantId
+                AuthMethod            = 'Certificate'
+                ClientId              = $ClientId
                 CertificateThumbprint = $CertificateThumbprint
-                AppName              = $appName
+                AppName               = $appName
             }
             if ($AdminUpn) { $profileParams['UserPrincipalName'] = $AdminUpn }
 
+            $verb = if ($existingMatch) { 'Updated' } else { 'Created' }
             Set-M365ConnectionProfile @profileParams
-            Write-Info "Use: Invoke-M365Assessment -ConnectionProfile '$resolvedProfileName'"
+            Write-Info "$verb profile '$resolvedProfileName' -- use: Invoke-M365Assessment -ConnectionProfile '$resolvedProfileName'"
         }
     }
 
