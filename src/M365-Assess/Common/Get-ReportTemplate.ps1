@@ -2554,6 +2554,23 @@ $html += @"
         <main class="content" id="main-content" role="main">
 "@
 
+# Persistent branded banner -- visible on every page in paginated mode
+if (-not $SkipCoverPage) {
+    $html += @"
+
+        <!-- Persistent branded banner (screen, all pages) -->
+        <div class="hero-banner">
+            <div class="hero-banner-left">
+                $(if ($logoBase64) { "<img src='data:$logoMime;base64,$logoBase64' alt='Logo' class='hero-banner-logo'/>" } else { '' })
+                <div class="hero-banner-text">
+                    <div class="hero-banner-title">M365 Assessment Report</div>
+                    <div class="hero-banner-meta">$(ConvertTo-HtmlSafe -Text $TenantName) &middot; $assessmentDate &middot; v$assessmentVersion</div>
+                </div>
+            </div>
+        </div>
+"@
+}
+
 # Overview page: cover + exec summary + org profile combined
 $html += @"
 
@@ -2568,20 +2585,9 @@ if ($QuickScan) {
 }
 
 if (-not $SkipCoverPage) {
-    # Compact hero banner for screen; full cover page rendered in print CSS only
+    # Full cover page (print only, hidden on screen)
     $html += @"
 
-        <!-- Compact branded banner (screen) -->
-        <div class="hero-banner">
-            <div class="hero-banner-left">
-                $(if ($logoBase64) { "<img src='data:$logoMime;base64,$logoBase64' alt='Logo' class='hero-banner-logo'/>" } else { '' })
-                <div class="hero-banner-text">
-                    <div class="hero-banner-title">M365 Assessment Report</div>
-                    <div class="hero-banner-meta">$(ConvertTo-HtmlSafe -Text $TenantName) &middot; $assessmentDate &middot; v$assessmentVersion</div>
-                </div>
-            </div>
-        </div>
-        <!-- Full cover page (print only, hidden on screen) -->
         <header class="cover-page cover-print-only">
             $logoImgTag
             <div class="cover-title">M365 Environment</div>
