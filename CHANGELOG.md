@@ -4,6 +4,11 @@ All notable changes to M365 Assess are documented here. This project uses [Conve
 
 ## [Unreleased]
 
+## [1.8.1] - 2026-04-07
+
+### Fixed
+- **Connection profile + app reg regression** -- `Test-GraphTokenValid` was running before the first Graph connection, causing all Graph-dependent sections to be skipped with "Graph token expired" on every run. The check now only fires when Graph was already connected in a prior section. (#395)
+
 ## [1.8.0] - 2026-04-07
 
 ### Added
