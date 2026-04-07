@@ -2477,23 +2477,41 @@ $html = @"
         /* --------------------------------------------------------
            Remediation Action Plan page
            -------------------------------------------------------- */
-        .remediation-stats { display: flex; gap: 1rem; flex-wrap: wrap; margin: 1rem 0 1.5rem; }
-        .remediation-stat { display: flex; flex-direction: column; align-items: center; padding: 0.75rem 1.25rem; border-radius: 8px; min-width: 80px; text-align: center; }
-        .stat-num { font-size: 1.75rem; font-weight: 700; line-height: 1; }
-        .stat-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.25rem; }
+        /* Stat tiles */
+        .remediation-stats { display: flex; gap: 1rem; flex-wrap: wrap; margin: 1rem 0 1.25rem; }
+        .remediation-stat { display: flex; flex-direction: column; align-items: center; padding: 0.75rem 1.5rem; border-radius: 8px; min-width: 90px; text-align: center; cursor: default; }
+        .stat-num { font-size: 2rem; font-weight: 700; line-height: 1; }
+        .stat-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; margin-top: 0.3rem; font-weight: 600; }
         .remediation-stat-critical { background: var(--m365a-danger-bg); color: var(--m365a-danger-text); }
         .remediation-stat-high     { background: var(--m365a-warning-bg); color: var(--m365a-warning-text); }
         .remediation-stat-medium   { background: var(--m365a-info-bg); color: var(--m365a-info-text); }
         .remediation-stat-low      { background: var(--m365a-neutral-bg); color: var(--m365a-medium-gray); }
-        .remediation-filters { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1rem; padding: 0.75rem; background: var(--m365a-light-gray); border-radius: 6px; }
-        .rem-filter-label { font-size: 0.85rem; font-weight: 600; color: var(--m365a-medium-gray); }
-        .rem-filter-select { padding: 0.35rem 0.75rem; border: 1px solid var(--m365a-border); border-radius: 4px; font-size: 0.85rem; background: var(--m365a-card-bg); color: var(--m365a-text); }
-        .rem-match-count { font-size: 0.8rem; color: var(--m365a-medium-gray); margin-left: auto; }
+        /* Chip filter bar */
+        .remediation-chip-bar { display: flex; flex-direction: column; gap: 6px; margin-bottom: 1rem; padding: 10px 14px; background: var(--m365a-light-gray); border: 1px solid var(--m365a-border); border-radius: 6px; }
+        .rem-chip-section { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+        .rem-chip-group { display: flex; flex-wrap: wrap; gap: 6px; }
+        .rem-filter-label { font-size: 0.82em; font-weight: 600; color: var(--m365a-medium-gray); white-space: nowrap; margin-right: 2px; min-width: 60px; }
+        .rem-chip-count { font-size: 0.85em; font-weight: 700; }
+        /* Severity chip active colors (override fw-checkbox.active for severity) */
+        .rem-sev-chip.active[data-severity='Critical'] { background: var(--m365a-danger);  color: #fff; border-color: var(--m365a-danger); }
+        .rem-sev-chip.active[data-severity='High']     { background: var(--m365a-warning); color: #fff; border-color: var(--m365a-warning); }
+        .rem-sev-chip.active[data-severity='Medium']   { background: var(--m365a-info);    color: #fff; border-color: var(--m365a-info); }
+        .rem-sev-chip.active[data-severity='Low']      { background: var(--m365a-neutral); color: #fff; border-color: var(--m365a-neutral); }
+        /* Row severity border */
         .remediation-table tr.remediation-row-critical td:first-child { border-left: 4px solid var(--m365a-danger); }
         .remediation-table tr.remediation-row-high td:first-child     { border-left: 4px solid var(--m365a-warning); }
         .remediation-table tr.remediation-row-medium td:first-child   { border-left: 4px solid var(--m365a-info); }
         .remediation-table tr.remediation-row-low td:first-child      { border-left: 4px solid var(--m365a-neutral); }
-        .remediation-empty, .remediation-qs-note { font-size: 0.875rem; color: var(--m365a-medium-gray); margin-bottom: 1rem; }
+        /* Compact viewport with gradient fade */
+        .rem-table-viewport { max-height: 380px; overflow-y: auto; overflow-x: auto; position: relative; }
+        .rem-table-viewport.expanded { max-height: none; }
+        .rem-viewport-fade { position: sticky; bottom: 0; left: 0; right: 0; height: 56px; background: linear-gradient(to bottom, transparent, var(--m365a-card-bg)); pointer-events: none; margin-top: -56px; }
+        .rem-table-viewport.expanded .rem-viewport-fade { display: none; }
+        /* Show-more button */
+        .rem-show-more { text-align: center; padding: 6px 0 2px; }
+        .rem-show-more-btn { padding: 5px 18px; border: 1px solid var(--m365a-border); border-radius: 4px; background: var(--m365a-card-bg); color: var(--m365a-medium-gray); cursor: pointer; font-size: 0.82em; transition: background 0.15s, color 0.15s; }
+        .rem-show-more-btn:hover { background: var(--m365a-hover-bg); color: var(--m365a-text); }
+        .remediation-empty { font-size: 0.875rem; color: var(--m365a-medium-gray); padding: 1rem 0; }
     </style>
 $accentCss
 </head>
@@ -2799,7 +2817,6 @@ if ($remediationPlanHtml) {
 
         <div class="report-page" data-page="remediation-plan" id="remediation-plan">
         <a id="remediation-plan-anchor"></a>
-        <h1>Remediation Action Plan</h1>
         $remediationPlanHtml
         </div>
 "@
@@ -3461,29 +3478,114 @@ $html += @"
         });
     });
 
-    // --- Remediation Plan filter ---
+    // --- Remediation Plan chip filters ---
+    function getActiveRemValues(groupId, dataAttr) {
+        var vals = [];
+        document.querySelectorAll('#' + groupId + ' .fw-checkbox').forEach(function(chip) {
+            var cb = chip.querySelector('input[type="checkbox"]');
+            if (cb && cb.checked) { vals.push(chip.getAttribute(dataAttr)); }
+        });
+        return vals;
+    }
+
     function filterRemediationTable() {
-        var sevEl  = document.getElementById('remSeverityFilter');
-        var secEl  = document.getElementById('remSectionFilter');
-        var table  = document.getElementById('remediationTable');
-        if (!table) return;
-        var rows     = table.querySelectorAll('tbody tr');
-        var sevValue = sevEl  ? sevEl.value  : 'all';
-        var secValue = secEl  ? secEl.value  : 'all';
-        var visible  = 0;
+        var table = document.getElementById('remediationTable');
+        if (!table) { return; }
+        var rows       = table.querySelectorAll('tbody tr');
+        var activeSevs = getActiveRemValues('remSeverityChips', 'data-severity');
+        var secChips   = document.querySelectorAll('#remSectionChips .fw-checkbox');
+        var activeSecs = getActiveRemValues('remSectionChips', 'data-section');
+        var noSecChips = secChips.length === 0;
+        var visible    = 0;
         rows.forEach(function(row) {
             var sev  = row.getAttribute('data-severity');
             var sec  = row.getAttribute('data-section');
-            var show = (sevValue === 'all' || sev === sevValue) &&
-                       (secValue === 'all' || sec === secValue);
+            var show = activeSevs.indexOf(sev) !== -1 &&
+                       (noSecChips || activeSecs.indexOf(sec) !== -1);
             row.style.display = show ? '' : 'none';
             if (show) { visible++; }
         });
         var countEl = document.getElementById('remMatchCount');
-        if (countEl) { countEl.textContent = visible + ' finding' + (visible === 1 ? '' : 's'); }
+        if (countEl) { countEl.textContent = '(' + visible + ' finding' + (visible === 1 ? '' : 's') + ')'; }
+        var vp  = document.getElementById('remTableViewport');
+        var smb = document.getElementById('remShowMoreBtn');
+        if (smb && vp && !vp.classList.contains('expanded')) {
+            smb.textContent = '\u25BC Show all ' + visible + ' findings';
+        }
         var noResults = document.getElementById('remNoResults');
         if (noResults) { noResults.style.display = (visible === 0) ? '' : 'none'; }
+        updateRemChipCounts(activeSevs, activeSecs, noSecChips, rows);
     }
+
+    function updateRemChipCounts(activeSevs, activeSecs, noSecChips, rows) {
+        document.querySelectorAll('#remSeverityChips .fw-checkbox').forEach(function(chip) {
+            var sev = chip.getAttribute('data-severity');
+            var n   = 0;
+            rows.forEach(function(row) {
+                var sec = row.getAttribute('data-section');
+                if (row.getAttribute('data-severity') === sev &&
+                    (noSecChips || activeSecs.indexOf(sec) !== -1)) { n++; }
+            });
+            var el = chip.querySelector('.rem-chip-count');
+            if (el) { el.textContent = n; }
+        });
+        document.querySelectorAll('#remSectionChips .fw-checkbox').forEach(function(chip) {
+            var sec = chip.getAttribute('data-section');
+            var n   = 0;
+            rows.forEach(function(row) {
+                if (row.getAttribute('data-section') === sec &&
+                    activeSevs.indexOf(row.getAttribute('data-severity')) !== -1) { n++; }
+            });
+            var el = chip.querySelector('.rem-chip-count');
+            if (el) { el.textContent = n; }
+        });
+    }
+
+    function toggleRemChip(label) {
+        var cb = label.querySelector('input[type="checkbox"]');
+        if (cb) { cb.checked = !cb.checked; }
+        label.classList.toggle('active', cb ? cb.checked : false);
+        filterRemediationTable();
+    }
+
+    function setAllRemChips(btn) {
+        var activate = btn.classList.contains('rem-chips-all');
+        var section  = btn.closest('.rem-chip-section');
+        if (!section) { return; }
+        section.querySelectorAll('.fw-checkbox').forEach(function(chip) {
+            var cb = chip.querySelector('input[type="checkbox"]');
+            if (cb) { cb.checked = activate; }
+            chip.classList.toggle('active', activate);
+        });
+        filterRemediationTable();
+    }
+
+    function expandRemTable(btn) {
+        var vp   = document.getElementById('remTableViewport');
+        var fade = document.getElementById('remViewportFade');
+        if (!vp) { return; }
+        if (vp.classList.contains('expanded')) {
+            vp.classList.remove('expanded');
+            if (fade) { fade.style.display = ''; }
+            var countEl = document.getElementById('remMatchCount');
+            var n = countEl ? parseInt(countEl.textContent.replace(/\D/g, ''), 10) || 0 : 0;
+            btn.textContent = '\u25BC Show all ' + n + ' findings';
+        } else {
+            vp.classList.add('expanded');
+            if (fade) { fade.style.display = 'none'; }
+            btn.textContent = '\u25B2 Collapse table';
+        }
+    }
+
+    (function initRemTable() {
+        var vp   = document.getElementById('remTableViewport');
+        var sm   = document.getElementById('remShowMore');
+        var fade = document.getElementById('remViewportFade');
+        if (vp && sm && vp.scrollHeight <= vp.clientHeight) {
+            sm.style.display   = 'none';
+            if (fade) { fade.style.display = 'none'; }
+        }
+    }());
     </script>
 </body>
 </html>

@@ -95,14 +95,16 @@ Describe 'Build-RemediationPlanHtml' {
             $result | Should -Match '<span class=.stat-num.>1</span>'
         }
 
-        It 'should include severity filter select element' {
+        It 'should render severity chip buttons instead of a select dropdown' {
             $result = Build-RemediationPlanHtml -Findings $script:testFindings -IsQuickScan $false
-            $result | Should -Match 'remSeverityFilter'
+            $result | Should -Match 'remSeverityChips'
+            $result | Should -Not -Match 'remSeverityFilter'
         }
 
-        It 'should include section filter select when multiple sections present' {
+        It 'should render section chip buttons when multiple sections are present' {
             $result = Build-RemediationPlanHtml -Findings $script:testFindings -IsQuickScan $false
-            $result | Should -Match 'remSectionFilter'
+            $result | Should -Match 'remSectionChips'
+            $result | Should -Not -Match 'remSectionFilter'
         }
 
         It 'should add data-severity attribute to each row for JS filtering' {
@@ -110,33 +112,45 @@ Describe 'Build-RemediationPlanHtml' {
             $result | Should -Match "data-severity='Critical'"
             $result | Should -Match "data-severity='High'"
         }
-    }
 
-    Context 'when IsQuickScan is true' {
-        It 'should include the QuickScan context note' {
-            $finding = @(
-                [PSCustomObject]@{ CheckId = 'ID-001'; Setting = 'MFA'; Status = 'Fail'; RiskSeverity = 'Critical'; Section = 'Identity'; CurrentValue = 'Off'; Remediation = 'Enable MFA' }
-            )
-            $result = Build-RemediationPlanHtml -Findings $finding -IsQuickScan $true
-            $result | Should -Match 'Quick Scan mode'
+        It 'should wrap everything in a collapsible section details element' {
+            $result = Build-RemediationPlanHtml -Findings $script:testFindings -IsQuickScan $false
+            $result | Should -Match "details class='section'"
+            $result | Should -Match 'Remediation Action Plan'
         }
 
-        It 'should not include the QuickScan note when IsQuickScan is false' {
+        It 'should include a collector-detail wrapper for the table' {
+            $result = Build-RemediationPlanHtml -Findings $script:testFindings -IsQuickScan $false
+            $result | Should -Match "details class='collector-detail'"
+        }
+
+        It 'should include the compact viewport and expand button' {
+            $result = Build-RemediationPlanHtml -Findings $script:testFindings -IsQuickScan $false
+            $result | Should -Match 'rem-table-viewport'
+            $result | Should -Match 'rem-show-more'
+        }
+    }
+
+    Context 'when IsQuickScan is true or false' {
+        It 'should not include a QuickScan note in the output (note was removed as unhelpful)' {
             $finding = @(
                 [PSCustomObject]@{ CheckId = 'ID-001'; Setting = 'MFA'; Status = 'Fail'; RiskSeverity = 'Critical'; Section = 'Identity'; CurrentValue = 'Off'; Remediation = 'Enable MFA' }
             )
-            $result = Build-RemediationPlanHtml -Findings $finding -IsQuickScan $false
-            $result | Should -Not -Match 'Quick Scan mode'
+            $resultTrue  = Build-RemediationPlanHtml -Findings $finding -IsQuickScan $true
+            $resultFalse = Build-RemediationPlanHtml -Findings $finding -IsQuickScan $false
+            $resultTrue  | Should -Not -Match 'Quick Scan mode'
+            $resultFalse | Should -Not -Match 'Quick Scan mode'
         }
     }
 
     Context 'when only one section is present' {
-        It 'should not render the section filter select' {
+        It 'should still render section chips (single section is still informative)' {
             $findings = @(
                 [PSCustomObject]@{ CheckId = 'ID-001'; Setting = 'MFA';      Status = 'Fail'; RiskSeverity = 'Critical'; Section = 'Identity'; CurrentValue = 'Off'; Remediation = 'Enable MFA' }
                 [PSCustomObject]@{ CheckId = 'ID-002'; Setting = 'AdminMFA'; Status = 'Fail'; RiskSeverity = 'High';     Section = 'Identity'; CurrentValue = 'Off'; Remediation = 'Enforce admin MFA' }
             )
             $result = Build-RemediationPlanHtml -Findings $findings -IsQuickScan $false
+            $result | Should -Match 'remSectionChips'
             $result | Should -Not -Match 'remSectionFilter'
         }
     }
