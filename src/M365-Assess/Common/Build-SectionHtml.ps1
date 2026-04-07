@@ -1582,3 +1582,145 @@ if ($allCisFindings.Count -gt 0) {
 }
 $null = $tocHtml.AppendLine("</ol>")
 $null = $tocHtml.AppendLine("</nav>")
+
+function Build-RemediationPlanHtml {
+    <#
+    .SYNOPSIS
+        Builds the Remediation Action Plan HTML page for the assessment report.
+    .DESCRIPTION
+        Filters all CIS findings to Fail and Warning status, sorts by risk severity
+        (Critical -> High -> Medium -> Low), and renders a prioritized action table
+        with full remediation text, copy buttons, and client-side severity/section filters.
+    .PARAMETER Findings
+        All CIS findings from the assessment ($allCisFindings).
+    .PARAMETER IsQuickScan
+        When true, adds a context note that only Critical/High findings were collected.
+    .EXAMPLE
+        $remediationPlanHtml = Build-RemediationPlanHtml -Findings $allCisFindings -IsQuickScan:$QuickScan
+    #>
+    [CmdletBinding()]
+    [OutputType([string])]
+    param(
+        [Parameter()]
+        [PSCustomObject[]]$Findings = @(),
+
+        [Parameter()]
+        [bool]$IsQuickScan = $false
+    )
+
+    $actionable = @($Findings | Where-Object { $_.Status -in @('Fail', 'Warning') })
+
+    if ($actionable.Count -eq 0) {
+        return "<div class='remediation-empty'><p>No actionable findings &mdash; all checks passed or were not applicable.</p></div>"
+    }
+
+    # Sort: severity priority order, then Section, then CheckId
+    $severityOrder = @{ 'Critical' = 0; 'High' = 1; 'Medium' = 2; 'Low' = 3; 'Info' = 4 }
+    $sorted = $actionable | Sort-Object -Property @(
+        @{ Expression = { if ($severityOrder.ContainsKey($_.RiskSeverity)) { $severityOrder[$_.RiskSeverity] } else { 99 } } }
+        @{ Expression = { $_.Section } }
+        @{ Expression = { $_.CheckId } }
+    )
+
+    $critCount = @($sorted | Where-Object { $_.RiskSeverity -eq 'Critical' }).Count
+    $highCount  = @($sorted | Where-Object { $_.RiskSeverity -eq 'High' }).Count
+    $medCount   = @($sorted | Where-Object { $_.RiskSeverity -eq 'Medium' }).Count
+    $lowCount   = @($sorted | Where-Object { $_.RiskSeverity -eq 'Low' }).Count
+
+    $uniqueSections = @($sorted | Select-Object -ExpandProperty Section -ErrorAction SilentlyContinue | Where-Object { $_ } | Sort-Object -Unique)
+
+    $html = [System.Text.StringBuilder]::new()
+
+    if ($IsQuickScan) {
+        $null = $html.AppendLine("<p class='remediation-qs-note'>Quick Scan mode &mdash; showing Critical and High severity findings only.</p>")
+    }
+
+    # Stats row
+    $null = $html.AppendLine("<div class='remediation-stats'>")
+    if ($critCount -gt 0) {
+        $null = $html.AppendLine("<div class='remediation-stat remediation-stat-critical'><span class='stat-num'>$critCount</span><span class='stat-label'>Critical</span></div>")
+    }
+    if ($highCount -gt 0) {
+        $null = $html.AppendLine("<div class='remediation-stat remediation-stat-high'><span class='stat-num'>$highCount</span><span class='stat-label'>High</span></div>")
+    }
+    if ($medCount -gt 0) {
+        $null = $html.AppendLine("<div class='remediation-stat remediation-stat-medium'><span class='stat-num'>$medCount</span><span class='stat-label'>Medium</span></div>")
+    }
+    if ($lowCount -gt 0) {
+        $null = $html.AppendLine("<div class='remediation-stat remediation-stat-low'><span class='stat-num'>$lowCount</span><span class='stat-label'>Low</span></div>")
+    }
+    $null = $html.AppendLine("</div>")
+
+    # Filter bar
+    $null = $html.AppendLine("<div class='remediation-filters'>")
+    $null = $html.AppendLine("<label class='rem-filter-label' for='remSeverityFilter'>Severity:</label>")
+    $null = $html.AppendLine("<select id='remSeverityFilter' class='rem-filter-select' onchange='filterRemediationTable()'>")
+    $null = $html.AppendLine("<option value='all'>All</option>")
+    foreach ($sevOption in @('Critical', 'High', 'Medium', 'Low')) {
+        $cnt = @($sorted | Where-Object { $_.RiskSeverity -eq $sevOption }).Count
+        if ($cnt -gt 0) {
+            $null = $html.AppendLine("<option value='$sevOption'>$sevOption ($cnt)</option>")
+        }
+    }
+    $null = $html.AppendLine("</select>")
+
+    if ($uniqueSections.Count -gt 1) {
+        $null = $html.AppendLine("<label class='rem-filter-label' for='remSectionFilter'>Section:</label>")
+        $null = $html.AppendLine("<select id='remSectionFilter' class='rem-filter-select' onchange='filterRemediationTable()'>")
+        $null = $html.AppendLine("<option value='all'>All</option>")
+        foreach ($sec in $uniqueSections) {
+            $secEncoded = ConvertTo-HtmlSafe -Text $sec
+            $secCount = @($sorted | Where-Object { $_.Section -eq $sec }).Count
+            $null = $html.AppendLine("<option value='$secEncoded'>$secEncoded ($secCount)</option>")
+        }
+        $null = $html.AppendLine("</select>")
+    }
+
+    $null = $html.AppendLine("<span class='rem-match-count' id='remMatchCount'>$($sorted.Count) finding$(if ($sorted.Count -ne 1) { 's' })</span>")
+    $null = $html.AppendLine("</div>")
+
+    # Findings table
+    $null = $html.AppendLine("<div class='table-wrapper'>")
+    $null = $html.AppendLine("<table class='data-table remediation-table' id='remediationTable'>")
+    $null = $html.AppendLine("<thead><tr>")
+    $null = $html.AppendLine("<th scope='col'>Severity</th>")
+    $null = $html.AppendLine("<th scope='col'>Section</th>")
+    $null = $html.AppendLine("<th scope='col'>Check</th>")
+    $null = $html.AppendLine("<th scope='col'>Current State</th>")
+    $null = $html.AppendLine("<th scope='col'>Remediation</th>")
+    $null = $html.AppendLine("</tr></thead><tbody>")
+
+    foreach ($finding in $sorted) {
+        $sev = if ($finding.RiskSeverity) { $finding.RiskSeverity } else { 'Low' }
+        $sevClass = switch ($sev) {
+            'Critical' { 'remediation-row-critical' }
+            'High'     { 'remediation-row-high' }
+            'Medium'   { 'remediation-row-medium' }
+            default    { 'remediation-row-low' }
+        }
+        $badgeClass = switch ($sev) {
+            'Critical' { 'badge-fail' }
+            'High'     { 'badge-warning' }
+            'Medium'   { 'badge-review' }
+            default    { 'badge-neutral' }
+        }
+
+        $sectionEncoded  = ConvertTo-HtmlSafe -Text $finding.Section
+        $checkEncoded    = ConvertTo-HtmlSafe -Text $finding.Setting
+        $currentEncoded  = ConvertTo-HtmlSafe -Text $finding.CurrentValue
+        $remEncoded      = ConvertTo-HtmlSafe -Text $(if ($finding.Remediation) { $finding.Remediation } else { '' })
+
+        $null = $html.AppendLine("<tr class='$sevClass' data-severity='$sev' data-section='$sectionEncoded'>")
+        $null = $html.AppendLine("<td><span class='badge $badgeClass'>$(ConvertTo-HtmlSafe -Text $sev)</span></td>")
+        $null = $html.AppendLine("<td>$sectionEncoded</td>")
+        $null = $html.AppendLine("<td>$checkEncoded</td>")
+        $null = $html.AppendLine("<td>$currentEncoded</td>")
+        $null = $html.AppendLine("<td><span class='rem-text'>$remEncoded</span><button class='copy-btn' onclick='copyRemediation(this)' title='Copy remediation to clipboard'>&#128203;</button></td>")
+        $null = $html.AppendLine("</tr>")
+    }
+
+    $null = $html.AppendLine("</tbody></table></div>")
+    $null = $html.AppendLine("<p id='remNoResults' class='no-results' style='display:none'>No findings match the current filter selection.</p>")
+
+    return $html.ToString()
+}

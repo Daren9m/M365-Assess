@@ -2473,6 +2473,27 @@ $html = @"
                 margin: 0;
             }
         }
+
+        /* --------------------------------------------------------
+           Remediation Action Plan page
+           -------------------------------------------------------- */
+        .remediation-stats { display: flex; gap: 1rem; flex-wrap: wrap; margin: 1rem 0 1.5rem; }
+        .remediation-stat { display: flex; flex-direction: column; align-items: center; padding: 0.75rem 1.25rem; border-radius: 8px; min-width: 80px; text-align: center; }
+        .stat-num { font-size: 1.75rem; font-weight: 700; line-height: 1; }
+        .stat-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.25rem; }
+        .remediation-stat-critical { background: var(--m365a-danger-bg); color: var(--m365a-danger-text); }
+        .remediation-stat-high     { background: var(--m365a-warning-bg); color: var(--m365a-warning-text); }
+        .remediation-stat-medium   { background: var(--m365a-info-bg); color: var(--m365a-info-text); }
+        .remediation-stat-low      { background: var(--m365a-neutral-bg); color: var(--m365a-medium-gray); }
+        .remediation-filters { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1rem; padding: 0.75rem; background: var(--m365a-light-gray); border-radius: 6px; }
+        .rem-filter-label { font-size: 0.85rem; font-weight: 600; color: var(--m365a-medium-gray); }
+        .rem-filter-select { padding: 0.35rem 0.75rem; border: 1px solid var(--m365a-border); border-radius: 4px; font-size: 0.85rem; background: var(--m365a-card-bg); color: var(--m365a-text); }
+        .rem-match-count { font-size: 0.8rem; color: var(--m365a-medium-gray); margin-left: auto; }
+        .remediation-table tr.remediation-row-critical td:first-child { border-left: 4px solid var(--m365a-danger); }
+        .remediation-table tr.remediation-row-high td:first-child     { border-left: 4px solid var(--m365a-warning); }
+        .remediation-table tr.remediation-row-medium td:first-child   { border-left: 4px solid var(--m365a-info); }
+        .remediation-table tr.remediation-row-low td:first-child      { border-left: 4px solid var(--m365a-neutral); }
+        .remediation-empty, .remediation-qs-note { font-size: 0.875rem; color: var(--m365a-medium-gray); margin-bottom: 1rem; }
     </style>
 $accentCss
 </head>
@@ -2517,11 +2538,17 @@ $navIcons = @{
     'framework catalogs'  = '<svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M2 3.49788C2 2.67062 2.67135 2 3.49951 2H4.49918C5.32733 2 5.99869 2.67062 5.99869 3.49788V16.4795C5.99869 17.3068 5.32733 17.9774 4.49918 17.9774H3.49951C2.67135 17.9774 2 17.3068 2 16.4795V3.49788ZM3.49951 2.99859C3.22346 2.99859 2.99967 3.22213 2.99967 3.49788V16.4795C2.99967 16.7552 3.22346 16.9788 3.49951 16.9788H4.49918C4.77523 16.9788 4.99901 16.7552 4.99901 16.4795V3.49788C4.99901 3.22213 4.77523 2.99859 4.49918 2.99859H3.49951ZM6.99836 3.49788C6.99836 2.67062 7.66971 2 8.49786 2H9.49754C10.3257 2 10.997 2.67062 10.997 3.49788V16.4795C10.997 17.3068 10.3257 17.9774 9.49754 17.9774H8.49786C7.66971 17.9774 6.99836 17.3068 6.99836 16.4795V3.49788ZM8.49786 2.99859C8.22181 2.99859 7.99803 3.22213 7.99803 3.49788V16.4795C7.99803 16.7552 8.22181 16.9788 8.49786 16.9788H9.49754C9.77359 16.9788 9.99737 16.7552 9.99737 16.4795V3.49788C9.99737 3.22213 9.77359 2.99859 9.49754 2.99859H8.49786ZM15.7179 6.15675C15.5259 5.32176 14.6733 4.81743 13.848 5.05077L13.1029 5.26146C12.3477 5.47502 11.8851 6.23427 12.0422 7.00249L14.046 16.8015C14.2174 17.6394 15.0551 18.1642 15.8848 17.9534L16.8698 17.7031C17.6592 17.5025 18.144 16.7091 17.9616 15.9162L15.7179 6.15675ZM14.1203 6.0116C14.3954 5.93382 14.6796 6.10193 14.7436 6.38026L16.9873 16.1397C17.0481 16.404 16.8865 16.6684 16.6234 16.7353L15.6384 16.9856C15.3618 17.0559 15.0826 16.8809 15.0255 16.6016L13.0216 6.80264C12.9693 6.54656 13.1234 6.29348 13.3752 6.22229L14.1203 6.0116Z"/></svg>'
     'technical issues'    = '<svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M9.56195 3.26181C9.75109 2.91271 10.2521 2.91273 10.4412 3.26186L16.9418 15.2628C17.1222 15.5959 16.881 16.0009 16.5021 16.0009H3.49942C3.12051 16.0009 2.8793 15.5959 3.0598 15.2627L9.56195 3.26181ZM11.3205 2.78557C10.7532 1.73821 9.25014 1.73813 8.68271 2.78544L2.18056 14.7864C1.63905 15.7858 2.3627 17.0009 3.49942 17.0009H16.5021C17.6388 17.0009 18.3624 15.786 17.821 14.7865L11.3205 2.78557ZM10.5 7.50023C10.5 7.22409 10.2761 7.00023 9.99996 7.00023C9.72382 7.00023 9.49996 7.22409 9.49996 7.50023V11.5002C9.49996 11.7764 9.72382 12.0002 9.99996 12.0002C10.2761 12.0002 10.5 11.7764 10.5 11.5002V7.50023ZM10.75 13.7502C10.75 14.1644 10.4142 14.5002 9.99996 14.5002C9.58575 14.5002 9.24996 14.1644 9.24996 13.7502C9.24996 13.336 9.58575 13.0002 9.99996 13.0002C10.4142 13.0002 10.75 13.336 10.75 13.7502Z"/></svg>'
     'appendix'            = '<svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M6 2C4.89543 2 4 2.89543 4 4V16C4 17.1046 4.89543 18 6 18H14C15.1046 18 16 17.1046 16 16V7.41421C16 7.01639 15.842 6.63486 15.5607 6.35355L11.6464 2.43934C11.3651 2.15804 10.9836 2 10.5858 2H6ZM5 4C5 3.44772 5.44772 3 6 3H10V6.5C10 7.32843 10.6716 8 11.5 8H15V16C15 16.5523 14.5523 17 14 17H6C5.44772 17 5 16.5523 5 16V4ZM14.7929 7H11.5C11.2239 7 11 6.77614 11 6.5V3.20711L14.7929 7Z"/></svg>'
+    'remediation'         = '<svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M11 2C11.5523 2 12 2.44772 12 3H13.5C14.3284 3 15 3.67157 15 4.5V15.5C15 16.3284 14.3284 17 13.5 17H6.5C5.67157 17 5 16.3284 5 15.5V4.5C5 3.67157 5.67157 3 6.5 3H8C8 2.44772 8.44772 2 9 2H11ZM9 3H8V4C8 4.55228 8.44772 5 9 5H11C11.5523 5 12 4.55228 12 4V3H11C11 3.55228 10.5523 4 10 4C9.44772 4 9 3.55228 9 3ZM13.3536 8.35355C13.5488 8.15829 13.5488 7.84171 13.3536 7.64645C13.1583 7.45118 12.8417 7.45118 12.6464 7.64645L9 11.2929L7.35355 9.64645C7.15829 9.45118 6.84171 9.45118 6.64645 9.64645C6.45118 9.84171 6.45118 10.1583 6.64645 10.3536L8.64645 12.3536C8.84171 12.5488 9.15829 12.5488 9.35355 12.3536L13.3536 8.35355Z"/></svg>'
 }
 
 # Build sidebar nav items -- Overview combines cover + exec summary + org profile
 $navIconOverview = $navIcons['overview']
 $html += "                <li class='nav-item active' data-page='overview'><a href='#overview'>$navIconOverview Overview</a></li>`n"
+$remActionableCount = @($allCisFindings | Where-Object { $_.Status -in @('Fail', 'Warning') }).Count
+if ($remActionableCount -gt 0) {
+    $navIconRemediation = $navIcons['remediation']
+    $html += "                <li class='nav-item' data-page='remediation-plan'><a href='#remediation-plan'>$navIconRemediation Remediation Plan<span class='nav-badge nav-badge-fail'>$remActionableCount</span></a></li>`n"
+}
 foreach ($navSection in $sections) {
     # Tenant is merged into Overview page -- skip separate nav entry
     if ($navSection -eq 'Tenant') { continue }
@@ -2766,6 +2793,17 @@ if (-not $SkipExecutiveSummary) {
 }
 
 $html += "`n        </div>" # close overview report-page
+
+if ($remediationPlanHtml) {
+    $html += @"
+
+        <div class="report-page" data-page="remediation-plan" id="remediation-plan">
+        <a id="remediation-plan-anchor"></a>
+        <h1>Remediation Action Plan</h1>
+        $remediationPlanHtml
+        </div>
+"@
+}
 
 $html += @"
 
@@ -3422,6 +3460,30 @@ $html += @"
             if (panel) panel.classList.add('active');
         });
     });
+
+    // --- Remediation Plan filter ---
+    function filterRemediationTable() {
+        var sevEl  = document.getElementById('remSeverityFilter');
+        var secEl  = document.getElementById('remSectionFilter');
+        var table  = document.getElementById('remediationTable');
+        if (!table) return;
+        var rows     = table.querySelectorAll('tbody tr');
+        var sevValue = sevEl  ? sevEl.value  : 'all';
+        var secValue = secEl  ? secEl.value  : 'all';
+        var visible  = 0;
+        rows.forEach(function(row) {
+            var sev  = row.getAttribute('data-severity');
+            var sec  = row.getAttribute('data-section');
+            var show = (sevValue === 'all' || sev === sevValue) &&
+                       (secValue === 'all' || sec === secValue);
+            row.style.display = show ? '' : 'none';
+            if (show) { visible++; }
+        });
+        var countEl = document.getElementById('remMatchCount');
+        if (countEl) { countEl.textContent = visible + ' finding' + (visible === 1 ? '' : 's'); }
+        var noResults = document.getElementById('remNoResults');
+        if (noResults) { noResults.style.display = (visible === 0) ? '' : 'none'; }
+    }
     </script>
 </body>
 </html>
