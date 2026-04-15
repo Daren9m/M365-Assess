@@ -1901,12 +1901,26 @@ $html = @"
         .matrix-table tbody tr:nth-child(even) { background: transparent; }
         .matrix-table tbody tr.stripe-even td { background-color: rgba(148, 163, 184, 0.12); }
         .matrix-table tbody tr:hover td { background-color: transparent; }
-        .matrix-table tbody tr.cis-row-pass:hover { background-color: var(--m365a-success); opacity: 0.85; }
-        .matrix-table tbody tr.cis-row-fail:hover { background-color: var(--m365a-danger); opacity: 0.85; }
-        .matrix-table tbody tr.cis-row-warning:hover { background-color: var(--m365a-warning); opacity: 0.85; }
-        .matrix-table tbody tr.cis-row-review:hover { background-color: var(--m365a-accent); opacity: 0.85; }
-        .matrix-table tbody tr.cis-row-info:hover { background-color: var(--m365a-neutral); opacity: 0.85; }
-        .matrix-table tbody tr.cis-row-unknown:hover { background-color: var(--m365a-medium-gray); opacity: 0.85; }
+        /* Severity-tinted hover — shared by data-table (section tables) and matrix-table.
+           Uses full status color (vs muted -bg base) for the "different tone" shift.
+           opacity removed: it fades text + badges, hurting contrast. color:#fff is explicit. */
+        .data-table tr.cis-row-pass:hover,
+        .matrix-table tbody tr.cis-row-pass:hover    { background-color: var(--m365a-success); color: #fff; }
+        .data-table tr.cis-row-fail:hover,
+        .matrix-table tbody tr.cis-row-fail:hover    { background-color: var(--m365a-danger);  color: #fff; }
+        .data-table tr.cis-row-warning:hover,
+        .matrix-table tbody tr.cis-row-warning:hover { background-color: var(--m365a-warning); color: #fff; }
+        .data-table tr.cis-row-review:hover,
+        .matrix-table tbody tr.cis-row-review:hover  { background-color: var(--m365a-accent);  color: #fff; }
+        .data-table tr.cis-row-info:hover,
+        .matrix-table tbody tr.cis-row-info:hover    { background-color: var(--m365a-neutral); color: #fff; }
+        .data-table tr.cis-row-unknown:hover,
+        .matrix-table tbody tr.cis-row-unknown:hover { background-color: var(--m365a-medium-gray); color: #fff; }
+        /* Remediation Action Plan table severity hover */
+        .remediation-table tr.remediation-row-critical:hover { background-color: var(--m365a-danger);  color: #fff; }
+        .remediation-table tr.remediation-row-high:hover     { background-color: var(--m365a-warning); color: #fff; }
+        .remediation-table tr.remediation-row-medium:hover   { background-color: var(--m365a-info);    color: #fff; }
+        .remediation-table tr.remediation-row-low:hover      { background-color: var(--m365a-neutral); color: #fff; }
         .matrix-table .framework-refs { max-width: 180px; }
 
         /* ----------------------------------------------------------
