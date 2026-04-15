@@ -1562,9 +1562,11 @@ if ($allCisFindings.Count -gt 0) {
     $null = $checksRunHtml.AppendLine("<div class='table-wrapper'>")
     $null = $checksRunHtml.AppendLine("<table class='data-table'>")
     $null = $checksRunHtml.AppendLine("<caption class='sr-only'>Complete list of checks run during this assessment</caption>")
-    $null = $checksRunHtml.AppendLine("<thead><tr><th scope='col'>CheckId</th><th scope='col'>Setting</th><th scope='col'>Category</th><th scope='col'>Status</th><th scope='col'>Section</th></tr></thead>")
+    $null = $checksRunHtml.AppendLine("<thead><tr><th scope='col' class='appendix-index-col'>#</th><th scope='col'>CheckId</th><th scope='col'>Setting</th><th scope='col'>Category</th><th scope='col'>Status</th><th scope='col'>Section</th></tr></thead>")
     $null = $checksRunHtml.AppendLine("<tbody>")
+    $rowIndex = 0
     foreach ($check in $sortedChecks) {
+        $rowIndex++
         $statusBadgeClass = switch ($check.Status) {
             'Pass'    { 'badge-complete' }
             'Fail'    { 'badge-failed' }
@@ -1581,6 +1583,7 @@ if ($allCisFindings.Count -gt 0) {
             ConvertTo-HtmlSafe -Text $check.Status
         }
         $null = $checksRunHtml.AppendLine("<tr>")
+        $null = $checksRunHtml.AppendLine("<td class='appendix-index-col'>$rowIndex</td>")
         $null = $checksRunHtml.AppendLine("<td>$(ConvertTo-HtmlSafe -Text $check.CheckId)</td>")
         $null = $checksRunHtml.AppendLine("<td>$(ConvertTo-HtmlSafe -Text $check.Setting)</td>")
         $null = $checksRunHtml.AppendLine("<td>$(ConvertTo-HtmlSafe -Text $check.Category)</td>")

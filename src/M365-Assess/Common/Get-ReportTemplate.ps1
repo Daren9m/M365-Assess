@@ -2033,6 +2033,7 @@ $html = @"
         .appendix-section h2 { color: var(--m365a-dark); border-bottom: 2px solid var(--m365a-border); padding-bottom: 8px; }
         .appendix-desc { color: var(--m365a-medium-gray); font-size: 9pt; margin-bottom: 16px; }
         .appendix-count { color: var(--m365a-medium-gray); font-size: 9pt; margin-top: 12px; font-style: italic; }
+        .appendix-index-col { width: 36px; min-width: 36px; text-align: center; color: var(--m365a-medium-gray); font-variant-numeric: tabular-nums; }
 
         /* ----------------------------------------------------------
            Focus Styles
