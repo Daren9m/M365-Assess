@@ -106,8 +106,7 @@ function Add-SecuritySetting {
         $subCheckId = "$CheckId.$($CheckIdCounter[$CheckId])"
     }
 
-    # Fall back to registry.remediation when the caller omits the Remediation parameter.
-    # Hardcoded strings always win — this only fires when Remediation is empty/whitespace.
+    # Registry remediation used as fallback so new collectors can omit the param
     if ([string]::IsNullOrWhiteSpace($Remediation) -and $CheckId) {
         $reg = Get-Variable -Name 'M365AssessRegistry' -Scope Global -ErrorAction SilentlyContinue
         if ($reg -and $reg.Value -and $reg.Value.ContainsKey($CheckId)) {
