@@ -141,6 +141,41 @@ else {
     # Resolve-DnsName SOA fallback records) from escalating under the script-level Stop.
     $ErrorActionPreference = 'Continue'
 
+    # ---- Tracking collections used across all DNS checks -------------------------
+    # Domains whose zones return SERVFAIL: skipped in all checks, DNS-ZONE-001 emitted.
+    $servfailDomains = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+    # Domains with null/defensive SPF (v=spf1 -all): excluded from DKIM evaluation.
+    $spfNullDomains = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+    # Domains with RFC 7505 null MX (0 .): treated as Pass in MX check.
+    $nullMxDomains = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+    # Domains with enforcing DMARC (p=reject or p=quarantine): used for lockdown detection.
+    $dmarcEnforcingDomains = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+
+    # -- SERVFAIL pre-pass: probe each zone before evaluating records ---------------
+    # Guarded by Get-Command so test environments that mock Get-Command to return $null
+    # for unknown names automatically skip this block without any test changes.
+    if (Get-Command -Name Test-DnsZoneAvailable -ErrorAction SilentlyContinue) {
+        foreach ($domain in $authDomains) {
+            $domainName = $domain.DomainName
+            if (-not (Test-DnsZoneAvailable -Name $domainName)) {
+                $null = $servfailDomains.Add($domainName)
+                Write-Verbose "DNS SERVFAIL detected for zone: $domainName"
+            }
+        }
+    }
+    if ($servfailDomains.Count -gt 0) {
+        $settingParams = @{
+            Category         = 'DNS Authentication'
+            Setting          = 'DNS Zone Health'
+            CurrentValue     = "SERVFAIL: $($servfailDomains -join ', ')"
+            RecommendedValue = 'All accepted domain zones must respond to DNS queries'
+            Status           = 'Fail'
+            CheckId          = 'DNS-ZONE-001'
+            Remediation      = "Investigate DNS zone failures for: $($servfailDomains -join ', '). Contact your DNS provider -- the authoritative nameservers are not responding. SPF, DKIM, DMARC, and MX checks for these domains are suppressed to avoid false positives."
+        }
+        Add-Setting @settingParams
+    }
+
     # ------------------------------------------------------------------
     # 1. SPF Records (CIS 2.1.8)
     # ------------------------------------------------------------------
@@ -150,17 +185,27 @@ else {
         $spfPresent = @()
         foreach ($domain in $authDomains) {
             $domainName = $domain.DomainName
+            if ($servfailDomains.Contains($domainName)) { continue }
             $txtRecords = @(Resolve-DnsRecord -Name $domainName -Type TXT -ErrorAction SilentlyContinue)
             $spfRecord = $txtRecords | Where-Object { $_.Strings -and $_.Strings -match '^v=spf1' }
-            if ($spfRecord) { $spfPresent += $domainName }
+            if ($spfRecord) {
+                $spfPresent += $domainName
+                # Detect null/defensive SPF (v=spf1 -all with no mechanisms): domain is a
+                # non-sending domain and should be excluded from the DKIM check.
+                $spfFull = ($spfRecord.Strings -join '')
+                if ($spfFull -match '^v=spf1\s+-all\s*$') {
+                    $null = $spfNullDomains.Add($domainName)
+                }
+            }
             else { $spfMissing += $domainName }
         }
 
+        $spfTotal = $spfPresent.Count + $spfMissing.Count
         if ($spfMissing.Count -eq 0) {
             $settingParams = @{
                 Category         = 'DNS Authentication'
                 Setting          = 'SPF Records'
-                CurrentValue     = "$($spfPresent.Count)/$($authDomains.Count) domains have SPF"
+                CurrentValue     = "$($spfPresent.Count)/$spfTotal domains have SPF"
                 RecommendedValue = 'SPF for all domains'
                 Status           = 'Pass'
                 CheckId          = 'DNS-SPF-001'
@@ -172,7 +217,7 @@ else {
             $settingParams = @{
                 Category         = 'DNS Authentication'
                 Setting          = 'SPF Records'
-                CurrentValue     = "$($spfPresent.Count)/$($authDomains.Count) domains -- missing: $($spfMissing -join ', ')"
+                CurrentValue     = "$($spfPresent.Count)/$spfTotal domains -- missing: $($spfMissing -join ', ')"
                 RecommendedValue = 'SPF for all domains'
                 Status           = 'Fail'
                 CheckId          = 'DNS-SPF-001'
@@ -199,17 +244,21 @@ else {
         $dkimEnabled = @()
         foreach ($domain in $authDomains) {
             $domainName = $domain.DomainName
+            if ($servfailDomains.Contains($domainName)) { continue }
+            # Non-sending domains (v=spf1 -all) do not send email: DKIM is not applicable.
+            if ($spfNullDomains.Contains($domainName)) { continue }
             $config = $DkimConfigs | Where-Object { $_.Domain -eq $domainName }
             if ($config -and $config.Enabled) { $dkimEnabled += $domainName }
             else { $dkimMissing += $domainName }
         }
 
+        $dkimTotal = $dkimEnabled.Count + $dkimMissing.Count
         if ($dkimMissing.Count -eq 0) {
             $settingParams = @{
                 Category         = 'DNS Authentication'
                 Setting          = 'DKIM Signing'
-                CurrentValue     = "$($dkimEnabled.Count)/$($authDomains.Count) domains have DKIM enabled"
-                RecommendedValue = 'DKIM for all domains'
+                CurrentValue     = "$($dkimEnabled.Count)/$dkimTotal domains have DKIM enabled"
+                RecommendedValue = 'DKIM for all sending domains'
                 Status           = 'Pass'
                 CheckId          = 'DNS-DKIM-001'
                 Remediation      = 'No action needed.'
@@ -220,8 +269,8 @@ else {
             $settingParams = @{
                 Category         = 'DNS Authentication'
                 Setting          = 'DKIM Signing'
-                CurrentValue     = "$($dkimEnabled.Count)/$($authDomains.Count) domains -- missing: $($dkimMissing -join ', ')$dkimOnMsftNote"
-                RecommendedValue = 'DKIM for all domains'
+                CurrentValue     = "$($dkimEnabled.Count)/$dkimTotal domains -- missing: $($dkimMissing -join ', ')"
+                RecommendedValue = 'DKIM for all sending domains'
                 Status           = 'Fail'
                 CheckId          = 'DNS-DKIM-001'
                 Remediation      = "Enable DKIM for: $($dkimMissing -join ', '). Run: New-DkimSigningConfig -DomainName <domain> -Enabled `$true. Microsoft 365 Defender > Email & collaboration > Policies > DKIM."
@@ -234,7 +283,7 @@ else {
             Category         = 'DNS Authentication'
             Setting          = 'DKIM Signing'
             CurrentValue     = 'Get-DkimSigningConfig cmdlet not available'
-            RecommendedValue = 'DKIM for all domains'
+            RecommendedValue = 'DKIM for all sending domains'
             Status           = 'Review'
             CheckId          = 'DNS-DKIM-001'
             Remediation      = 'Connect to Exchange Online PowerShell to check DKIM configuration.'
@@ -255,6 +304,7 @@ else {
         $dmarcStrong = @()
         foreach ($domain in $authDomains) {
             $domainName = $domain.DomainName
+            if ($servfailDomains.Contains($domainName)) { continue }
             $dmarcRecords = @(Resolve-DnsRecord -Name "_dmarc.$domainName" -Type TXT -ErrorAction SilentlyContinue)
             $dmarcRecord = $dmarcRecords | Where-Object { $_.Strings -and $_.Strings -match '^v=DMARC1' }
             if (-not $dmarcRecord) {
@@ -262,13 +312,16 @@ else {
             }
             else {
                 $policy = ($dmarcRecord.Strings | Select-Object -First 1)
-                if ($policy -match 'p=(quarantine|reject)') { $dmarcStrong += $domainName }
+                if ($policy -match 'p=(quarantine|reject)') {
+                    $dmarcStrong += $domainName
+                    $null = $dmarcEnforcingDomains.Add($domainName)
+                }
                 else { $dmarcWeak += $domainName }
             }
         }
 
         $totalGood = $dmarcStrong.Count
-        $totalDomains = $authDomains.Count
+        $totalDomains = $dmarcStrong.Count + $dmarcWeak.Count + $dmarcMissing.Count
         if ($dmarcMissing.Count -eq 0 -and $dmarcWeak.Count -eq 0) {
             $settingParams = @{
                 Category         = 'DNS Authentication'
@@ -306,31 +359,43 @@ else {
     # ------------------------------------------------------------------
     try {
         Write-Verbose "Checking MX records..."
-        $mxPass    = @()
-        $mxWarning = @()
-        $mxFail    = @()
+        $mxPass    = @()   # domains routed to Exchange Online
+        $mxNullMx  = @()   # domains with RFC 7505 null MX (0 .): intentional non-sending
+        $mxWarning = @()   # domains with third-party relay MX
+        $mxFail    = @()   # domains with no MX record
 
         foreach ($domain in $authDomains) {
             $domainName = $domain.DomainName
-            $mxRecords  = @(Resolve-DnsRecord -Name $domainName -Type MX -ErrorAction SilentlyContinue)
+            if ($servfailDomains.Contains($domainName)) { continue }
+            $mxRecords = @(Resolve-DnsRecord -Name $domainName -Type MX -ErrorAction SilentlyContinue)
 
             if (-not $mxRecords -or $mxRecords.Count -eq 0) {
                 $mxFail += $domainName
+                continue
             }
-            else {
-                $pointsToExo = $mxRecords | Where-Object { $_.NameExchange -like '*.mail.protection.outlook.com' }
-                if ($pointsToExo) { $mxPass += $domainName }
-                else { $mxWarning += "$domainName ($($mxRecords[0].NameExchange))" }
+
+            # RFC 7505 null MX: NameExchange is '.' — explicit declaration that the domain
+            # accepts no mail. Treat as Pass; non-sending domain lockdown is intentional.
+            $isNullMx = $mxRecords | Where-Object { $_.NameExchange -eq '.' -or $_.NameExchange -eq '' }
+            if ($isNullMx) {
+                $mxNullMx += $domainName
+                $null = $nullMxDomains.Add($domainName)
+                continue
             }
+
+            $pointsToExo = $mxRecords | Where-Object { $_.NameExchange -like '*.mail.protection.outlook.com' }
+            if ($pointsToExo) { $mxPass += $domainName }
+            else { $mxWarning += "$domainName ($($mxRecords[0].NameExchange))" }
         }
 
-        $total = $authDomains.Count
+        $total = $mxPass.Count + $mxNullMx.Count + $mxWarning.Count + $mxFail.Count
         if ($mxFail.Count -eq 0 -and $mxWarning.Count -eq 0) {
+            $nullNote = if ($mxNullMx.Count -gt 0) { "; $($mxNullMx.Count) null MX (non-sending)" } else { '' }
             $settingParams = @{
                 Category         = 'DNS Authentication'
                 Setting          = 'MX Records'
-                CurrentValue     = "$($mxPass.Count)/$total domains route to Exchange Online"
-                RecommendedValue = 'MX pointing to *.mail.protection.outlook.com for all domains'
+                CurrentValue     = "$($mxPass.Count)/$total domains route to Exchange Online$nullNote"
+                RecommendedValue = 'MX pointing to *.mail.protection.outlook.com for all sending domains'
                 Status           = 'Pass'
                 CheckId          = 'DNS-MX-001'
                 Remediation      = 'No action needed.'
@@ -340,13 +405,14 @@ else {
         elseif ($mxFail.Count -gt 0) {
             $details = @()
             if ($mxPass.Count -gt 0)    { $details += "$($mxPass.Count) EXO" }
+            if ($mxNullMx.Count -gt 0)  { $details += "$($mxNullMx.Count) null MX" }
             if ($mxWarning.Count -gt 0) { $details += "$($mxWarning.Count) third-party" }
             if ($mxFail.Count -gt 0)    { $details += "missing: $($mxFail -join ', ')" }
             $settingParams = @{
                 Category         = 'DNS Authentication'
                 Setting          = 'MX Records'
                 CurrentValue     = "$($mxPass.Count)/$total to EXO -- $($details -join '; ')"
-                RecommendedValue = 'MX pointing to *.mail.protection.outlook.com for all domains'
+                RecommendedValue = 'MX pointing to *.mail.protection.outlook.com for all sending domains'
                 Status           = 'Fail'
                 CheckId          = 'DNS-MX-001'
                 Remediation      = "Add MX records for: $($mxFail -join ', '). Required value: <domain>-com.mail.protection.outlook.com"
@@ -359,7 +425,7 @@ else {
                 Category         = 'DNS Authentication'
                 Setting          = 'MX Records'
                 CurrentValue     = "$($mxPass.Count)/$total to EXO; third-party relay: $($mxWarning -join '; ')"
-                RecommendedValue = 'MX pointing to *.mail.protection.outlook.com for all domains'
+                RecommendedValue = 'MX pointing to *.mail.protection.outlook.com for all sending domains'
                 Status           = 'Warning'
                 CheckId          = 'DNS-MX-001'
                 Remediation      = 'Verify third-party relay is intentional (e.g. Proofpoint, Mimecast). If not, update MX to <domain>-com.mail.protection.outlook.com.'
@@ -369,6 +435,28 @@ else {
     }
     catch {
         Write-Warning "Could not check MX records: $_"
+    }
+
+    # -- Defensive lockdown Info: domains with full non-sending lockdown pattern ----
+    # Requires all three signals: null SPF (v=spf1 -all) + null MX (RFC 7505) +
+    # enforcing DMARC (p=reject or p=quarantine). Missing any one signal means the
+    # domain is only partially protected.
+    $lockdownDomains = @($authDomains | Where-Object {
+        $spfNullDomains.Contains($_.DomainName) -and
+        $nullMxDomains.Contains($_.DomainName) -and
+        $dmarcEnforcingDomains.Contains($_.DomainName)
+    } | ForEach-Object { $_.DomainName })
+    if ($lockdownDomains.Count -gt 0) {
+        $settingParams = @{
+            Category         = 'DNS Authentication'
+            Setting          = 'Non-Sending Domain Lockdown'
+            CurrentValue     = "$($lockdownDomains.Count) domain(s) fully locked down: $($lockdownDomains -join ', ')"
+            RecommendedValue = 'v=spf1 -all, null MX (0 . per RFC 7505), DMARC p=reject for non-sending domains'
+            Status           = 'Pass'
+            CheckId          = 'DNS-LOCKDOWN-001'
+            Remediation      = 'No action needed.'
+        }
+        Add-Setting @settingParams
     }
 
     $ErrorActionPreference = 'Stop'
