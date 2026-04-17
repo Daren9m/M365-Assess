@@ -51075,6 +51075,38 @@
         "rationale": "Failure to route email through Exchange Online mail flow exposes the tenant to: Security control bypass; mail not traversing Exchange Online skips ATP scanning, DLP policies, mail flow rules, and anti-phishing defenses.",
         "scfWeighting": 7
       }
+    },
+    {
+      "checkId": "DNS-ZONE-001",
+      "name": "Ensure accepted domain DNS zones respond to queries (no SERVFAIL)",
+      "category": "Zone Health",
+      "collector": "DNS",
+      "hasAutomatedCheck": true,
+      "licensing": {
+        "minimum": "E3"
+      },
+      "frameworks": {},
+      "impactRating": {
+        "severity": "High",
+        "rationale": "A SERVFAIL response from authoritative nameservers prevents email authentication verification and may indicate a DNS zone misconfiguration, expired domain registration, or nameserver outage. SPF, DKIM, DMARC, and MX checks for affected domains are unreliable and are suppressed to avoid false positives.",
+        "scfWeighting": 7
+      }
+    },
+    {
+      "checkId": "DNS-LOCKDOWN-001",
+      "name": "Verify non-sending domain defensive lockdown (SPF -all, null MX RFC 7505, DMARC enforce)",
+      "category": "Zone Health",
+      "collector": "DNS",
+      "hasAutomatedCheck": true,
+      "licensing": {
+        "minimum": "E3"
+      },
+      "frameworks": {},
+      "impactRating": {
+        "severity": "Info",
+        "rationale": "Parked, administrative, or backup domains that never send email should be locked down with null SPF (v=spf1 -all), RFC 7505 null MX (0 .), and DMARC p=reject to prevent domain spoofing and phishing. This check confirms the full defensive lockdown pattern is in place.",
+        "scfWeighting": 5
+      }
     }
   ]
 }

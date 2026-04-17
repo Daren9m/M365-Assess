@@ -149,3 +149,73 @@ function Resolve-DnsRecord {
     }
     return $null
 }
+
+function Test-DnsZoneAvailable {
+    <#
+    .SYNOPSIS
+        Returns $true if the DNS zone responds to queries, $false on SERVFAIL.
+    .DESCRIPTION
+        Probes the zone with an SOA query. A SERVFAIL response (Win32 error 9002 on
+        Windows; status: SERVFAIL in dig output) means the zone is delegated but its
+        authoritative nameservers are not responding. NXDOMAIN and no-records errors
+        mean the nameservers replied successfully and are NOT treated as SERVFAIL.
+    .PARAMETER Name
+        DNS zone name to probe (e.g. 'contoso.com').
+    .PARAMETER Server
+        Optional DNS server IP to query.
+    .EXAMPLE
+        if (-not (Test-DnsZoneAvailable -Name 'broken.example.com')) {
+            Write-Warning 'Zone is not responding (SERVFAIL)'
+        }
+    #>
+    [CmdletBinding()]
+    [OutputType([bool])]
+    param(
+        [Parameter(Mandatory)]
+        [string]$Name,
+
+        [string]$Server
+    )
+
+    # Ensure backend detection has run (mirrors Resolve-DnsRecord initialization)
+    if ($null -eq $script:DnsBackend) {
+        if (Get-Command -Name Resolve-DnsName -ErrorAction SilentlyContinue) {
+            $script:DnsBackend = 'ResolveDnsName'
+        }
+        elseif (Get-Command -Name dig -ErrorAction SilentlyContinue) {
+            $script:DnsBackend = 'Dig'
+        }
+        else {
+            $script:DnsBackend = 'None'
+        }
+    }
+
+    if ($script:DnsBackend -eq 'ResolveDnsName') {
+        try {
+            $params = @{ Name = $Name; Type = 'SOA'; DnsOnly = $true; ErrorAction = 'Stop' }
+            if ($Server) { $params['Server'] = $Server }
+            Resolve-DnsName @params | Out-Null
+            return $true
+        }
+        catch {
+            # Win32 error 9002 (DNS_ERROR_RCODE_SERVER_FAILURE) produces "server failure"
+            # in the exception message. NXDOMAIN ("does not exist") and no-records errors
+            # mean the nameservers replied, so the zone is considered available.
+            return $_.Exception.Message -notmatch 'server failure|SERVFAIL'
+        }
+    }
+
+    if ($script:DnsBackend -eq 'Dig') {
+        try {
+            $digArgs = @('+noall', '+comments', 'SOA', $Name)
+            if ($Server) { $digArgs = @("@$Server") + $digArgs }
+            $raw = (& dig @digArgs 2>&1) -join ' '
+            return $raw -notmatch 'status:\s+SERVFAIL'
+        }
+        catch {
+            return $true  # cannot determine; assume available
+        }
+    }
+
+    return $true  # no backend — assume available
+}
