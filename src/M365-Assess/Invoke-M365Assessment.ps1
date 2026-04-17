@@ -594,6 +594,9 @@ if (Test-Path -Path $progressHelper) {
         . $registryHelper
         $controlsDir = Join-Path -Path $projectRoot -ChildPath 'controls'
         $progressRegistry = Import-ControlRegistry -ControlsPath $controlsDir
+        # Expose registry globally so Add-SecuritySetting can fall back to registry.remediation
+        # when a collector omits the Remediation parameter.
+        $global:M365AssessRegistry = $progressRegistry
         if ($progressRegistry.Count -gt 1) {
             # When connections are active, initialize progress silently --
             # the console summary is deferred until Connect-RequiredService

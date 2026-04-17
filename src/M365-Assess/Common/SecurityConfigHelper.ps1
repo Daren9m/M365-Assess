@@ -106,6 +106,16 @@ function Add-SecuritySetting {
         $subCheckId = "$CheckId.$($CheckIdCounter[$CheckId])"
     }
 
+    # Fall back to registry.remediation when the caller omits the Remediation parameter.
+    # Hardcoded strings always win — this only fires when Remediation is empty/whitespace.
+    if ([string]::IsNullOrWhiteSpace($Remediation) -and $CheckId) {
+        $reg = Get-Variable -Name 'M365AssessRegistry' -Scope Global -ErrorAction SilentlyContinue
+        if ($reg -and $reg.Value -and $reg.Value.ContainsKey($CheckId)) {
+            $entry = $reg.Value[$CheckId]
+            if ($entry -and $entry.remediation) { $Remediation = $entry.remediation }
+        }
+    }
+
     $Settings.Add([PSCustomObject]@{
         Category         = $Category
         Setting          = $Setting
