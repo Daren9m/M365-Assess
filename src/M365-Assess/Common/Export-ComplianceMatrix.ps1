@@ -259,7 +259,7 @@ foreach ($summaryRow in $summaryData) {
 
     if ($fwDef.scoringMethod -eq 'profile-compliance') {
         # Detect tier groups: keys like 'E3-L1','E3-L2' share tier prefix 'E3'
-        $tierMap = [ordered]@{}
+        $tierMap = @{}
         foreach ($grp in $grpResult.Groups) {
             if ($grp.IsGap) { continue }
             if ($grp.Key -match '^(.+)-L\d+$') {
@@ -397,7 +397,7 @@ if ($cisFw -and $null -ne $catalogFindings) {
     }
     if ($groupedResult -and $groupedResult.Groups) {
         $groupedRows = [System.Collections.Generic.List[PSCustomObject]]::new()
-        $sheet3TierMap = [ordered]@{}
+        $sheet3TierMap = @{}
         foreach ($grp in $groupedResult.Groups) {
             if ($grp.IsGap) { continue }
             if ($grp.Key -match '^(.+)-L\d+$') {
