@@ -90,6 +90,7 @@
         'Common\Import-ControlRegistry.ps1'
         'Common\Import-FrameworkDefinitions.ps1'
         'Common\Show-CheckProgress.ps1'
+        'Common\ConvertTo-FrameworkFilter.ps1'
         'Entra\Get-TenantInfo.ps1'
         'Entra\Get-UserSummary.ps1'
         'Entra\Get-MfaReport.ps1'
