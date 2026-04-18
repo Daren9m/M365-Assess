@@ -15,23 +15,50 @@ const SCORE = D.score[0] || {};
 const MFA_STATS = D.mfaStats;
 const FINDINGS = D.findings;
 const DOMAIN_STATS = D.domainStats;
-const FRAMEWORKS = [{
-  id: 'CIS',
-  full: 'CIS M365 Benchmark v3.1'
+const FRAMEWORKS = D.frameworks && D.frameworks.length ? D.frameworks : [{
+  id: 'cis-m365-v6',
+  full: 'CIS Microsoft 365 v6.0.1'
 }, {
-  id: 'NIST',
-  full: 'NIST SP 800-53 r5'
+  id: 'nist-800-53',
+  full: 'NIST SP 800-53 Rev 5'
 }, {
-  id: 'CMMC',
-  full: 'CMMC Level 2'
+  id: 'cmmc',
+  full: 'CMMC 2.0'
 }, {
-  id: 'CISA',
-  full: 'CISA Stryker Guidance'
+  id: 'cisa-scuba',
+  full: 'CISA SCuBA'
 }, {
-  id: 'ISO',
-  full: 'ISO/IEC 27001:2022'
+  id: 'iso-27001',
+  full: 'ISO 27001:2022'
+}, {
+  id: 'cis-controls-v8',
+  full: 'CIS Controls v8.1'
+}, {
+  id: 'essential-eight',
+  full: 'ASD Essential Eight'
+}, {
+  id: 'fedramp',
+  full: 'FedRAMP Rev 5'
+}, {
+  id: 'hipaa',
+  full: 'HIPAA'
+}, {
+  id: 'mitre-attack',
+  full: 'MITRE ATT&CK'
+}, {
+  id: 'nist-csf',
+  full: 'NIST CSF 2.0'
+}, {
+  id: 'pci-dss',
+  full: 'PCI DSS v4.0.1'
+}, {
+  id: 'soc2',
+  full: 'SOC 2 Trust Services Criteria'
+}, {
+  id: 'stig',
+  full: 'DISA STIG'
 }];
-const DOMAIN_ORDER = ['Entra ID', 'Conditional Access', 'Enterprise Apps', 'Exchange Online', 'Intune', 'Defender', 'Purview / Compliance', 'SharePoint & OneDrive', 'Teams', 'Stryker Readiness'];
+const DOMAIN_ORDER = ['Entra ID', 'Conditional Access', 'Enterprise Apps', 'Exchange Online', 'Intune', 'Defender', 'Purview / Compliance', 'SharePoint & OneDrive', 'Teams', 'Forms', 'Power BI', 'Active Directory', 'SOC 2', 'Value Opportunity', 'Other'];
 
 // --------------------- SVG icons ---------------------
 const Icon = {
@@ -159,7 +186,7 @@ function Sidebar({
   activeDomain,
   onDomainJump
 }) {
-  const DOM_ORDER = ['Entra ID', 'Conditional Access', 'Enterprise Apps', 'Exchange Online', 'Intune', 'Defender', 'Purview / Compliance', 'SharePoint & OneDrive', 'Teams'];
+  const DOM_ORDER = ['Entra ID', 'Conditional Access', 'Enterprise Apps', 'Exchange Online', 'Intune', 'Defender', 'Purview / Compliance', 'SharePoint & OneDrive', 'Teams', 'Forms', 'Power BI', 'Active Directory', 'SOC 2', 'Value Opportunity'];
   const domains = DOM_ORDER.filter(d => domainCounts.total[d]).concat(Object.keys(domainCounts.total).filter(d => !DOM_ORDER.includes(d)).sort());
   const exec = [{
     id: 'overview',
@@ -707,7 +734,7 @@ function FilterBar({
   const active = filters.status.length + filters.severity.length + filters.framework.length + filters.domain.length;
   const statusChips = [['Fail', 'fail'], ['Warning', 'warn'], ['Review', 'review'], ['Pass', 'pass'], ['Info', 'info']];
   const sevChips = [['critical', 'crit', 'Critical'], ['high', 'high', 'High'], ['medium', 'med', 'Medium'], ['low', 'low', 'Low']];
-  const DOM_ORDER = ['Entra ID', 'Conditional Access', 'Enterprise Apps', 'Exchange Online', 'Intune', 'Defender', 'Purview / Compliance', 'SharePoint & OneDrive', 'Teams'];
+  const DOM_ORDER = ['Entra ID', 'Conditional Access', 'Enterprise Apps', 'Exchange Online', 'Intune', 'Defender', 'Purview / Compliance', 'SharePoint & OneDrive', 'Teams', 'Forms', 'Power BI', 'Active Directory', 'SOC 2', 'Value Opportunity'];
   const domainList = DOM_ORDER.filter(d => counts.domain[d]).concat(Object.keys(counts.domain).filter(d => !DOM_ORDER.includes(d)).sort());
   return /*#__PURE__*/React.createElement("div", {
     className: "filter-bar"
