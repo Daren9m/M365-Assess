@@ -87,16 +87,26 @@ try {
 
     foreach ($roleId in $privilegedRoleIds) {
         Write-Verbose "Checking assignments for role $roleId..."
-        $assignParams = @{
-            Method      = 'GET'
-            Uri         = "/v1.0/roleManagement/directory/roleAssignments?`$filter=roleDefinitionId eq '$roleId'&`$top=999"
-            ErrorAction = 'Stop'
+        try {
+            $assignParams = @{
+                Method      = 'GET'
+                Uri         = "/v1.0/roleManagement/directory/roleAssignments?`$filter=roleDefinitionId eq '$roleId'&`$top=999"
+                ErrorAction = 'Stop'
+            }
+            $assignments = Invoke-MgGraphRequest @assignParams
+            if ($assignments -and $assignments['value']) {
+                foreach ($a in @($assignments['value'])) {
+                    $principalId = $a['principalId']
+                    if ($principalId) { [void]$adminUserIds.Add($principalId) }
+                }
+            }
         }
-        $assignments = Invoke-MgGraphRequest @assignParams
-        if ($assignments -and $assignments['value']) {
-            foreach ($a in @($assignments['value'])) {
-                $principalId = $a['principalId']
-                if ($principalId) { [void]$adminUserIds.Add($principalId) }
+        catch {
+            if ($_.Exception.Message -match '404|ResourceNotFound') {
+                Write-Verbose "Role $roleId not present in this tenant — skipping."
+            }
+            else {
+                throw
             }
         }
     }
@@ -182,9 +192,6 @@ catch {
         Write-Host '      Add a permission > Microsoft Graph > Application permissions' -ForegroundColor DarkGray
         Write-Host "    Then click 'Grant admin consent for [tenant]' and re-run." -ForegroundColor DarkGray
         Write-Host ''
-    }
-    elseif ($_.Exception.Message -match '404|ResourceNotFound') {
-        Write-Verbose "Role assignment query returned 404 — no qualifying assignments found."
     }
     else {
         Write-Warning "Could not check admin role separation: $_"
