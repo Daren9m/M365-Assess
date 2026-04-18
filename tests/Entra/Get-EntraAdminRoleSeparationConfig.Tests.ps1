@@ -141,7 +141,7 @@ Describe 'Get-EntraAdminRoleSeparationConfig - One Role Returns 404' {
             param($Method, $Uri, $ErrorAction)
             if ($Uri -match 'roleAssignments') {
                 $script:callCount++
-                if ($script:callCount -eq 1) { throw '404 ResourceNotFound - role not present' }
+                if ($script:callCount -eq 1) { throw 'Response status code does not indicate success: 404 (Not Found).' }
                 return @{ value = @(@{ principalId = 'admin-ok' }) }
             }
             # licenseDetails — no Exchange plans

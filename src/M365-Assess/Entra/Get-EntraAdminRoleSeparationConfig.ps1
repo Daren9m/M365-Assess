@@ -102,7 +102,7 @@ try {
             }
         }
         catch {
-            if ($_.Exception.Message -match '404|ResourceNotFound') {
+            if ("$_" -match '404|ResourceNotFound|Not Found') {
                 Write-Verbose "Role $roleId not present in this tenant — skipping."
             }
             else {
@@ -173,7 +173,7 @@ try {
     Add-Setting @settingParams
 }
 catch {
-    if ($_.Exception.Message -match '403|Forbidden|Authorization|Ensure the required|service is connected|Access_Denied|Authorization_RequestDenied') {
+    if ("$_" -match '403|Forbidden|Authorization|Ensure the required|service is connected|Access_Denied|Authorization_RequestDenied') {
         $settingParams = @{
             Category         = 'Admin Role Separation'
             Setting          = 'Privileged Account vs Daily-Use Account Separation'
