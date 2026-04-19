@@ -150,6 +150,53 @@ Describe 'Update-CheckProgress Spectre mode state' {
     }
 }
 
+Describe 'Update-ProgressStatus' {
+    BeforeAll {
+        . "$PSScriptRoot/../../src/M365-Assess/Common/Show-CheckProgress.ps1"
+        Mock Write-Host { }
+        Mock Write-Progress { }
+
+        $registry = @{
+            'ENTRA-ADMIN-001' = @{ checkId = 'ENTRA-ADMIN-001'; hasAutomatedCheck = $true; collector = 'Entra' }
+            'ENTRA-ADMIN-002' = @{ checkId = 'ENTRA-ADMIN-002'; hasAutomatedCheck = $true; collector = 'Entra' }
+        }
+        Initialize-CheckProgress -ControlRegistry $registry -ActiveSections @('Identity')
+        # Force Fallback mode to avoid Write-Progress mock issues in CI
+        $global:CheckProgressState.Mode = 'Fallback'
+    }
+
+    Context 'when message is a raw collector name' {
+        It 'should set CurrentSection from direct collector name match' {
+            Update-ProgressStatus -Message 'Entra'
+            $global:CheckProgressState.CurrentSection | Should -Be 'Identity'
+        }
+
+        It 'should set CurrentCollector to the display label' {
+            $global:CheckProgressState.CurrentCollector | Should -Be 'Entra Security Config'
+        }
+
+        It 'should mark the matching section as Running' {
+            $sec = $global:CheckProgressState.Sections | Where-Object { $_.Name -eq 'Identity' }
+            $sec.Status | Should -Be 'Running'
+        }
+    }
+
+    Context 'when message is a formatted orchestrator string' {
+        It 'should resolve "Running Entra Security Config..." to Identity section' {
+            # Reset section state first
+            foreach ($s in $global:CheckProgressState.Sections) { $s.Status = 'Pending' }
+            $global:CheckProgressState.CurrentSection = $null
+
+            Update-ProgressStatus -Message 'Running Entra Security Config...'
+            $global:CheckProgressState.CurrentSection | Should -Be 'Identity'
+        }
+
+        It 'should set CurrentCollector to the display label from formatted message' {
+            $global:CheckProgressState.CurrentCollector | Should -Be 'Entra Security Config'
+        }
+    }
+}
+
 Describe 'Complete-CheckProgress' {
     BeforeAll {
         . "$PSScriptRoot/../../src/M365-Assess/Common/Show-CheckProgress.ps1"

@@ -49,6 +49,13 @@ $script:CollectorLabelMap = @{
     'PowerBI'        = 'Power BI Security Config'
 }
 
+# Reverse map: display label -> collector name (e.g. 'Entra Security Config' -> 'Entra')
+# Used by Update-ProgressStatus to resolve "Running <label>..." messages from the orchestrator
+$script:LabelToCollectorMap = @{}
+foreach ($kv in $script:CollectorLabelMap.GetEnumerator()) {
+    $script:LabelToCollectorMap[$kv.Value] = $kv.Key
+}
+
 # Ordered list for consistent display
 $script:CollectorOrder = @('Entra', 'CAEvaluator', 'ExchangeOnline', 'DNS', 'Defender', 'Compliance', 'StrykerReadiness', 'Intune', 'SharePoint', 'Teams', 'PowerBI')
 
@@ -306,6 +313,7 @@ function global:Update-CheckProgress {
             'Warning' { $state.Warn++ }
             'Review'  { $state.Warn++ }
             'Skipped' { $state.Skip++ }
+            'Info'    { }
         }
     }
 
@@ -376,11 +384,26 @@ function global:Update-ProgressStatus {
     $state = $global:CheckProgressState
     if (-not $state -or $state.Total -eq 0) { return }
 
+    # Resolve the collector name from the message.
+    # The orchestrator may pass a raw collector name ('Entra') or a formatted
+    # string like 'Running Entra Security Config...' — handle both.
+    $collectorName = $null
+    if ($script:CollectorSectionMap -and $script:CollectorSectionMap.ContainsKey($Message)) {
+        # Direct match: message IS the collector name
+        $collectorName = $Message
+    } else {
+        # Try stripping "Running " prefix and "..." suffix, then look up label
+        $cleaned = $Message -replace '^Running\s+', '' -replace '\.{3}$', ''
+        if ($script:LabelToCollectorMap -and $script:LabelToCollectorMap.ContainsKey($cleaned)) {
+            $collectorName = $script:LabelToCollectorMap[$cleaned]
+        }
+    }
+
     # Track current section for dashboard sidebar highlighting
-    if ($script:CollectorSectionMap.ContainsKey($Message)) {
-        $sec = $script:CollectorSectionMap[$Message]
+    if ($collectorName -and $script:CollectorSectionMap -and $script:CollectorSectionMap.ContainsKey($collectorName)) {
+        $sec = $script:CollectorSectionMap[$collectorName]
         $state.CurrentSection    = $sec
-        $state.CurrentCollector  = if ($script:CollectorLabelMap[$Message]) { $script:CollectorLabelMap[$Message] } else { $Message }
+        $state.CurrentCollector  = if ($script:CollectorLabelMap[$collectorName]) { $script:CollectorLabelMap[$collectorName] } else { $collectorName }
 
         # Transition: mark previous Running section Complete, mark current as Running
         foreach ($s in $state.Sections) {
