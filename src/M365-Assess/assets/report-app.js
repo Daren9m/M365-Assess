@@ -721,8 +721,8 @@ function FrameworkQuilt({
       e3 = new Set(),
       e5only = new Set();
     FINDINGS.forEach((f, idx) => {
-      const profiles = f.fwMeta?.[expandedFw]?.profiles;
-      if (!profiles || profiles.length === 0) return;
+      const profiles = [].concat(f.fwMeta?.[expandedFw]?.profiles || []);
+      if (profiles.length === 0) return;
       const hasE3 = profiles.some(p => p.startsWith('E3'));
       profiles.forEach(p => {
         if (p.includes('L1')) l1.add(idx);

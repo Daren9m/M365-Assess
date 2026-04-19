@@ -579,7 +579,7 @@ section.block { margin-bottom: 40px; scroll-margin-top: 20px; }
 }
 .finding-detail .block-title {
   font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em;
-  color: var(--muted); font-weight: 600; margin: 16px 0 8px 0;
+  color: var(--muted); font-weight: 600; margin: 0 0 8px 0;
 }
 .finding-detail .value-box {
   padding: 10px 12px;

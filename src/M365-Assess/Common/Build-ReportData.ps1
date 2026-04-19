@@ -232,9 +232,10 @@ function Build-ReportDataJson {
     # 5. Serialize + escape </script> in string values
     # ------------------------------------------------------------------
     $json = $reportData | ConvertTo-Json -Depth 10
-    # ConvertTo-Json serializes [string[]]@() as null in PSCustomObject properties.
-    $json = $json -replace '"frameworks":\s*null', '"frameworks": []'
-    $json = $json -replace '"profiles":\s*null',   '"profiles": []'
+    # ConvertTo-Json serializes [string[]]@() as null and single-element arrays as bare strings.
+    $json = $json -replace '"frameworks":\s*null',      '"frameworks": []'
+    $json = $json -replace '"profiles":\s*null',        '"profiles": []'
+    $json = $json -replace '"profiles":\s*"([^"]*)"',   '"profiles": ["$1"]'
     $json = $json -replace '</script>', '<\/script>'
     return "window.REPORT_DATA = $json;"
 }
