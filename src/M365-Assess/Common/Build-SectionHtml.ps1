@@ -16,8 +16,7 @@
     Also invokes Export-ComplianceMatrix.ps1 to produce the companion XLSX file.
 
     Caller scope must provide: $AssessmentFolder, $summary, $controlRegistry,
-    $allFrameworks, $cisFrameworkId, $reportDomainPrefix, $WhiteLabel, $CustomBranding,
-    $DriftReport.
+    $allFrameworks, $cisFrameworkId, $reportDomainPrefix, $WhiteLabel, $DriftReport.
 .NOTES
     Author: Daren9m
 #>
@@ -103,7 +102,6 @@ try {
     $xlsxScript = Join-Path -Path $PSScriptRoot -ChildPath 'Export-ComplianceMatrix.ps1'
     if (Test-Path -Path $xlsxScript) {
         $xlsxParams = @{ AssessmentFolder = $AssessmentFolder; TenantName = $reportDomainPrefix }
-        if ($WhiteLabel -and $CustomBranding) { $xlsxParams['CustomBranding'] = $CustomBranding }
         if ($DriftReport -and $DriftReport.Count -gt 0) { $xlsxParams['DriftReport'] = $DriftReport }
         & $xlsxScript @xlsxParams
     }

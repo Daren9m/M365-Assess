@@ -21,6 +21,7 @@
         'PBI-*'          { return 'Power BI' }
         'FORMS-*'        { return 'Forms' }
         'AD-*'           { return 'Active Directory' }
+        'AZ-*'           { return 'Azure' }
         'SOC2-*'         { return 'SOC 2' }
         'VO-*'           { return 'Value Opportunity' }
         default          { return 'Other' }

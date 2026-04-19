@@ -27,11 +27,11 @@ function Get-ReportTemplate {
 
     $assetsDir = Join-Path -Path $PSScriptRoot -ChildPath '../assets'
 
-    $themesCss  = Get-Content -Path (Join-Path $assetsDir 'report-themes.css')             -Raw -ErrorAction Stop
-    $shellCss   = Get-Content -Path (Join-Path $assetsDir 'report-shell.css')              -Raw -ErrorAction Stop
-    $reactJs    = Get-Content -Path (Join-Path $assetsDir 'react.production.min.js')       -Raw -ErrorAction Stop
-    $reactDomJs = Get-Content -Path (Join-Path $assetsDir 'react-dom.production.min.js')   -Raw -ErrorAction Stop
-    $appJs      = Get-Content -Path (Join-Path $assetsDir 'report-app.js')                 -Raw -ErrorAction Stop
+    $themesCss  = (Get-Content -Path (Join-Path $assetsDir 'report-themes.css')             -Raw -ErrorAction Stop) -replace '</style>',  '<\/style>'
+    $shellCss   = (Get-Content -Path (Join-Path $assetsDir 'report-shell.css')              -Raw -ErrorAction Stop) -replace '</style>',  '<\/style>'
+    $reactJs    = (Get-Content -Path (Join-Path $assetsDir 'react.production.min.js')       -Raw -ErrorAction Stop) -replace '</script>', '<\/script>'
+    $reactDomJs = (Get-Content -Path (Join-Path $assetsDir 'react-dom.production.min.js')   -Raw -ErrorAction Stop) -replace '</script>', '<\/script>'
+    $appJs      = (Get-Content -Path (Join-Path $assetsDir 'report-app.js')                 -Raw -ErrorAction Stop) -replace '</script>', '<\/script>'
 
     # Use StringBuilder so JS/CSS content is appended as .NET strings — never PS-interpolated
     $sb = [System.Text.StringBuilder]::new(2097152) # 2 MB initial capacity
