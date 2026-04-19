@@ -200,8 +200,12 @@ Describe 'Update-ProgressStatus' {
 Describe 'Complete-CheckProgress' {
     BeforeAll {
         . "$PSScriptRoot/../../src/M365-Assess/Common/Show-CheckProgress.ps1"
-        Mock Write-Host { }
+        Mock Write-Host    { }
         Mock Write-Progress { }
+        if (-not (Get-Command -Name Invoke-SpectreRenderLoop -ErrorAction SilentlyContinue)) {
+            function global:Invoke-SpectreRenderLoop { }
+        }
+        Mock Invoke-SpectreRenderLoop { }
 
         $registry = @{
             'ENTRA-ADMIN-001' = @{ checkId = 'ENTRA-ADMIN-001'; hasAutomatedCheck = $true; collector = 'Entra' }
@@ -209,8 +213,50 @@ Describe 'Complete-CheckProgress' {
         Initialize-CheckProgress -ControlRegistry $registry -ActiveSections @('Identity')
     }
 
-    It 'should clean up global state' {
+    It 'should set state.Complete to true' {
         Complete-CheckProgress
+        $global:CheckProgressState.Complete | Should -Be $true
+    }
+
+    It 'should mark Running sections as Complete' {
+        # Set one section to Running first
+        $sec = $global:CheckProgressState.Sections | Where-Object { $_.Name -eq 'Identity' }
+        $sec.Status = 'Running'
+        Complete-CheckProgress
+        $sec.Status | Should -Be 'Complete'
+    }
+
+    It 'should NOT remove global state (Close-CheckProgress does that)' {
+        $global:CheckProgressState | Should -Not -BeNullOrEmpty
+    }
+}
+
+Describe 'Close-CheckProgress' {
+    BeforeAll {
+        . "$PSScriptRoot/../../src/M365-Assess/Common/Show-CheckProgress.ps1"
+        Mock Write-Host    { }
+        Mock Write-Progress { }
+        if (-not (Get-Command -Name Invoke-SpectreRenderLoop -ErrorAction SilentlyContinue)) {
+            function global:Invoke-SpectreRenderLoop { }
+        }
+        Mock Invoke-SpectreRenderLoop { }
+
+        $registry = @{
+            'ENTRA-ADMIN-001' = @{ checkId = 'ENTRA-ADMIN-001'; hasAutomatedCheck = $true; collector = 'Entra' }
+        }
+        Initialize-CheckProgress -ControlRegistry $registry -ActiveSections @('Identity')
+        Complete-CheckProgress
+    }
+
+    It 'should store OutputFiles in state before cleanup' {
+        # state is still live at this point — Close hasn't been called yet
+        Close-CheckProgress -OutputFiles @('C:\Assessments\report.html', 'C:\Assessments\matrix.xlsx')
+        # After Close, state is gone — can't check state.OutputFiles
+        # Instead verify the Write-Host summary was printed
+        Should -Invoke Write-Host -Times 1 -ParameterFilter { $Object -match 'Output' } -Scope It
+    }
+
+    It 'should clean up global state after close' {
         $global:CheckProgressState | Should -BeNullOrEmpty
     }
 }

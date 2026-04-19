@@ -581,21 +581,89 @@ function global:Update-ProgressStatus {
 function Complete-CheckProgress {
     <#
     .SYNOPSIS
-        Cleans up the progress display and global functions.
+        Signals that all security checks are done. In Fallback mode, completes
+        the progress bar and prints a summary line. In Spectre mode, sets
+        $state.Complete = $true so the render loop transitions to the completion screen.
+        Call Close-CheckProgress after report generation to wait for keypress and clean up.
     #>
     [CmdletBinding()]
     param()
 
-    $state = $global:CheckProgressState
-    if ($state -and $state.Total -gt 0) {
-        Write-Progress -Activity 'M365 Security Assessment' -Completed -Id 1
+    $state = $script:State
+    if (-not $state) { return }
+
+    $state.Complete = $true
+
+    # Mark the last Running section as Complete
+    foreach ($s in $state.Sections) {
+        if ($s.Status -eq 'Running') { $s.Status = 'Complete' }
+    }
+
+    if ($state.Mode -eq 'Fallback') {
+        if ($state.Total -gt 0) {
+            Write-Progress -Activity 'M365 Security Assessment' -Completed -Id 1
+            Write-Host ''
+            Write-Host "  $([char]0x2713) All $($state.Total) security checks complete" -ForegroundColor Green
+            Write-Host ''
+        }
+    }
+    # Spectre mode: render loop sees Complete=true and shows the completion screen.
+    # Main thread continues to report generation; Close-CheckProgress blocks on keypress.
+}
+
+
+function Close-CheckProgress {
+    <#
+    .SYNOPSIS
+        Finalizes the progress display with output file paths, waits for keypress
+        (Spectre mode), then tears down all global state and functions.
+    .PARAMETER OutputFiles
+        Array of absolute paths to generated output files (HTML, XLSX, etc.).
+        Displayed on the completion screen in Spectre mode and printed to console in Fallback mode.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [string[]]$OutputFiles = @()
+    )
+
+    $state = $script:State
+    if (-not $state) { return }
+
+    $state.OutputFiles = $OutputFiles
+
+    if ($state.Mode -eq 'Spectre' -and $script:BackgroundPs) {
+        try {
+            # Blocks here until the background runspace's ReadKey returns (user presses a key)
+            $script:BackgroundPs.EndInvoke($script:BackgroundJob)
+        }
+        catch {
+            Write-Verbose "Spectre render loop error: $_"
+        }
+        finally {
+            $script:BackgroundPs.Dispose()
+            $script:BackgroundPs  = $null
+            $script:BackgroundJob = $null
+        }
+    }
+    elseif ($state.Mode -eq 'Fallback') {
+        # Compact text summary for CI / non-interactive runs
         Write-Host ''
-        Write-Host "  $([char]0x2713) All $($state.Total) security checks complete" -ForegroundColor Green
+        Write-Host "  Results: $($state.Pass) pass  $($state.Fail) fail  $($state.Warn) warn  $($state.Skip) skip" -ForegroundColor Cyan
+        if ($OutputFiles.Count -gt 0) {
+            Write-Host '  Output:' -ForegroundColor White
+            foreach ($f in $OutputFiles) {
+                Write-Host "    $f" -ForegroundColor Cyan
+            }
+        }
         Write-Host ''
     }
 
-    # Clean up globals
-    Remove-Item -Path 'Function:\Update-CheckProgress' -ErrorAction SilentlyContinue
+    # Tear down global functions and state
+    Remove-Item -Path 'Function:\Update-CheckProgress'  -ErrorAction SilentlyContinue
     Remove-Item -Path 'Function:\Update-ProgressStatus' -ErrorAction SilentlyContinue
     Remove-Variable -Name CheckProgressState -Scope Global -ErrorAction SilentlyContinue
+    $script:State         = $null
+    $script:BackgroundPs  = $null
+    $script:BackgroundJob = $null
 }
