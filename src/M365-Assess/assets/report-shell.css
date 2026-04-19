@@ -628,20 +628,6 @@ section.block { margin-bottom: 40px; scroll-margin-top: 20px; }
 }
 .finding-detail .value-box.current { border-left: 3px solid var(--danger); }
 .finding-detail .value-box.recommended { border-left: 3px solid var(--success); }
-.finding-detail .remediation {
-  grid-column: 1 / -1;
-  padding: 12px 14px;
-  background: var(--surface);
-  border: 1px solid var(--accent-border);
-  border-radius: 8px;
-  font-size: 13px; line-height: 1.55;
-}
-.finding-detail .remediation code {
-  font-family: var(--font-mono); font-size: 12px;
-  background: var(--chip);
-  padding: 1px 5px; border-radius: 3px;
-  color: var(--accent-text);
-}
 .finding-detail .why {
   grid-column: 1 / -1;
   padding: 10px 14px;

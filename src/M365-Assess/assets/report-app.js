@@ -1237,7 +1237,7 @@ function FilterBar({
   })), /*#__PURE__*/React.createElement("input", {
     value: search,
     onChange: e => setSearch(e.target.value),
-    placeholder: "Search findings, check IDs, remediation\u2026"
+    placeholder: "Search findings, check IDs, categories\u2026"
   }), search && /*#__PURE__*/React.createElement("button", {
     className: "fb-clear-x",
     onClick: () => setSearch(''),
@@ -1624,14 +1624,7 @@ function FindingsTable({
       className: "block-title"
     }, "Recommended value"), /*#__PURE__*/React.createElement("div", {
       className: "value-box recommended"
-    }, f.recommended || '—')), /*#__PURE__*/React.createElement("div", {
-      className: "remediation"
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "block-title",
-      style: {
-        margin: '0 0 6px'
-      }
-    }, "Remediation"), renderRemediation(f.remediation))));
+    }, f.recommended || '—'))));
   })));
 }
 function renderRemediation(text) {

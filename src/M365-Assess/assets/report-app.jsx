@@ -672,7 +672,7 @@ function FilterBar({ filters, setFilters, counts, total, search, setSearch }) {
     <div className="filter-bar">
       <div className="fb-search">
         <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
-        <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search findings, check IDs, remediation…"/>
+        <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search findings, check IDs, categories…"/>
         {search && <button className="fb-clear-x" onClick={()=>setSearch('')} aria-label="Clear">×</button>}
       </div>
       <div className="filter-divider"/>
@@ -917,10 +917,6 @@ function FindingsTable({ filters, search }) {
                   <div>
                     <div className="block-title">Recommended value</div>
                     <div className="value-box recommended">{f.recommended || '—'}</div>
-                  </div>
-                  <div className="remediation">
-                    <div className="block-title" style={{margin:'0 0 6px'}}>Remediation</div>
-                    {renderRemediation(f.remediation)}
                   </div>
                 </div>
               )}
