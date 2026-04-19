@@ -34,24 +34,12 @@ This is useful for:
 - Testing report layout changes against existing data
 - Generating reports from CSV data collected on another system
 
-## Custom Branding
+## White Label
 
-Replace the images in `src/M365-Assess/assets/` with your own:
-
-| File | Purpose | Format | Recommended Size |
-|------|---------|--------|-----------------|
-| `m365-assess-logo.png` | Report cover page logo | PNG | 400 x 120 px |
-| `m365-assess-logo-white.png` | Light-on-dark variant (optional) | PNG | 400 x 120 px |
-| `m365-assess-bg.png` | Cover page background | PNG | 1200 x 800 px |
-
-The report engine base64-encodes these images at generation time, so the output file is fully self-contained.
-
-### Removing Branding
-
-Use `-NoBranding` to generate a clean report without the M365 Assess logo and cover page branding:
+Use `-WhiteLabel` to generate a report without the M365 Assess GitHub link and Galvnyz attribution in the footer:
 
 ```powershell
-.\Invoke-M365Assessment.ps1 -TenantId 'contoso.onmicrosoft.com' -NoBranding
+Invoke-M365Assessment -TenantId 'contoso.onmicrosoft.com' -WhiteLabel
 ```
 
-This produces a professional report with your tenant name and data, but no third-party branding. Ideal for white-label delivery to clients.
+This produces a clean report with your tenant name and data but no open-source attribution. Ideal for client delivery.
