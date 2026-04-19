@@ -156,6 +156,22 @@ const Icon = {
     strokeWidth: "1.5"
   }, /*#__PURE__*/React.createElement("path", {
     d: "M8 2v8M5 7l3 3 3-3M2 12v1a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-1"
+  })),
+  menu: () => /*#__PURE__*/React.createElement("svg", {
+    viewBox: "0 0 16 16",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "1.5"
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M2 4h12M2 8h12M2 12h12"
+  })),
+  close: () => /*#__PURE__*/React.createElement("svg", {
+    viewBox: "0 0 16 16",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "1.5"
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M3 3l10 10M13 3L3 13"
   }))
 };
 const STATUS_COLORS = {
@@ -184,7 +200,9 @@ function Sidebar({
   counts,
   domainCounts,
   activeDomain,
-  onDomainJump
+  onDomainJump,
+  navOpen,
+  onClose
 }) {
   const DOM_ORDER = ['Entra ID', 'Conditional Access', 'Enterprise Apps', 'Exchange Online', 'Intune', 'Defender', 'Purview / Compliance', 'SharePoint & OneDrive', 'Teams', 'Forms', 'Power BI', 'Active Directory', 'SOC 2', 'Value Opportunity'];
   const domains = DOM_ORDER.filter(d => domainCounts.total[d]).concat(Object.keys(domainCounts.total).filter(d => !DOM_ORDER.includes(d)).sort());
@@ -212,8 +230,15 @@ function Sidebar({
     id: 'appendix',
     label: 'Appendix · tenant'
   }];
-  return /*#__PURE__*/React.createElement("aside", {
-    className: "sidebar"
+  const isMobile = () => window.matchMedia('(max-width: 720px)').matches;
+  const closeIfMobile = () => {
+    if (isMobile()) onClose();
+  };
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: 'sidebar-overlay' + (navOpen ? ' open' : ''),
+    onClick: onClose
+  }), /*#__PURE__*/React.createElement("aside", {
+    className: 'sidebar' + (navOpen ? ' open' : '')
   }, /*#__PURE__*/React.createElement("div", {
     className: "brand"
   }, /*#__PURE__*/React.createElement("div", {
@@ -222,11 +247,16 @@ function Sidebar({
     className: "brand-name"
   }, "M365 Assess"), /*#__PURE__*/React.createElement("div", {
     className: "brand-sub"
-  }, "Security Report"))), /*#__PURE__*/React.createElement("nav", null, /*#__PURE__*/React.createElement("div", {
+  }, "Security Report")), /*#__PURE__*/React.createElement("button", {
+    className: "sidebar-close",
+    onClick: onClose,
+    "aria-label": "Close navigation"
+  }, /*#__PURE__*/React.createElement(Icon.close, null))), /*#__PURE__*/React.createElement("nav", null, /*#__PURE__*/React.createElement("div", {
     className: "nav-label"
   }, "Executive"), exec.map(it => /*#__PURE__*/React.createElement("a", {
     href: `#${it.id}`,
     key: it.id,
+    onClick: closeIfMobile,
     className: 'nav-item' + (active === it.id ? ' active' : '')
   }, /*#__PURE__*/React.createElement("span", null, it.label))), /*#__PURE__*/React.createElement("div", {
     className: "nav-label",
@@ -242,6 +272,7 @@ function Sidebar({
       onClick: e => {
         e.preventDefault();
         onDomainJump(d);
+        closeIfMobile();
       },
       className: 'nav-item' + (activeDomain === d ? ' active' : '')
     }, /*#__PURE__*/React.createElement("span", null, d), /*#__PURE__*/React.createElement("span", {
@@ -255,7 +286,10 @@ function Sidebar({
   }, "Details"), details.map(it => /*#__PURE__*/React.createElement("a", {
     href: `#${it.id}`,
     key: it.id,
-    onClick: it.id === 'findings' ? () => onDomainJump(null) : undefined,
+    onClick: e => {
+      if (it.id === 'findings') onDomainJump(null);
+      closeIfMobile();
+    },
     className: 'nav-item' + (active === it.id && !(it.id === 'findings' && activeDomain) ? ' active' : '')
   }, /*#__PURE__*/React.createElement("span", null, it.label), it.count !== undefined && /*#__PURE__*/React.createElement("span", {
     className: "count"
@@ -277,7 +311,7 @@ function Sidebar({
       marginTop: 2,
       opacity: .7
     }
-  }, "Run \xB7 ", new Date(SCORE.CreatedDateTime || Date.now()).toLocaleDateString())));
+  }, "Run \xB7 ", new Date(SCORE.CreatedDateTime || Date.now()).toLocaleDateString()))));
 }
 
 // ======================== Topbar ========================
@@ -289,11 +323,16 @@ function Topbar({
   theme,
   setTheme,
   onPrint,
-  onTweaks
+  onTweaks,
+  onHamburger
 }) {
   return /*#__PURE__*/React.createElement("div", {
     className: "topbar"
-  }, /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("button", {
+    className: "hamburger-btn",
+    onClick: onHamburger,
+    "aria-label": "Open navigation"
+  }, /*#__PURE__*/React.createElement(Icon.menu, null)), /*#__PURE__*/React.createElement("div", {
     className: "title"
   }, "Security posture report", /*#__PURE__*/React.createElement("span", {
     className: "title-sub"
@@ -2174,6 +2213,7 @@ function App() {
   });
   const [active, setActive] = useState('overview');
   const [showTweaks, setShowTweaks] = useState(false);
+  const [navOpen, setNavOpen] = useState(false);
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
     document.documentElement.dataset.mode = mode;
@@ -2269,7 +2309,9 @@ function App() {
     counts: navCounts,
     domainCounts: domainCounts,
     activeDomain: filters.domain.length === 1 ? filters.domain[0] : null,
-    onDomainJump: onDomainJump
+    onDomainJump: onDomainJump,
+    navOpen: navOpen,
+    onClose: () => setNavOpen(false)
   }), /*#__PURE__*/React.createElement("main", {
     className: "main"
   }, /*#__PURE__*/React.createElement(Topbar, {
@@ -2280,7 +2322,8 @@ function App() {
     theme: theme,
     setTheme: setTheme,
     onPrint: () => window.print(),
-    onTweaks: () => setShowTweaks(s => !s)
+    onTweaks: () => setShowTweaks(s => !s),
+    onHamburger: () => setNavOpen(o => !o)
   }), /*#__PURE__*/React.createElement(Overview, null), /*#__PURE__*/React.createElement(Posture, null), /*#__PURE__*/React.createElement(DomainRollup, {
     onJump: onDomainJump
   }), /*#__PURE__*/React.createElement(FrameworkQuilt, {

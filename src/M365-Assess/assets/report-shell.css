@@ -1120,13 +1120,55 @@ section.block { margin-bottom: 40px; scroll-margin-top: 20px; }
 }
 
 /* Small widths */
+/* Hamburger + overlay — hidden on desktop */
+.hamburger-btn { display: none; }
+.sidebar-close { display: none; }
+.sidebar-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.55);
+  z-index: 199;
+  opacity: 0; pointer-events: none;
+  transition: opacity .25s;
+}
+.sidebar-overlay.open { opacity: 1; pointer-events: auto; }
+
 @media (max-width: 720px) {
   .app { grid-template-columns: 1fr; }
-  .sidebar { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--border); }
+  .hamburger-btn {
+    display: grid; place-items: center;
+    width: 34px; height: 34px; border-radius: 7px;
+    background: var(--input-bg); color: var(--text-soft);
+    border: 1px solid var(--border); cursor: pointer;
+    flex-shrink: 0;
+  }
+  .hamburger-btn svg { width: 18px; height: 18px; }
+  .sidebar-close {
+    display: grid; place-items: center;
+    margin-left: auto;
+    width: 28px; height: 28px; border-radius: 6px;
+    background: transparent; color: var(--text-soft);
+    border: 1px solid var(--border); cursor: pointer;
+    flex-shrink: 0;
+  }
+  .sidebar-close svg { width: 13px; height: 13px; }
+  .sidebar {
+    position: fixed; top: 0; left: 0;
+    width: 280px; max-width: 85vw;
+    height: 100vh; z-index: 200;
+    transform: translateX(-100%);
+    transition: transform .25s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+    border-right: 1px solid var(--border-strong);
+    box-shadow: none;
+  }
+  .sidebar.open {
+    transform: translateX(0);
+    box-shadow: 8px 0 32px rgba(0,0,0,0.45);
+  }
   .main { padding: 20px; }
   .findings-head, .finding-row { grid-template-columns: 72px 1fr 28px; }
-  .findings-head > :nth-child(3), .findings-head > :nth-child(4), .findings-head > :nth-child(5), .findings-head > :nth-child(6),
-  .finding-row > :nth-child(3), .finding-row > :nth-child(4), .finding-row > :nth-child(5), .finding-row > :nth-child(6) { display: none; }
+  .findings-head > :nth-child(n+3):not(:last-child),
+  .finding-row > :nth-child(n+3):not(:last-child) { display: none; }
 }
 
 /* Tweaks panel */
