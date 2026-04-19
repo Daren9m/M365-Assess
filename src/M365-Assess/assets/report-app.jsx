@@ -960,7 +960,7 @@ function Roadmap() {
           <div className="task-id">{t.checkId} · {t.domain}</div>
           <div className="task-tags">
             <span className="task-tag">{SEV_LABEL[t.severity]}</span>
-            <span className="task-tag">{t.effort} effort</span>
+            {t.effort && <span className="task-tag">{t.effort} effort</span>}
             {t.frameworks.slice(0,3).map(fw => <span key={fw} className="task-tag" style={{fontFamily:'var(--font-mono)'}}>{fw}</span>)}
             <span className="task-chev" aria-hidden="true">{isOpen ? '−' : '+'}</span>
           </div>
@@ -996,7 +996,7 @@ function Roadmap() {
             <div className="task-meta-row">
               <span><b>Section:</b> {t.section}</span>
               <span><b>Severity:</b> {SEV_LABEL[t.severity]}</span>
-              <span><b>Effort:</b> {t.effort}</span>
+              {t.effort && <span><b>Effort:</b> {t.effort}</span>}
               <span><b>Frameworks:</b> {t.frameworks.join(', ') || '—'}</span>
             </div>
             <div className="task-actions">

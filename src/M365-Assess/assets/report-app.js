@@ -1630,7 +1630,7 @@ function Roadmap() {
       className: "task-tags"
     }, /*#__PURE__*/React.createElement("span", {
       className: "task-tag"
-    }, SEV_LABEL[t.severity]), /*#__PURE__*/React.createElement("span", {
+    }, SEV_LABEL[t.severity]), t.effort && /*#__PURE__*/React.createElement("span", {
       className: "task-tag"
     }, t.effort, " effort"), t.frameworks.slice(0, 3).map(fw => /*#__PURE__*/React.createElement("span", {
       key: fw,
@@ -1685,7 +1685,7 @@ function Roadmap() {
       className: "task-field-value"
     }, t.rationale)), /*#__PURE__*/React.createElement("div", {
       className: "task-meta-row"
-    }, /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("b", null, "Section:"), " ", t.section), /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("b", null, "Severity:"), " ", SEV_LABEL[t.severity]), /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("b", null, "Effort:"), " ", t.effort), /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("b", null, "Frameworks:"), " ", t.frameworks.join(', ') || '—')), /*#__PURE__*/React.createElement("div", {
+    }, /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("b", null, "Section:"), " ", t.section), /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("b", null, "Severity:"), " ", SEV_LABEL[t.severity]), t.effort && /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("b", null, "Effort:"), " ", t.effort), /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("b", null, "Frameworks:"), " ", t.frameworks.join(', ') || '—')), /*#__PURE__*/React.createElement("div", {
       className: "task-actions"
     }, /*#__PURE__*/React.createElement("a", {
       href: "#findings",
