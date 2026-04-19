@@ -219,6 +219,7 @@
         'assets\react-dom.production.min.js'
         'assets\report-themes.css'
         'assets\report-shell.css'
+        'lib\Spectre.Console.dll'
     )
 
     # Private data / PSData for PowerShell Gallery
