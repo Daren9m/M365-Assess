@@ -60,6 +60,18 @@ foreach ($kv in $script:CollectorLabelMap.GetEnumerator()) {
 $script:CollectorOrder = @('Entra', 'CAEvaluator', 'ExchangeOnline', 'DNS', 'Defender', 'Compliance', 'StrykerReadiness', 'Intune', 'SharePoint', 'Teams', 'PowerBI')
 
 function Invoke-SpectreRenderLoop {
+    <#
+    .SYNOPSIS
+        Starts a background PS runspace that renders a Spectre.Console live dashboard.
+    .DESCRIPTION
+        Launched by Initialize-CheckProgress in Spectre mode. The runspace reads from
+        the synchronized $script:State hashtable every 100ms and redraws the dashboard.
+        The runspace blocks on [Console]::ReadKey after $state.Complete is set.
+        Close-CheckProgress calls EndInvoke to unblock and Dispose to release the runspace.
+    #>
+    [CmdletBinding()]
+    param()
+
     # Capture script-level values needed inside the runspace (PSScriptRoot not available there)
     $libPath       = Join-Path -Path $PSScriptRoot -ChildPath '..\lib\Spectre.Console.dll'
     $capturedState = $script:State
@@ -76,12 +88,15 @@ function Invoke-SpectreRenderLoop {
         function Build-Dashboard {
             param($s)
 
+            # Escape user-supplied strings that will be interpolated into Spectre markup
+            $esc = { param($v) if ($v) { [Spectre.Console.Markup]::Escape($v) } else { '' } }
+
             $elapsed = ([datetime]::Now - $s.StartTime).ToString('mm\:ss')
             $pct     = if ($s.Total -gt 0) { [int]($s.Completed / $s.Total * 100) } else { 0 }
 
             # Header status text
             $status    = if ($s.Complete) { '[green] COMPLETE [/]' } else { '[blue]running[/]' }
-            $titleText = "[bold blue]M365 Security Assessment[/]  [grey]$($s.TenantDomain) · v$($s.Version) · $elapsed · $status[/]"
+            $titleText = "[bold blue]M365 Security Assessment[/]  [grey]$(& $esc $s.TenantDomain) · v$(& $esc $s.Version) · $elapsed · $status[/]"
 
             # ── Metrics strip (5-cell table) ──
             $metrics = [Spectre.Console.Table]::new()
@@ -103,24 +118,24 @@ function Invoke-SpectreRenderLoop {
             # ── Section list (left sidebar) ──
             $secLines = foreach ($sec in $s.Sections) {
                 switch ($sec.Status) {
-                    'Complete' { "[green]✓ $($sec.Name.PadRight(14))[/]" }
-                    'Running'  { "[yellow]▶ $($sec.Name.PadRight(14))[/]" }
-                    default    { "[grey]○ $($sec.Name.PadRight(14))[/]" }
+                    'Complete' { "[green]✓ $((& $esc $sec.Name).PadRight(14))[/]" }
+                    'Running'  { "[yellow]▶ $((& $esc $sec.Name).PadRight(14))[/]" }
+                    default    { "[grey]○ $((& $esc $sec.Name).PadRight(14))[/]" }
                 }
             }
             $secBlock = if ($secLines.Count -gt 0) { $secLines -join "`n" } else { '[grey](none)[/]' }
 
             # ── Live check stream (right panel, last 20 checks) ──
-            $recentChecks = if ($s.Checks.Count -gt 20) {
-                $tmp = [System.Collections.Generic.List[hashtable]]::new($s.Checks)
-                $tmp.GetRange($tmp.Count - 20, 20)
-            } else { $s.Checks }
+            $recentChecks = try {
+                $snapshot = $s.Checks.ToArray()
+                if ($snapshot.Count -gt 20) { $snapshot[($snapshot.Count - 20)..($snapshot.Count - 1)] } else { $snapshot }
+            } catch { @() }
 
             $checkLines = foreach ($c in $recentChecks) {
                 $icon  = switch ($c.Status) { 'Pass' { '[green]✓[/]' } 'Fail' { '[red]✗[/]' } 'Warning' { '[yellow]![/]' } 'Review' { '[cyan]?[/]' } default { '[grey]·[/]' } }
                 $name  = if ($c.Setting.Length -gt 42) { $c.Setting.Substring(0, 39) + '...' } else { $c.Setting }
-                $idStr = '[grey]' + $c.CheckId.ToString().PadRight(26) + '[/]'
-                "$icon $idStr $name"
+                $idStr = '[grey]' + ([Spectre.Console.Markup]::Escape($c.CheckId.ToString())).PadRight(26) + '[/]'
+                "$icon $idStr $(& $esc $name)"
             }
 
             # Show output files on completion
@@ -128,12 +143,12 @@ function Invoke-SpectreRenderLoop {
                 $checkLines += ''
                 $checkLines += '[grey]Output:[/]'
                 foreach ($f in $s.OutputFiles) {
-                    $checkLines += "  [blue]$f[/]"
+                    $checkLines += "  [blue]$(& $esc $f)[/]"
                 }
             }
 
             $checkBlock = if ($checkLines.Count -gt 0) {
-                "[grey]$($s.CurrentCollector)[/]`n" + ($checkLines -join "`n")
+                "[grey]$(& $esc $s.CurrentCollector)[/]`n" + ($checkLines -join "`n")
             } else { '[grey]Waiting for checks...[/]' }
 
             # ── Body: two-column table ──
@@ -156,12 +171,12 @@ function Invoke-SpectreRenderLoop {
             $secList = @($s.Sections)
             for ($i = 0; $i -lt $secList.Count; $i++) {
                 if ($secList[$i].Status -eq 'Running' -and ($i + 1) -lt $secList.Count) {
-                    $nextSec = " · next: $($secList[$i+1].Name)"
+                    $nextSec = " · next: $(& $esc $secList[$i+1].Name)"
                     break
                 }
             }
             $keyHint = if ($s.Complete) { '  [grey]press any key to exit[/]' } else { '' }
-            $footer  = "[blue]$barFill[/][grey]$barVoid[/]  [white]$pct%[/]  $($s.CurrentSection)$nextSec$keyHint"
+            $footer  = "[blue]$barFill[/][grey]$barVoid[/]  [white]$pct%[/]  $(& $esc $s.CurrentSection)$nextSec$keyHint"
 
             # ── Outer panel ──
             $outerGrid = [Spectre.Console.Grid]::new()
@@ -184,11 +199,11 @@ function Invoke-SpectreRenderLoop {
         $live.Start([Action[Spectre.Console.LiveDisplayContext]]{
             param([Spectre.Console.LiveDisplayContext]$ctx)
             while (-not $state.Complete) {
-                try { $ctx.UpdateTarget((Build-Dashboard $state)) } catch {}
+                try { $ctx.UpdateTarget((Build-Dashboard $state)) } catch { $state['LastRenderError'] = $_.ToString() }
                 Start-Sleep -Milliseconds 100
             }
             # Final render with completion screen (output files + key hint)
-            try { $ctx.UpdateTarget((Build-Dashboard $state)) } catch {}
+            try { $ctx.UpdateTarget((Build-Dashboard $state)) } catch { $state['LastRenderError'] = $_.ToString() }
             # Block inside the Live context until keypress
             [Console]::ReadKey($true) | Out-Null
         })
@@ -315,7 +330,7 @@ function Initialize-CheckProgress {
         LicenseSkipped   = $licenseSkipped  # checkId -> required plans (for compliance overview)
 
         # New keys for Spectre mode
-        Mode             = if ([Console]::IsOutputRedirected -or $env:CI) { 'Fallback' } else { 'Spectre' }
+        Mode             = if ([Console]::IsOutputRedirected -or [Console]::IsInputRedirected -or $env:CI) { 'Fallback' } else { 'Spectre' }
         Complete         = $false
         Closed           = $false
         StartTime        = [datetime]::Now
