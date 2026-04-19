@@ -191,7 +191,7 @@ function Initialize-CheckProgress {
     }
 
     # Build ordered section list for the dashboard sidebar
-    $sectionOrder = @('Identity', 'Email', 'Security', 'Intune', 'Collaboration', 'PowerBI', 'DNS')
+    $sectionOrder = @('Identity', 'Email', 'Security', 'Intune', 'Collaboration', 'PowerBI')
     foreach ($sec in $sectionOrder) {
         if ($sec -in $ActiveSections) {
             $script:State.Sections.Add(@{ Name = $sec; Status = 'Pending' }) | Out-Null
@@ -251,8 +251,9 @@ function Initialize-CheckProgress {
         Write-Progress -Activity 'M365 Security Assessment' -Status "0 / $totalChecks checks complete" -PercentComplete 0 -Id 1
     } else {
         # Spectre mode: clear screen and start background render loop
-        # (Invoke-SpectreRenderLoop is added in Task 4 — stub only)
+        if ($totalChecks -eq 0) { return }
         [Console]::Clear()
+        # Invoke-SpectreRenderLoop is wired in Task 4
     }
 }
 
