@@ -652,6 +652,7 @@ function FrameworkQuilt({
 }) {
   const [visibleFws, setVisibleFws] = useState(['cis-m365-v6']);
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [expandedFw, setExpandedFw] = useState(null);
   const pickerRef = useRef(null);
   useEffect(() => {
     if (!pickerOpen) return;
@@ -683,12 +684,34 @@ function FrameworkQuilt({
       if (!out[fw]) return;
       out[fw].total++;
       const k = STATUS_COLORS[f.status];
-      out[fw][k]++;
+      if (k) out[fw][k]++;
     }));
     return out;
   }, []);
+  const fwDomainBreakdown = useMemo(() => {
+    if (!expandedFw) return {};
+    const out = {};
+    FINDINGS.forEach(f => {
+      if (!f.frameworks.includes(expandedFw)) return;
+      if (!out[f.domain]) out[f.domain] = {
+        pass: 0,
+        warn: 0,
+        fail: 0,
+        review: 0,
+        info: 0,
+        total: 0
+      };
+      out[f.domain].total++;
+      const k = STATUS_COLORS[f.status];
+      if (k) out[f.domain][k]++;
+    });
+    return out;
+  }, [expandedFw]);
   const displayFws = FRAMEWORKS.filter(f => visibleFws.includes(f.id));
-  const pickerLabel = visibleFws.length === 1 ? visibleFws[0] : `${visibleFws.length} frameworks`;
+  const pickerLabel = visibleFws.length === 1 ? FRAMEWORKS.find(f => f.id === visibleFws[0])?.full || visibleFws[0] : `${visibleFws.length} frameworks`;
+  const handleCardClick = fwId => setExpandedFw(e => e === fwId ? null : fwId);
+  const expandedMeta = expandedFw ? FRAMEWORKS.find(f => f.id === expandedFw) : null;
+  const expandedData = expandedFw ? byFw[expandedFw] : null;
   return /*#__PURE__*/React.createElement("section", {
     className: "block",
     id: "frameworks"
@@ -724,7 +747,7 @@ function FrameworkQuilt({
     style: {
       right: 0,
       left: 'auto',
-      minWidth: 240
+      minWidth: 280
     }
   }, FRAMEWORKS.map(f => /*#__PURE__*/React.createElement("label", {
     key: f.id,
@@ -733,12 +756,24 @@ function FrameworkQuilt({
     type: "checkbox",
     checked: visibleFws.includes(f.id),
     onChange: () => toggleFw(f.id)
-  }), /*#__PURE__*/React.createElement("span", {
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      minWidth: 0
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12,
+      fontWeight: 500,
+      lineHeight: 1.3
+    }
+  }, f.full || f.id), /*#__PURE__*/React.createElement("div", {
     style: {
       fontFamily: 'var(--font-mono)',
-      fontSize: 12
+      fontSize: 10,
+      color: 'var(--muted)',
+      marginTop: 1
     }
-  }, f.id), /*#__PURE__*/React.createElement("span", {
+  }, f.id)), /*#__PURE__*/React.createElement("span", {
     className: "ct"
   }, byFw[f.id]?.total || 0))))), /*#__PURE__*/React.createElement("div", {
     className: "hr"
@@ -747,10 +782,11 @@ function FrameworkQuilt({
   }, displayFws.map(f => {
     const d = byFw[f.id];
     const score = pct(d.pass + Math.round(d.info * 0.5), d.total);
+    const isExpanded = expandedFw === f.id;
     return /*#__PURE__*/React.createElement("div", {
       key: f.id,
-      className: 'quilt-cell' + (selected === f.id ? ' selected' : ''),
-      onClick: () => onSelect(selected === f.id ? null : f.id)
+      className: 'quilt-cell' + (isExpanded ? ' expanded' : '') + (selected === f.id ? ' selected' : ''),
+      onClick: () => handleCardClick(f.id)
     }, /*#__PURE__*/React.createElement("div", {
       className: "fw-name"
     }, f.id), /*#__PURE__*/React.createElement("div", {
@@ -790,7 +826,140 @@ function FrameworkQuilt({
     })), /*#__PURE__*/React.createElement("div", {
       className: "fw-stat"
     }, /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("b", null, score, "%"), " covered"), /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("b", null, d.fail), " gaps"), /*#__PURE__*/React.createElement("span", null, d.total, " checks")));
-  })));
+  })), expandedFw && expandedMeta && expandedData && /*#__PURE__*/React.createElement("div", {
+    className: "fw-detail-panel"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "fw-detail-header"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "fw-detail-name"
+  }, expandedMeta.full), /*#__PURE__*/React.createElement("div", {
+    className: "fw-detail-id"
+  }, expandedFw)), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setExpandedFw(null),
+    style: {
+      background: 'none',
+      border: 0,
+      color: 'var(--muted)',
+      cursor: 'pointer',
+      fontSize: 18,
+      lineHeight: 1,
+      padding: '0 4px'
+    }
+  }, "\xD7")), /*#__PURE__*/React.createElement("div", {
+    className: "fw-detail-summary"
+  }, /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("b", null, expandedData.total), " controls"), /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("b", {
+    style: {
+      color: 'var(--success-text)'
+    }
+  }, expandedData.pass), " pass"), /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("b", {
+    style: {
+      color: 'var(--warn-text)'
+    }
+  }, expandedData.warn), " warn"), /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("b", {
+    style: {
+      color: 'var(--danger-text)'
+    }
+  }, expandedData.fail), " fail"), expandedData.review > 0 && /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("b", null, expandedData.review), " review")), /*#__PURE__*/React.createElement("div", {
+    className: "fw-bar",
+    style: {
+      marginBottom: 16,
+      height: 10,
+      borderRadius: 5
+    }
+  }, expandedData.pass > 0 && /*#__PURE__*/React.createElement("div", {
+    className: "fw-seg pass",
+    style: {
+      flex: expandedData.pass
+    }
+  }), expandedData.warn > 0 && /*#__PURE__*/React.createElement("div", {
+    className: "fw-seg warn",
+    style: {
+      flex: expandedData.warn
+    }
+  }), expandedData.fail > 0 && /*#__PURE__*/React.createElement("div", {
+    className: "fw-seg fail",
+    style: {
+      flex: expandedData.fail
+    }
+  }), expandedData.review > 0 && /*#__PURE__*/React.createElement("div", {
+    className: "fw-seg review",
+    style: {
+      flex: expandedData.review
+    }
+  }), expandedData.info > 0 && /*#__PURE__*/React.createElement("div", {
+    className: "fw-seg info",
+    style: {
+      flex: expandedData.info
+    }
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 10,
+      fontWeight: 700,
+      textTransform: 'uppercase',
+      letterSpacing: '.1em',
+      color: 'var(--muted)',
+      marginBottom: 8
+    }
+  }, "Coverage by domain"), /*#__PURE__*/React.createElement("div", {
+    className: "fw-detail-domains"
+  }, Object.entries(fwDomainBreakdown).sort((a, b) => b[1].fail - a[1].fail || b[1].total - a[1].total).map(([domain, s]) => /*#__PURE__*/React.createElement("div", {
+    key: domain,
+    className: "fw-domain-row"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "fw-domain-name"
+  }, domain), /*#__PURE__*/React.createElement("div", {
+    className: "fw-domain-bar"
+  }, s.pass > 0 && /*#__PURE__*/React.createElement("div", {
+    className: "fw-seg pass",
+    style: {
+      flex: s.pass
+    }
+  }), s.warn > 0 && /*#__PURE__*/React.createElement("div", {
+    className: "fw-seg warn",
+    style: {
+      flex: s.warn
+    }
+  }), s.fail > 0 && /*#__PURE__*/React.createElement("div", {
+    className: "fw-seg fail",
+    style: {
+      flex: s.fail
+    }
+  }), s.review > 0 && /*#__PURE__*/React.createElement("div", {
+    className: "fw-seg review",
+    style: {
+      flex: s.review
+    }
+  }), s.info > 0 && /*#__PURE__*/React.createElement("div", {
+    className: "fw-seg info",
+    style: {
+      flex: s.info
+    }
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "fw-domain-stat"
+  }, s.fail > 0 ? /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: 'var(--danger-text)'
+    }
+  }, s.fail, " gap", s.fail !== 1 ? 's' : '') : /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: 'var(--success-text)'
+    }
+  }, s.pass, " pass"))))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 14,
+      paddingTop: 12,
+      borderTop: '1px solid var(--border)'
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    className: "chip chip-more selected",
+    onClick: () => {
+      onSelect(expandedFw);
+      document.getElementById('findings')?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+  }, "View all ", expandedData.total, " findings in this framework \u2192"))));
 }
 
 // ======================== Filter bar ========================
@@ -991,11 +1160,58 @@ function FilterBar({
 }
 
 // ======================== Findings table ========================
+const ALL_COLS = [{
+  id: 'status',
+  label: 'Status',
+  width: '80px'
+}, {
+  id: 'finding',
+  label: 'Finding',
+  width: '1.5fr'
+}, {
+  id: 'domain',
+  label: 'Domain',
+  width: '140px'
+}, {
+  id: 'controlId',
+  label: 'Control #',
+  width: '130px'
+}, {
+  id: 'severity',
+  label: 'Severity',
+  width: '100px'
+}, {
+  id: 'frameworks',
+  label: 'Frameworks',
+  width: '120px'
+}];
+const DEFAULT_COLS = ['status', 'finding', 'domain', 'controlId', 'severity'];
 function FindingsTable({
   filters,
   search
 }) {
   const [open, setOpen] = useState(new Set());
+  const [visibleCols, setVisibleCols] = useState(DEFAULT_COLS);
+  const [colPickerOpen, setColPickerOpen] = useState(false);
+  const colPickerRef = useRef(null);
+  useEffect(() => {
+    if (!colPickerOpen) return;
+    const onKey = e => {
+      if (e.key === 'Escape') setColPickerOpen(false);
+    };
+    const onOut = e => {
+      if (colPickerRef.current && !colPickerRef.current.contains(e.target)) setColPickerOpen(false);
+    };
+    document.addEventListener('keydown', onKey);
+    document.addEventListener('mousedown', onOut);
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.removeEventListener('mousedown', onOut);
+    };
+  }, [colPickerOpen]);
+  const toggleCol = id => setVisibleCols(v => v.includes(id) ? v.length > 1 ? v.filter(c => c !== id) : v : [...v, id]);
+  const cols = ALL_COLS.filter(c => visibleCols.includes(c.id));
+  const gridTpl = cols.map(c => c.width).join(' ') + ' 28px';
   const filtered = useMemo(() => {
     const s = search.toLowerCase();
     return FINDINGS.filter(f => {
@@ -1015,6 +1231,55 @@ function FindingsTable({
     if (n.has(i)) n.delete(i);else n.add(i);
     return n;
   });
+  const renderCell = (colId, f) => {
+    switch (colId) {
+      case 'status':
+        return /*#__PURE__*/React.createElement("div", {
+          key: "status"
+        }, /*#__PURE__*/React.createElement("span", {
+          className: 'status-badge ' + STATUS_COLORS[f.status]
+        }, /*#__PURE__*/React.createElement("span", {
+          className: "dot"
+        }), f.status));
+      case 'finding':
+        return /*#__PURE__*/React.createElement("div", {
+          key: "finding",
+          className: "finding-title"
+        }, /*#__PURE__*/React.createElement("div", {
+          className: "t"
+        }, f.setting), /*#__PURE__*/React.createElement("div", {
+          className: "sub"
+        }, f.section));
+      case 'domain':
+        return /*#__PURE__*/React.createElement("div", {
+          key: "domain",
+          className: "finding-dom"
+        }, f.domain);
+      case 'controlId':
+        return /*#__PURE__*/React.createElement("div", {
+          key: "controlId",
+          className: "check-id"
+        }, f.checkId);
+      case 'severity':
+        return /*#__PURE__*/React.createElement("div", {
+          key: "severity"
+        }, /*#__PURE__*/React.createElement("span", {
+          className: 'sev-badge ' + f.severity
+        }, /*#__PURE__*/React.createElement("span", {
+          className: "bar"
+        }, /*#__PURE__*/React.createElement("i", null), /*#__PURE__*/React.createElement("i", null), /*#__PURE__*/React.createElement("i", null), /*#__PURE__*/React.createElement("i", null)), /*#__PURE__*/React.createElement("span", null, SEV_LABEL[f.severity])));
+      case 'frameworks':
+        return /*#__PURE__*/React.createElement("div", {
+          key: "frameworks",
+          className: "fw-list"
+        }, f.frameworks.map(fw => /*#__PURE__*/React.createElement("span", {
+          key: fw,
+          className: "fw-pill"
+        }, fw)));
+      default:
+        return null;
+    }
+  };
   return /*#__PURE__*/React.createElement("section", {
     className: "block",
     id: "findings"
@@ -1029,12 +1294,66 @@ function FindingsTable({
       fontSize: 13
     }
   }, "\xB7 ", filtered.length, " of ", FINDINGS.length)), /*#__PURE__*/React.createElement("div", {
+    ref: colPickerRef,
+    style: {
+      position: 'relative',
+      marginLeft: 12,
+      flexShrink: 0
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    className: 'chip chip-more' + (visibleCols.length !== DEFAULT_COLS.length ? ' selected' : ''),
+    onClick: () => setColPickerOpen(o => !o),
+    title: "Choose columns"
+  }, /*#__PURE__*/React.createElement("svg", {
+    width: "12",
+    height: "12",
+    viewBox: "0 0 16 16",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "1.6",
+    style: {
+      marginRight: 4
+    }
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M3 5h10M3 11h10"
+  }), /*#__PURE__*/React.createElement("circle", {
+    cx: "6",
+    cy: "5",
+    r: "1.5",
+    fill: "currentColor",
+    stroke: "none"
+  }), /*#__PURE__*/React.createElement("circle", {
+    cx: "10",
+    cy: "11",
+    r: "1.5",
+    fill: "currentColor",
+    stroke: "none"
+  })), "Columns"), colPickerOpen && /*#__PURE__*/React.createElement("div", {
+    className: "domain-menu",
+    style: {
+      right: 0,
+      left: 'auto',
+      minWidth: 180
+    }
+  }, ALL_COLS.map(c => /*#__PURE__*/React.createElement("label", {
+    key: c.id,
+    className: 'domain-opt' + (visibleCols.includes(c.id) ? ' sel' : '')
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "checkbox",
+    checked: visibleCols.includes(c.id),
+    onChange: () => toggleCol(c.id)
+  }), /*#__PURE__*/React.createElement("span", null, c.label))))), /*#__PURE__*/React.createElement("div", {
     className: "hr"
   })), /*#__PURE__*/React.createElement("div", {
     className: "findings"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "findings-head"
-  }, /*#__PURE__*/React.createElement("div", null, "Status"), /*#__PURE__*/React.createElement("div", null, "Finding"), /*#__PURE__*/React.createElement("div", null, "Domain"), /*#__PURE__*/React.createElement("div", null, "Check ID"), /*#__PURE__*/React.createElement("div", null, "Severity"), /*#__PURE__*/React.createElement("div", null, "Frameworks"), /*#__PURE__*/React.createElement("div", null)), filtered.length === 0 && /*#__PURE__*/React.createElement("div", {
+    className: "findings-head",
+    style: {
+      gridTemplateColumns: gridTpl
+    }
+  }, cols.map(c => /*#__PURE__*/React.createElement("div", {
+    key: c.id
+  }, c.label)), /*#__PURE__*/React.createElement("div", null)), filtered.length === 0 && /*#__PURE__*/React.createElement("div", {
     className: "empty"
   }, "No findings match your filters."), filtered.map((f, i) => {
     const isOpen = open.has(i);
@@ -1042,31 +1361,11 @@ function FindingsTable({
       key: i
     }, /*#__PURE__*/React.createElement("div", {
       className: 'finding-row' + (isOpen ? ' open' : ''),
-      onClick: () => toggle(i)
-    }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", {
-      className: 'status-badge ' + STATUS_COLORS[f.status]
-    }, /*#__PURE__*/React.createElement("span", {
-      className: "dot"
-    }), f.status)), /*#__PURE__*/React.createElement("div", {
-      className: "finding-title"
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "t"
-    }, f.setting), /*#__PURE__*/React.createElement("div", {
-      className: "sub"
-    }, f.section)), /*#__PURE__*/React.createElement("div", {
-      className: "finding-dom"
-    }, f.domain), /*#__PURE__*/React.createElement("div", {
-      className: "check-id"
-    }, f.checkId), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", {
-      className: 'sev-badge ' + f.severity
-    }, /*#__PURE__*/React.createElement("span", {
-      className: "bar"
-    }, /*#__PURE__*/React.createElement("i", null), /*#__PURE__*/React.createElement("i", null), /*#__PURE__*/React.createElement("i", null), /*#__PURE__*/React.createElement("i", null)), /*#__PURE__*/React.createElement("span", null, SEV_LABEL[f.severity]))), /*#__PURE__*/React.createElement("div", {
-      className: "fw-list"
-    }, f.frameworks.map(fw => /*#__PURE__*/React.createElement("span", {
-      key: fw,
-      className: "fw-pill"
-    }, fw))), /*#__PURE__*/React.createElement("div", {
+      onClick: () => toggle(i),
+      style: {
+        gridTemplateColumns: gridTpl
+      }
+    }, cols.map(c => renderCell(c.id, f)), /*#__PURE__*/React.createElement("div", {
       className: "caret"
     }, /*#__PURE__*/React.createElement(Icon.chevron, null))), isOpen && /*#__PURE__*/React.createElement("div", {
       className: "finding-detail"
