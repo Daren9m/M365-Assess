@@ -105,7 +105,7 @@ function Build-ReportDataJson {
             'medium'
         }
 
-        # frameworks must be an array of ID strings for the React app (.forEach / filter)
+        # frameworks — array of IDs for React filtering/display
         # Source may be a hashtable (from Build-SectionHtml) or PSCustomObject (from ConvertFrom-Json)
         $fwSource = if ($f.PSObject.Properties['Frameworks'] -and $f.Frameworks) { $f.Frameworks }
                     elseif ($regEntry -and $regEntry.frameworks)                  { $regEntry.frameworks }
@@ -113,6 +113,28 @@ function Build-ReportDataJson {
         $frameworks = if ($fwSource -is [hashtable])  { [string[]]($fwSource.Keys) }
                       elseif ($fwSource)               { [string[]]($fwSource.PSObject.Properties.Name) }
                       else                             { [string[]]@() }
+
+        # fwMeta — per-framework { controlId, profiles } for Control # column and L1/L2/E3/E5 breakdown
+        $fwMeta = [ordered]@{}
+        if ($fwSource -is [hashtable]) {
+            foreach ($fwId in $fwSource.Keys) {
+                $ent = $fwSource[$fwId]
+                $cid = if ($ent -is [hashtable] -and $ent.ContainsKey('controlId')) { [string]$ent['controlId'] }
+                       elseif ($ent -and $ent.PSObject.Properties['controlId'])      { [string]$ent.controlId }
+                       else                                                            { '' }
+                $prf = if ($ent -is [hashtable] -and $ent.ContainsKey('profiles'))  { @($ent['profiles']) }
+                       elseif ($ent -and $ent.PSObject.Properties['profiles'])       { @($ent.profiles) }
+                       else                                                            { @() }
+                $fwMeta[$fwId] = [ordered]@{ controlId = $cid; profiles = $prf }
+            }
+        } elseif ($fwSource) {
+            foreach ($prop in $fwSource.PSObject.Properties) {
+                $ent = $prop.Value
+                $cid = if ($ent -and $ent.PSObject.Properties['controlId']) { [string]$ent.controlId } else { '' }
+                $prf = if ($ent -and $ent.PSObject.Properties['profiles'])  { @($ent.profiles) } else { @() }
+                $fwMeta[$prop.Name] = [ordered]@{ controlId = $cid; profiles = $prf }
+            }
+        }
 
         $recommended = if ($f.PSObject.Properties['RecommendedValue']) { $f.RecommendedValue }
                        elseif ($f.PSObject.Properties['Recommended'])   { $f.Recommended }
@@ -131,6 +153,7 @@ function Build-ReportDataJson {
             remediation = $f.Remediation
             effort      = $null
             frameworks  = $frameworks
+            fwMeta      = $fwMeta
         })
     }
 
@@ -210,8 +233,8 @@ function Build-ReportDataJson {
     # ------------------------------------------------------------------
     $json = $reportData | ConvertTo-Json -Depth 10
     # ConvertTo-Json serializes [string[]]@() as null in PSCustomObject properties.
-    # All per-finding frameworks fields must be arrays for the React app's .forEach().
     $json = $json -replace '"frameworks":\s*null', '"frameworks": []'
+    $json = $json -replace '"profiles":\s*null',   '"profiles": []'
     $json = $json -replace '</script>', '<\/script>'
     return "window.REPORT_DATA = $json;"
 }

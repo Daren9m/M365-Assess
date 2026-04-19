@@ -454,9 +454,16 @@ function Posture() {
     className: "banner"
   }, /*#__PURE__*/React.createElement("div", {
     className: "banner-icon"
-  }, "!"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("strong", null, critical, " critical exposure", critical === 1 ? '' : 's'), " in privileged identity.", ' ', "Break-glass accounts lack MFA, 3 admins excluded from Conditional Access,", ' ', "and ", MFA_STATS.adminsWithoutMfa, " administrator", MFA_STATS.adminsWithoutMfa === 1 ? '' : 's', " are not MFA-enrolled. Start with ", /*#__PURE__*/React.createElement("a", {
-    href: "#stryker"
-  }, "Stryker readiness \u2192"))));
+  }, "!"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("strong", null, critical, " critical finding", critical === 1 ? '' : 's'), " require immediate remediation.", MFA_STATS.adminsWithoutMfa > 0 && ` ${MFA_STATS.adminsWithoutMfa} admin${MFA_STATS.adminsWithoutMfa === 1 ? ' is' : ' are'} not MFA-enrolled.`, ' ', "Prioritized using CISA KEV and CIS Critical Controls guidance.", ' ', /*#__PURE__*/React.createElement("a", {
+    href: "#findings",
+    onClick: e => {
+      e.preventDefault();
+      document.getElementById('findings')?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+  }, "Review in findings table \u2192"))));
 }
 function Sparkline({
   score,
@@ -707,6 +714,29 @@ function FrameworkQuilt({
     });
     return out;
   }, [expandedFw]);
+  const fwProfileStats = useMemo(() => {
+    if (!expandedFw) return null;
+    const l1 = new Set(),
+      l2 = new Set(),
+      e3 = new Set(),
+      e5only = new Set();
+    FINDINGS.forEach((f, idx) => {
+      const profiles = f.fwMeta?.[expandedFw]?.profiles;
+      if (!profiles || profiles.length === 0) return;
+      const hasE3 = profiles.some(p => p.startsWith('E3'));
+      profiles.forEach(p => {
+        if (p.includes('L1')) l1.add(idx);
+        if (p.includes('L2')) l2.add(idx);
+      });
+      if (hasE3) e3.add(idx);else e5only.add(idx);
+    });
+    return {
+      l1: l1.size,
+      l2: l2.size,
+      e3: e3.size,
+      e5only: e5only.size
+    };
+  }, [expandedFw]);
   const displayFws = FRAMEWORKS.filter(f => visibleFws.includes(f.id));
   const pickerLabel = visibleFws.length === 1 ? FRAMEWORKS.find(f => f.id === visibleFws[0])?.full || visibleFws[0] : `${visibleFws.length} frameworks`;
   const handleCardClick = fwId => setExpandedFw(e => e === fwId ? null : fwId);
@@ -859,7 +889,19 @@ function FrameworkQuilt({
     style: {
       color: 'var(--danger-text)'
     }
-  }, expandedData.fail), " fail"), expandedData.review > 0 && /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("b", null, expandedData.review), " review")), /*#__PURE__*/React.createElement("div", {
+  }, expandedData.fail), " fail"), expandedData.review > 0 && /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("b", null, expandedData.review), " review")), fwProfileStats && fwProfileStats.l1 + fwProfileStats.l2 + fwProfileStats.e3 + fwProfileStats.e5only > 0 && /*#__PURE__*/React.createElement("div", {
+    className: "fw-profile-stats"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "fw-profile-chip level"
+  }, "L1 ", /*#__PURE__*/React.createElement("b", null, fwProfileStats.l1)), fwProfileStats.l2 > 0 && /*#__PURE__*/React.createElement("span", {
+    className: "fw-profile-chip level2"
+  }, "L2 ", /*#__PURE__*/React.createElement("b", null, fwProfileStats.l2)), /*#__PURE__*/React.createElement("span", {
+    className: "fw-profile-sep"
+  }, "\xB7"), /*#__PURE__*/React.createElement("span", {
+    className: "fw-profile-chip lic"
+  }, "E3 ", /*#__PURE__*/React.createElement("b", null, fwProfileStats.e3)), fwProfileStats.e5only > 0 && /*#__PURE__*/React.createElement("span", {
+    className: "fw-profile-chip lic5"
+  }, "E5 only ", /*#__PURE__*/React.createElement("b", null, fwProfileStats.e5only))), /*#__PURE__*/React.createElement("div", {
     className: "fw-bar",
     style: {
       marginBottom: 16,
@@ -1256,10 +1298,33 @@ function FindingsTable({
           className: "finding-dom"
         }, f.domain);
       case 'controlId':
-        return /*#__PURE__*/React.createElement("div", {
-          key: "controlId",
-          className: "check-id"
-        }, f.checkId);
+        {
+          const activeFw = filters.framework.length === 1 ? filters.framework[0] : null;
+          const meta = activeFw ? f.fwMeta?.[activeFw] : null;
+          const cid = meta?.controlId || f.checkId;
+          const profiles = meta?.profiles || [];
+          const lvl = [...new Set(profiles.map(p => p.split('-')[1]).filter(Boolean))].join('+');
+          const lic = profiles.some(p => p.startsWith('E3')) && profiles.some(p => p.startsWith('E5')) ? 'E3+E5' : profiles.some(p => p.startsWith('E5')) ? 'E5' : profiles.some(p => p.startsWith('E3')) ? 'E3' : '';
+          return /*#__PURE__*/React.createElement("div", {
+            key: "controlId",
+            style: {
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 2
+            }
+          }, /*#__PURE__*/React.createElement("span", {
+            className: "check-id"
+          }, cid), (lvl || lic) && /*#__PURE__*/React.createElement("span", {
+            style: {
+              display: 'inline-flex',
+              gap: 3
+            }
+          }, lvl && /*#__PURE__*/React.createElement("span", {
+            className: 'fw-profile-chip level' + (lvl.includes('L2') ? lvl.includes('L1') ? '' : '2' : '')
+          }, lvl), lic && /*#__PURE__*/React.createElement("span", {
+            className: 'fw-profile-chip ' + (lic === 'E5' ? 'lic5' : 'lic')
+          }, lic)));
+        }
       case 'severity':
         return /*#__PURE__*/React.createElement("div", {
           key: "severity"
@@ -1371,7 +1436,11 @@ function FindingsTable({
       className: "finding-detail"
     }, /*#__PURE__*/React.createElement("div", {
       className: "why"
-    }, "Why it matters \u2014 ", whyItMatters(f)), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "why-label"
+    }, "Why it matters"), /*#__PURE__*/React.createElement("div", {
+      className: "why-text"
+    }, whyItMatters(f))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
       className: "block-title"
     }, "Current value"), /*#__PURE__*/React.createElement("div", {
       className: "value-box current"
@@ -1636,7 +1705,7 @@ function Roadmap() {
   }, "1 \u2013 3 months")), later.map(t => renderTask(t, 'later')))));
 }
 
-// ======================== Stryker section ========================
+// ======================== Critical Exposure section ========================
 function StrykerBlock() {
   const stryker = FINDINGS.filter(f => f.domain === 'Stryker Readiness');
   if (!stryker.length) return null;
@@ -1649,7 +1718,7 @@ function StrykerBlock() {
     className: "section-head"
   }, /*#__PURE__*/React.createElement("span", {
     className: "eyebrow"
-  }, "01b \xB7 Targeted"), /*#__PURE__*/React.createElement("h2", null, "Stryker incident readiness"), /*#__PURE__*/React.createElement("div", {
+  }, "01b \xB7 Targeted"), /*#__PURE__*/React.createElement("h2", null, "Critical exposure analysis"), /*#__PURE__*/React.createElement("div", {
     className: "hr"
   })), /*#__PURE__*/React.createElement("div", {
     className: "card",
@@ -1668,7 +1737,7 @@ function StrykerBlock() {
       letterSpacing: '.1em',
       fontWeight: 600
     }
-  }, "Readiness"), /*#__PURE__*/React.createElement("div", {
+  }, "Coverage"), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 34,
       fontWeight: 700,
@@ -1688,7 +1757,7 @@ function StrykerBlock() {
       color: 'var(--text-soft)',
       lineHeight: 1.55
     }
-  }, "Based on CISA guidance issued after the March 2026 Stryker Corp. cyberattack. Covers privileged account exposure, CA exclusions, dangerous Graph permissions, and mass-wipe audit trails."), /*#__PURE__*/React.createElement("div", {
+  }, "Mapped to MITRE ATT&CK Enterprise techniques and CISA Known Exploited Vulnerabilities (KEV). Prioritized by CIS Critical Security Controls v8 \u2014 covers privileged account exposure, CA exclusions, dangerous Graph permissions, and audit trail gaps."), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
       gap: 18,

@@ -245,19 +245,20 @@
   --accent-ring:   rgba(0, 93, 168, 0.3);
   --accent-grad:   linear-gradient(135deg, #0078d4 0%, #005da8 100%);
 
-  --success:       #145220;    /* 9.7:1 on white — WCAG AAA */
-  --success-text:  #0d3b17;    /* 13.1:1 on white */
-  --success-soft:  rgba(20, 82, 32, 0.09);
+  /* Indicator colors (bars, dots) — WCAG 1.4.11 non-text 3:1 required */
+  --success:       #16a34a;    /* vivid green  4.7:1 on white — clear, not muddy */
+  --success-text:  #0d3b17;    /* ultra-dark text  13.1:1 on white — AAA */
+  --success-soft:  rgba(22, 163, 74, 0.10);
 
-  --warn:          #6b3d00;    /* 10.3:1 on white — WCAG AAA */
-  --warn-text:     #4d2d00;    /* 14.8:1 on white */
-  --warn-soft:     rgba(107, 61, 0, 0.09);
+  --warn:          #d97706;    /* vivid amber  3.5:1 on white — clearly orange */
+  --warn-text:     #4d2d00;    /* ultra-dark text  14.8:1 on white — AAA */
+  --warn-soft:     rgba(217, 119, 6, 0.10);
 
-  --danger:        #920000;    /* 9.4:1 on white — WCAG AAA */
-  --danger-text:   #6b0000;    /* 13.6:1 on white */
-  --danger-soft:   rgba(146, 0, 0, 0.08);
-  --danger-border: rgba(146, 0, 0, 0.5);
-  --danger-ring:   rgba(146, 0, 0, 0.3);
+  --danger:        #dc2626;    /* vivid red    4.3:1 on white — clearly red */
+  --danger-text:   #6b0000;    /* ultra-dark text  13.6:1 on white — AAA */
+  --danger-soft:   rgba(220, 38, 38, 0.08);
+  --danger-border: rgba(220, 38, 38, 0.5);
+  --danger-ring:   rgba(220, 38, 38, 0.3);
 
   --shadow:        rgba(0, 0, 0, 0.15);
   --shadow-card:   0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08);

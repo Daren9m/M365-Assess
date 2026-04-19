@@ -608,10 +608,20 @@ section.block { margin-bottom: 40px; scroll-margin-top: 20px; }
 }
 .finding-detail .why {
   grid-column: 1 / -1;
-  font-size: 13px; color: var(--text-soft);
-  padding: 0 2px;
-  font-style: italic;
-  margin-bottom: -4px;
+  padding: 10px 14px;
+  background: color-mix(in oklab, var(--accent) 6%, transparent);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 6px 6px 0;
+}
+.finding-detail .why-label {
+  font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--accent-text);
+  margin-bottom: 5px;
+}
+.finding-detail .why-text {
+  font-size: 12.5px; line-height: 1.6;
+  color: var(--text);
 }
 
 /* ---------- Domain grid ---------- */
@@ -1071,6 +1081,25 @@ section.block { margin-bottom: 40px; scroll-margin-top: 20px; }
   font-family: var(--font-mono); font-size: 11px;
   text-align: right; font-variant-numeric: tabular-nums;
 }
+
+/* Profile chips — L1/L2, E3/E5 */
+.fw-profile-stats {
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+  margin-bottom: 12px;
+  font-size: 11px;
+}
+.fw-profile-sep { color: var(--border-strong); }
+.fw-profile-chip {
+  display: inline-flex; align-items: center; gap: 3px;
+  padding: 2px 7px; border-radius: 4px;
+  font-size: 11px; font-weight: 500; font-family: var(--font-mono);
+  border: 1px solid transparent;
+}
+.fw-profile-chip b { font-weight: 700; }
+.fw-profile-chip.level  { background: var(--success-soft); color: var(--success-text); border-color: color-mix(in oklab, var(--success) 30%, transparent); }
+.fw-profile-chip.level2 { background: var(--accent-soft);  color: var(--accent-text);  border-color: var(--accent-border); }
+.fw-profile-chip.lic    { background: var(--chip); color: var(--text-soft); }
+.fw-profile-chip.lic5   { background: var(--warn-soft); color: var(--warn-text); border-color: color-mix(in oklab, var(--warn) 30%, transparent); }
 
 /* Print-optimized */
 @media print {
