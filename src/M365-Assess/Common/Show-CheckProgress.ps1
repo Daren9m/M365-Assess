@@ -16,9 +16,12 @@
     Author:  Daren9m
 #>
 
-$script:BackgroundPs  = $null
-$script:BackgroundJob = $null
-$script:State         = $null
+$script:BackgroundPs       = $null
+$script:BackgroundJob      = $null
+$script:State              = $null
+# Captured at dot-source time so Invoke-SpectreRenderLoop resolves the DLL path
+# correctly regardless of which script is at the top of the call stack.
+$script:ProgressScriptRoot = $PSScriptRoot
 
 # ── Map registry collector names to section names and display labels ──
 $script:CollectorSectionMap = @{
@@ -72,8 +75,9 @@ function Invoke-SpectreRenderLoop {
     [CmdletBinding()]
     param()
 
-    # Capture script-level values needed inside the runspace (PSScriptRoot not available there)
-    $libPath       = Join-Path -Path $PSScriptRoot -ChildPath '..\lib\Spectre.Console.dll'
+    # Use the path captured at dot-source time — $PSScriptRoot at call time reflects
+    # the calling script's directory, not Show-CheckProgress.ps1's directory.
+    $libPath       = Join-Path -Path $script:ProgressScriptRoot -ChildPath '..\lib\Spectre.Console.dll'
     $capturedState = $script:State
 
     $script:BackgroundPs = [System.Management.Automation.PowerShell]::Create()
