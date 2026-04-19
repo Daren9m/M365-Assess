@@ -156,11 +156,16 @@ param(
                  'PowerBI', 'Hybrid', 'Inventory', 'ActiveDirectory', 'SOC2', 'ValueOpportunity', 'All')]
     [string[]]$Section = @('Tenant', 'Identity', 'Licensing', 'Email', 'Intune', 'Security', 'Collaboration', 'PowerBI', 'Hybrid'),
 
-    # TenantId: optional in Interactive/DeviceCode/ManagedIdentity/SkipConnection sets;
-    # mandatory in app-only sets where the tenant cannot be inferred interactively.
+    # TenantId: optional in interactive/delegated sets, mandatory in app-only sets.
+    # Each set listed explicitly — mixing named-set Mandatory with a bare [Parameter()]
+    # causes PS to bias resolution toward the mandatory sets when TenantId is supplied.
+    [Parameter(ParameterSetName = 'Interactive')]
+    [Parameter(ParameterSetName = 'DeviceCode')]
+    [Parameter(ParameterSetName = 'ManagedIdentity')]
+    [Parameter(ParameterSetName = 'SkipConnection')]
+    [Parameter(ParameterSetName = 'ConnectionProfile')]
     [Parameter(ParameterSetName = 'AppOnlyCert',   Mandatory)]
     [Parameter(ParameterSetName = 'AppOnlySecret', Mandatory)]
-    [Parameter()]
     [string]$TenantId,
 
     [Parameter()]
