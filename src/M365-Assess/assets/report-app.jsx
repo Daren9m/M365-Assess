@@ -1073,7 +1073,7 @@ function Roadmap() {
       <div className="roadmap-intro">
         <div className="roadmap-intro-head">How we prioritized</div>
         <div className="roadmap-intro-body">
-          Every non-passing finding is scored <code>severity × (1/effort)</code> — risk weighted against the work needed to close it. Critical findings (identity takeover, data exfiltration, privilege escalation paths) go in <b>Now</b> regardless of effort. High-severity findings with small remediation effort — config toggles, policy tweaks — also land in <b>Now</b> as quick wins. <b>Next</b> captures the rest of the high-severity work plus tractable medium-severity items. <b>Later</b> holds low-severity hardening and large-effort medium items that need quarterly planning. <br/>
+          Findings are bucketed by severity. Critical findings — identity takeover, data exfiltration, privilege escalation paths — always go in <b>Now</b>. High-severity findings land in <b>Next</b>: risk is real but remediation typically requires coordination or scheduling. Medium-severity items also join <b>Next</b> when tractable, or <b>Later</b> for larger hardening work. Once remediation effort data is available from the upstream registry, <b>Now</b> will additionally surface high-severity quick wins — config toggles, policy tweaks — via a <code>severity × (1/effort)</code> score. <br/>
           <span style={{color:'var(--muted)'}}>Click any task to see why it's in this lane, the current vs recommended state, and exact remediation steps. Customers with a different risk appetite (regulatory deadline, incident response, M&amp;A freeze) may reorder — the lanes are a starting point, not a mandate.</span>
         </div>
       </div>
