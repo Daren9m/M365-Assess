@@ -7,6 +7,7 @@ param()
 
 # Helper to detect emergency access (break-glass) accounts by naming convention
 function Get-BreakGlassAccounts {
+    [CmdletBinding()]
     param([array]$Users)
     $patterns = @('break.?glass', 'emergency.?access', 'breakglass', 'emer.?admin')
     $regex = ($patterns | ForEach-Object { "($_)" }) -join '|'
