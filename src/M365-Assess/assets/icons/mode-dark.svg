@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor">
+  <!-- Shield body — filled, representing "dark mode active" -->
+  <path d="M8 1 L14 3.2 V8.5 C14 12.2 11.2 14.8 8 15.8 C4.8 14.8 2 12.2 2 8.5 V3.2 Z"/>
+  <!-- Lock shackle -->
+  <path d="M6 7 V5.5 A2 2 0 0 1 10 5.5 V7" fill="none" stroke="var(--bg)" stroke-width="1.2" stroke-linecap="round"/>
+  <!-- Lock body -->
+  <rect x="5.2" y="7" width="5.6" height="4" rx="0.8" fill="var(--bg)"/>
+  <!-- Keyhole -->
+  <circle cx="8" cy="8.8" r="0.9" fill="currentColor"/>
+  <path d="M8 9.7 v1" stroke="currentColor" stroke-width="0.9" stroke-linecap="round"/>
+</svg>

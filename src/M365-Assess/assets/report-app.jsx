@@ -74,6 +74,9 @@ const Icon = {
   search: () => (<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>),
   moon: () => (<svg viewBox="0 0 16 16" fill="currentColor"><path d="M13 9.4A6 6 0 1 1 6.6 3 5 5 0 0 0 13 9.4z"/></svg>),
   sun: () => (<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="8" cy="8" r="3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3 3l1.4 1.4M11.6 11.6L13 13M13 3l-1.4 1.4M4.4 11.6L3 13"/></svg>),
+  // Shield icons: filled = dark mode active, outline = light mode active
+  shieldDark: () => (<svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1L14 3.2V8.5C14 12.2 11.2 14.8 8 15.8 4.8 14.8 2 12.2 2 8.5V3.2Z"/><path d="M6 7V5.5A2 2 0 0 1 10 5.5V7" fill="none" stroke="var(--bg)" strokeWidth="1.2" strokeLinecap="round"/><rect x="5.2" y="7" width="5.6" height="4" rx="0.8" fill="var(--bg)"/><circle cx="8" cy="8.8" r="0.9" fill="currentColor"/><path d="M8 9.7v1" stroke="currentColor" strokeWidth="0.9" strokeLinecap="round"/></svg>),
+  shieldLight: () => (<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4"><path d="M8 1.5L13.5 3.5V8.5C13.5 12 11 14.5 8 15.5 5 14.5 2.5 12 2.5 8.5V3.5Z" strokeLinejoin="round"/><path d="M6.2 7.2V5.8A1.8 1.8 0 0 1 9.8 5.8V7.2" strokeLinecap="round"/><rect x="5.4" y="7.2" width="5.2" height="3.6" rx="0.8"/><circle cx="8" cy="8.8" r="0.7" fill="currentColor" stroke="none"/><path d="M8 9.5v0.9" strokeLinecap="round"/></svg>),
   print: () => (<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 5V2h8v3"/><path d="M4 13H2V7a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v6h-2"/><rect x="4" y="10" width="8" height="4"/></svg>),
   xlsx: () => (<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2.5" y="2.5" width="11" height="11" rx="1.5"/><path d="M5 6l2.5 4M7.5 6L5 10M9.5 6v4M11 9h-1.5"/></svg>),
   sliders: () => (<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 5h10M3 11h10"/><circle cx="6" cy="5" r="1.5" fill="currentColor" stroke="none"/><circle cx="10" cy="11" r="1.5" fill="currentColor" stroke="none"/></svg>),
@@ -219,8 +222,8 @@ function Topbar({ search, setSearch, mode, setMode, theme, setTheme, onPrint, on
         <button className={theme==='high-contrast'?'active':''} onClick={()=>setTheme('high-contrast')}>High Contrast</button>
       </div>
       <div className="icon-btn-group">
-        <button className="icon-btn" title={mode==='dark'?'Light mode':'Dark mode'} onClick={()=>setMode(mode==='dark'?'light':'dark')}>
-          {mode==='dark' ? <Icon.sun/> : <Icon.moon/>}
+        <button className="icon-btn" title={mode==='dark'?'Switch to light mode':'Switch to dark mode'} onClick={()=>setMode(mode==='dark'?'light':'dark')}>
+          {mode==='dark' ? <Icon.shieldLight/> : <Icon.shieldDark/>}
         </button>
         {D.xlsxFileName && (
           <a className="icon-btn" href={D.xlsxFileName} download title={`Download compliance matrix — ${D.xlsxFileName}`}><Icon.xlsx/></a>

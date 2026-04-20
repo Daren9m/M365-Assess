@@ -161,6 +161,63 @@ const Icon = {
   }), /*#__PURE__*/React.createElement("path", {
     d: "M8 1v2M8 13v2M1 8h2M13 8h2M3 3l1.4 1.4M11.6 11.6L13 13M13 3l-1.4 1.4M4.4 11.6L3 13"
   })),
+  // Shield icons: filled = dark mode active, outline = light mode active
+  shieldDark: () => /*#__PURE__*/React.createElement("svg", {
+    viewBox: "0 0 16 16",
+    fill: "currentColor"
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M8 1L14 3.2V8.5C14 12.2 11.2 14.8 8 15.8 4.8 14.8 2 12.2 2 8.5V3.2Z"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M6 7V5.5A2 2 0 0 1 10 5.5V7",
+    fill: "none",
+    stroke: "var(--bg)",
+    strokeWidth: "1.2",
+    strokeLinecap: "round"
+  }), /*#__PURE__*/React.createElement("rect", {
+    x: "5.2",
+    y: "7",
+    width: "5.6",
+    height: "4",
+    rx: "0.8",
+    fill: "var(--bg)"
+  }), /*#__PURE__*/React.createElement("circle", {
+    cx: "8",
+    cy: "8.8",
+    r: "0.9",
+    fill: "currentColor"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M8 9.7v1",
+    stroke: "currentColor",
+    strokeWidth: "0.9",
+    strokeLinecap: "round"
+  })),
+  shieldLight: () => /*#__PURE__*/React.createElement("svg", {
+    viewBox: "0 0 16 16",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "1.4"
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M8 1.5L13.5 3.5V8.5C13.5 12 11 14.5 8 15.5 5 14.5 2.5 12 2.5 8.5V3.5Z",
+    strokeLinejoin: "round"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M6.2 7.2V5.8A1.8 1.8 0 0 1 9.8 5.8V7.2",
+    strokeLinecap: "round"
+  }), /*#__PURE__*/React.createElement("rect", {
+    x: "5.4",
+    y: "7.2",
+    width: "5.2",
+    height: "3.6",
+    rx: "0.8"
+  }), /*#__PURE__*/React.createElement("circle", {
+    cx: "8",
+    cy: "8.8",
+    r: "0.7",
+    fill: "currentColor",
+    stroke: "none"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M8 9.5v0.9",
+    strokeLinecap: "round"
+  })),
   print: () => /*#__PURE__*/React.createElement("svg", {
     viewBox: "0 0 16 16",
     fill: "none",
@@ -500,9 +557,9 @@ function Topbar({
     className: "icon-btn-group"
   }, /*#__PURE__*/React.createElement("button", {
     className: "icon-btn",
-    title: mode === 'dark' ? 'Light mode' : 'Dark mode',
+    title: mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode',
     onClick: () => setMode(mode === 'dark' ? 'light' : 'dark')
-  }, mode === 'dark' ? /*#__PURE__*/React.createElement(Icon.sun, null) : /*#__PURE__*/React.createElement(Icon.moon, null)), D.xlsxFileName && /*#__PURE__*/React.createElement("a", {
+  }, mode === 'dark' ? /*#__PURE__*/React.createElement(Icon.shieldLight, null) : /*#__PURE__*/React.createElement(Icon.shieldDark, null)), D.xlsxFileName && /*#__PURE__*/React.createElement("a", {
     className: "icon-btn",
     href: D.xlsxFileName,
     download: true,
