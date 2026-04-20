@@ -270,6 +270,7 @@ function Sidebar({
   domainCounts,
   activeDomain,
   onDomainJump,
+  onOverviewClick,
   navOpen,
   onClose
 }) {
@@ -329,7 +330,13 @@ function Sidebar({
   }, "Executive"), exec.map(it => /*#__PURE__*/React.createElement("a", {
     href: `#${it.id}`,
     key: it.id,
-    onClick: closeIfMobile,
+    onClick: e => {
+      if (it.id === 'overview') {
+        e.preventDefault();
+        onOverviewClick();
+      }
+      closeIfMobile();
+    },
     className: 'nav-item' + (active === it.id ? ' active' : '')
   }, /*#__PURE__*/React.createElement("span", null, it.label))), /*#__PURE__*/React.createElement("div", {
     className: "nav-label",
@@ -3197,6 +3204,14 @@ function App() {
       block: 'start'
     });
   };
+  const onOverviewClick = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+    setActive('overview');
+    onDomainJump(null);
+  };
   const onViewFinding = useCallback(checkId => {
     setFilters({
       status: [],
@@ -3220,6 +3235,7 @@ function App() {
     domainCounts: domainCounts,
     activeDomain: filters.domain.length === 1 ? filters.domain[0] : null,
     onDomainJump: onDomainJump,
+    onOverviewClick: onOverviewClick,
     navOpen: navOpen,
     onClose: () => setNavOpen(false)
   }), /*#__PURE__*/React.createElement("main", {
