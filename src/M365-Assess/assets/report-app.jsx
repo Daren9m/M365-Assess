@@ -808,10 +808,12 @@ function FrameworkQuilt({ onSelect, selected }) {
             <button onClick={() => setExpandedFw(null)}
                     style={{background:'none',border:0,color:'var(--muted)',cursor:'pointer',fontSize:18,lineHeight:1,padding:'0 4px'}}>×</button>
           </div>
-          {FW_BLURB[expandedFw] && (
+          {(expandedMeta?.desc || FW_BLURB[expandedFw]) && (
             <div className="fw-blurb">
-              {FW_BLURB[expandedFw].desc}{' '}
-              <a href={FW_BLURB[expandedFw].url} target="_blank" rel="noopener noreferrer">Official site ↗</a>
+              {expandedMeta?.desc || FW_BLURB[expandedFw]?.desc}{' '}
+              {(expandedMeta?.url || FW_BLURB[expandedFw]?.url) && (
+                <a href={expandedMeta?.url || FW_BLURB[expandedFw]?.url} target="_blank" rel="noopener noreferrer">Official site ↗</a>
+              )}
             </div>
           )}
           <div className="fw-detail-summary">
@@ -1557,9 +1559,10 @@ function App() {
     "density": "compact"
   }/*EDITMODE-END*/;
 
-  const [theme, setTheme] = useState(() => localStorage.getItem('m365-theme') || DEFAULTS.theme);
-  const [mode, setMode] = useState(() => localStorage.getItem('m365-mode') || DEFAULTS.mode);
-  const [density, setDensity] = useState(() => localStorage.getItem('m365-density') || DEFAULTS.density);
+  const lsGet = (k, def) => { try { return localStorage.getItem(k) || def; } catch(e) { return def; } };
+  const [theme, setTheme] = useState(() => lsGet('m365-theme', DEFAULTS.theme));
+  const [mode, setMode] = useState(() => lsGet('m365-mode', DEFAULTS.mode));
+  const [density, setDensity] = useState(() => lsGet('m365-density', DEFAULTS.density));
   const [search, setSearch] = useState('');
   const [filters, setFilters] = useState({ status:[], severity:[], framework:[], domain:[] });
   const [active, setActive] = useState('overview');

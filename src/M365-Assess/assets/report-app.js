@@ -1024,10 +1024,10 @@ function FrameworkQuilt({
       lineHeight: 1,
       padding: '0 4px'
     }
-  }, "\xD7")), FW_BLURB[expandedFw] && /*#__PURE__*/React.createElement("div", {
+  }, "\xD7")), (expandedMeta?.desc || FW_BLURB[expandedFw]) && /*#__PURE__*/React.createElement("div", {
     className: "fw-blurb"
-  }, FW_BLURB[expandedFw].desc, ' ', /*#__PURE__*/React.createElement("a", {
-    href: FW_BLURB[expandedFw].url,
+  }, expandedMeta?.desc || FW_BLURB[expandedFw]?.desc, ' ', (expandedMeta?.url || FW_BLURB[expandedFw]?.url) && /*#__PURE__*/React.createElement("a", {
+    href: expandedMeta?.url || FW_BLURB[expandedFw]?.url,
     target: "_blank",
     rel: "noopener noreferrer"
   }, "Official site \u2197")), /*#__PURE__*/React.createElement("div", {
@@ -2308,9 +2308,10 @@ function App() {
     "mode": "dark",
     "density": "compact"
   } /*EDITMODE-END*/;
-  const [theme, setTheme] = useState(() => localStorage.getItem('m365-theme') || DEFAULTS.theme);
-  const [mode, setMode] = useState(() => localStorage.getItem('m365-mode') || DEFAULTS.mode);
-  const [density, setDensity] = useState(() => localStorage.getItem('m365-density') || DEFAULTS.density);
+  const lsGet = (k, def) => { try { return localStorage.getItem(k) || def; } catch(e) { return def; } };
+  const [theme, setTheme] = useState(() => lsGet('m365-theme', DEFAULTS.theme));
+  const [mode, setMode] = useState(() => lsGet('m365-mode', DEFAULTS.mode));
+  const [density, setDensity] = useState(() => lsGet('m365-density', DEFAULTS.density));
   const [search, setSearch] = useState('');
   const [filters, setFilters] = useState({
     status: [],
