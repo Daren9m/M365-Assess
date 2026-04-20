@@ -8,6 +8,7 @@
 param()
 
 function Test-PresetPolicy {
+    [CmdletBinding()]
     param([string]$PolicyName)
     if ($script:presetPolicyNames.ContainsKey($PolicyName)) {
         return $script:presetPolicyNames[$PolicyName]
