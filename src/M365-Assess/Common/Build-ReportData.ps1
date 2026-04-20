@@ -142,6 +142,9 @@ function Build-ReportDataJson {
                        else                                              { '' }
 
         $learnMore = if ($regEntry -and $regEntry.learnMore) { [string]$regEntry.learnMore } else { $null }
+        $evidence  = if ($f.PSObject.Properties['Evidence'] -and $null -ne $f.Evidence) {
+                         $f.Evidence | ConvertTo-Json -Depth 5 -Compress
+                     } else { $null }
 
         $findings.Add([PSCustomObject]@{
             checkId      = $f.CheckId
@@ -159,6 +162,7 @@ function Build-ReportDataJson {
             fwMeta       = $fwMeta
             intentDesign = [bool]($f.PSObject.Properties['IntentDesign'] -and $f.IntentDesign)
             learnMore    = $learnMore
+            evidence     = $evidence
         })
     }
 
@@ -229,6 +233,23 @@ function Build-ReportDataJson {
         outboundConnectors = @($mfRows | Where-Object { $_.ItemType -eq 'OutboundConnector' }).Count
     }
 
+    # AD/Hybrid panel — shape hybrid sync + security data for the AdHybridPanel component
+    $adHybridRows   = & $get 'ad-hybrid'
+    $adSecurityRows = & $get 'ad-security'
+    $adHybridData   = $null
+    if ($adHybridRows.Count -gt 0) {
+        $row = $adHybridRows[0]
+        $highRiskCount = @($adSecurityRows | Where-Object { $_.RiskLevel -eq 'High' -or $_.RiskLevel -eq 'Critical' }).Count
+        $adHybridData  = [ordered]@{
+            syncEnabled      = [bool]($row.OnPremisesSyncEnabled -eq 'True')
+            lastSyncTime     = if ($row.LastDirSyncTime) { [string]$row.LastDirSyncTime } else { $null }
+            syncType         = if ($row.SyncType) { [string]$row.SyncType } else { $null }
+            pwHashSync       = [bool]($row.PasswordHashSyncEnabled -eq 'True')
+            securityFindings = $adSecurityRows.Count
+            highRiskFindings = $highRiskCount
+        }
+    }
+
     # SharePoint config — extract sharing level from the security-config collector CSV
     $spoRows = & $get 'sharepoint-config'
     $spoConfig = [ordered]@{}
@@ -265,6 +286,7 @@ function Build-ReportDataJson {
         mailboxSummary = if ($mbxMap.Count) { $mbxMap } else { $null }
         mailflowStats  = if ($mfRows.Count) { $mailflowStats } else { $null }
         sharepointConfig = if ($spoConfig.Count) { $spoConfig } else { $null }
+        adHybrid       = $adHybridData
     }
 
     # ------------------------------------------------------------------

@@ -515,4 +515,63 @@ Describe 'Build-ReportData' {
             $d.ca[0].State       | Should -Be 'enabled'
         }
     }
+
+    Context 'Evidence field passthrough' {
+        It 'serializes evidence object to JSON string in findings output' {
+            $finding = New-Finding
+            $finding | Add-Member -NotePropertyName Evidence -NotePropertyValue ([PSCustomObject]@{ IsSecurityDefaultsEnabled = $true })
+            $registry = @{ 'ENTRA-MFA-001' = [PSCustomObject]@{ riskSeverity = 'Critical'; effort = 'small' } }
+            $d = ConvertFrom-ReportDataJson (Build-ReportDataJson -AllFindings @($finding) -RegistryData $registry)
+            $d.findings[0].evidence | Should -Not -BeNullOrEmpty
+            $parsed = $d.findings[0].evidence | ConvertFrom-Json
+            $parsed.IsSecurityDefaultsEnabled | Should -Be $true
+        }
+
+        It 'evidence field is null when not set on finding' {
+            $finding = New-Finding
+            $registry = @{ 'ENTRA-MFA-001' = [PSCustomObject]@{ riskSeverity = 'Critical'; effort = 'small' } }
+            $d = ConvertFrom-ReportDataJson (Build-ReportDataJson -AllFindings @($finding) -RegistryData $registry)
+            $d.findings[0].evidence | Should -BeNullOrEmpty
+        }
+
+        It 'evidence JSON string is parseable when present' {
+            $finding = New-Finding
+            $finding | Add-Member -NotePropertyName Evidence -NotePropertyValue ([PSCustomObject]@{
+                PolicyCount = 3; PolicyNames = @('Policy A', 'Policy B', 'Policy C')
+            })
+            $registry = @{ 'ENTRA-MFA-001' = [PSCustomObject]@{ riskSeverity = 'High'; effort = 'medium' } }
+            $d = ConvertFrom-ReportDataJson (Build-ReportDataJson -AllFindings @($finding) -RegistryData $registry)
+            { $d.findings[0].evidence | ConvertFrom-Json } | Should -Not -Throw
+            $ev = $d.findings[0].evidence | ConvertFrom-Json
+            $ev.PolicyCount | Should -Be 3
+        }
+    }
+
+    Context 'adHybrid shaping' {
+        It 'should set adHybrid to null when ad-hybrid section data is absent' {
+            $d = ConvertFrom-ReportDataJson (Build-ReportDataJson)
+            $d.adHybrid | Should -BeNullOrEmpty
+        }
+
+        It 'should populate adHybrid when hybrid sync row is present' {
+            $hybrid = [PSCustomObject]@{
+                OnPremisesSyncEnabled   = 'True'
+                LastDirSyncTime         = '2026-04-01T00:00:00Z'
+                SyncType                = 'AADConnect'
+                PasswordHashSyncEnabled = 'True'
+            }
+            $sec1 = [PSCustomObject]@{ RiskLevel = 'High'; FindingName = 'Kerberoastable account' }
+            $sec2 = [PSCustomObject]@{ RiskLevel = 'Low';  FindingName = 'Stale user' }
+            $d = ConvertFrom-ReportDataJson (Build-ReportDataJson -SectionData @{
+                'ad-hybrid'   = @($hybrid)
+                'ad-security' = @($sec1, $sec2)
+            })
+            $d.adHybrid              | Should -Not -BeNullOrEmpty
+            $d.adHybrid.syncEnabled  | Should -Be $true
+            $d.adHybrid.syncType     | Should -Be 'AADConnect'
+            $d.adHybrid.pwHashSync   | Should -Be $true
+            $d.adHybrid.securityFindings | Should -Be 2
+            $d.adHybrid.highRiskFindings | Should -Be 1
+        }
+    }
 }
