@@ -10,6 +10,7 @@ const {
 // --------------------- Data shape from bundle.js ---------------------
 const D = window.REPORT_DATA;
 const TENANT = D.tenant[0] || {};
+const FILTER_KEY = 'm365-filters-' + (TENANT.TenantId || 'default');
 const USERS = D.users[0] || {};
 const SCORE = D.score[0] || {};
 const MFA_STATS = D.mfaStats;
@@ -3154,12 +3155,26 @@ function App() {
   const [mode, setMode] = useState(() => lsGet('m365-mode', DEFAULTS.mode));
   const [density, setDensity] = useState(() => lsGet('m365-density', DEFAULTS.density));
   const [search, setSearch] = useState('');
-  const [filters, setFilters] = useState({
-    status: [],
-    severity: [],
-    framework: [],
-    domain: [],
-    profile: []
+  const [filters, setFilters] = useState(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(FILTER_KEY) || 'null');
+      if (saved && typeof saved === 'object') {
+        return {
+          status: Array.isArray(saved.status) ? saved.status : [],
+          severity: Array.isArray(saved.severity) ? saved.severity : [],
+          framework: Array.isArray(saved.framework) ? saved.framework : [],
+          domain: Array.isArray(saved.domain) ? saved.domain : [],
+          profile: Array.isArray(saved.profile) ? saved.profile : []
+        };
+      }
+    } catch {}
+    return {
+      status: [],
+      severity: [],
+      framework: [],
+      domain: [],
+      profile: []
+    };
   });
   const [active, setActive] = useState('overview');
   const [showTweaks, setShowTweaks] = useState(false);
@@ -3173,6 +3188,11 @@ function App() {
     localStorage.setItem('m365-mode', mode);
     localStorage.setItem('m365-density', density);
   }, [theme, mode, density]);
+  useEffect(() => {
+    try {
+      localStorage.setItem(FILTER_KEY, JSON.stringify(filters));
+    } catch {}
+  }, [filters]);
 
   // Slash-key to focus search
   useEffect(() => {
