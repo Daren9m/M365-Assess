@@ -141,7 +141,7 @@ function Build-ReportDataJson {
                        elseif ($f.PSObject.Properties['Recommended'])   { $f.Recommended }
                        else                                              { '' }
 
-        $learnMore = if ($regEntry -and $regEntry.learnMore) { [string]$regEntry.learnMore } else { $null }
+        $learnMore = if ($regEntry -and $regEntry.references -and $regEntry.references.Count -gt 0) { [string]$regEntry.references[0].url } else { $null }
         $evidence  = if ($f.PSObject.Properties['Evidence'] -and $null -ne $f.Evidence) {
                          $f.Evidence | ConvertTo-Json -Depth 5 -Compress
                      } else { $null }
