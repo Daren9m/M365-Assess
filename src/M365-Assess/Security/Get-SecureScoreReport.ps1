@@ -97,16 +97,19 @@ if ($latestScore.AverageComparativeScores) {
 Write-Verbose "Secure Score: $currentScore / $maxScore ($percentage%) as of $($latestScore.CreatedDateTime)"
 
 # Compute Microsoft-managed vs customer-earned score split via control profiles.
-# Microsoft-managed controls have actionType = 'ProviderGenerated'. Add $top=250
-# to avoid the default 100-item page limit (Secure Score has 290+ controls).
+# Microsoft-managed controls have actionType = 'ProviderGenerated'. Page through
+# all results — 290+ controls exceed the Graph default 100-item page limit.
 $microsoftScore = 0.0
 $customerScore  = 0.0
 try {
-    $profilesResp = Invoke-MgGraphRequest -Method GET -Uri '/v1.0/security/secureScoreControlProfiles?$top=250' -ErrorAction Stop
-    $profileMap = @{}
-    foreach ($prof in $profilesResp.value) {
-        $profileMap[$prof.id] = $prof.actionType
-    }
+    $profileMap  = @{}
+    $profilesUri = '/v1.0/security/secureScoreControlProfiles?$top=250'
+    do {
+        $profilesResp = Invoke-MgGraphRequest -Method GET -Uri $profilesUri -ErrorAction Stop
+        foreach ($prof in $profilesResp.value) { $profileMap[$prof.id] = $prof.actionType }
+        $profilesUri = $profilesResp.'@odata.nextLink'
+    } while ($profilesUri)
+
     foreach ($ctrl in $latestScore.ControlScores) {
         $earned = if ($null -ne $ctrl.Score) { [double]$ctrl.Score } else { 0.0 }
         if ($profileMap[$ctrl.ControlName] -eq 'ProviderGenerated') {
@@ -119,7 +122,7 @@ try {
     $customerScore  = [math]::Round($customerScore, 2)
 }
 catch {
-    Write-Verbose "Could not compute score split from control profiles: $_"
+    Write-Warning "Could not compute score split from control profiles: $_"
 }
 
 # Build one row per historical snapshot (newest-first from Graph).
