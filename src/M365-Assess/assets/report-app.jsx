@@ -125,8 +125,8 @@ function Sidebar({ active, counts, domainCounts, activeDomain, onDomainJump, onO
   const exec = [
     { id: 'overview', label: 'Overview' },
     { id: 'posture',  label: 'Posture score' },
-    { id: 'identity', label: 'Domain posture' },
     { id: 'frameworks', label: 'Frameworks' },
+    { id: 'identity', label: 'Domain posture' },
   ];
   const details = [
     { id: 'findings', label: 'All findings', count: counts.total },
@@ -761,7 +761,7 @@ function DomainRollup({ onJump }) {
   return (
     <section className="block" id="identity">
       <div className="section-head">
-        <span className="eyebrow">01 · Domains</span>
+        <span className="eyebrow">02 · Domains</span>
         <h2>Security posture by domain</h2>
         <div className="hr"/>
       </div>
@@ -881,7 +881,7 @@ function FrameworkQuilt({ onSelect, selected }) {
   return (
     <section className="block" id="frameworks">
       <div className="section-head">
-        <span className="eyebrow">02 · Compliance</span>
+        <span className="eyebrow">01 · Compliance</span>
         <h2>Framework coverage</h2>
         <div ref={pickerRef} style={{position:'relative', marginLeft:12, flexShrink:0}}>
           <button className={'chip chip-more' + (visibleFws.length > 1 ? ' selected' : '')}
@@ -2043,8 +2043,8 @@ function App() {
         />
         <Overview/>
         <Posture/>
-        <DomainRollup onJump={onDomainJump}/>
         <FrameworkQuilt onSelect={onFrameworkSelect} selected={filters.framework[0]}/>
+        <DomainRollup onJump={onDomainJump}/>
         <div id="findings-anchor"/>
         <div style={{marginTop:20}}/>
         <FilterBar filters={filters} setFilters={setFilters} counts={counts} total={FINDINGS.length} search={search} setSearch={setSearch}/>

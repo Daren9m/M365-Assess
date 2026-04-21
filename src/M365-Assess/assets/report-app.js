@@ -339,11 +339,11 @@ function Sidebar({
     id: 'posture',
     label: 'Posture score'
   }, {
-    id: 'identity',
-    label: 'Domain posture'
-  }, {
     id: 'frameworks',
     label: 'Frameworks'
+  }, {
+    id: 'identity',
+    label: 'Domain posture'
   }];
   const details = [{
     id: 'findings',
@@ -1449,7 +1449,7 @@ function DomainRollup({
     className: "section-head"
   }, /*#__PURE__*/React.createElement("span", {
     className: "eyebrow"
-  }, "01 \xB7 Domains"), /*#__PURE__*/React.createElement("h2", null, "Security posture by domain"), /*#__PURE__*/React.createElement("div", {
+  }, "02 \xB7 Domains"), /*#__PURE__*/React.createElement("h2", null, "Security posture by domain"), /*#__PURE__*/React.createElement("div", {
     className: "hr"
   })), /*#__PURE__*/React.createElement("div", {
     className: "domain-grid"
@@ -1603,7 +1603,7 @@ function FrameworkQuilt({
     className: "section-head"
   }, /*#__PURE__*/React.createElement("span", {
     className: "eyebrow"
-  }, "02 \xB7 Compliance"), /*#__PURE__*/React.createElement("h2", null, "Framework coverage"), /*#__PURE__*/React.createElement("div", {
+  }, "01 \xB7 Compliance"), /*#__PURE__*/React.createElement("h2", null, "Framework coverage"), /*#__PURE__*/React.createElement("div", {
     ref: pickerRef,
     style: {
       position: 'relative',
@@ -3488,11 +3488,11 @@ function App() {
     onFinalize: handleFinalize,
     onReset: handleResetAll,
     hiddenCount: hiddenFindings.size
-  }), /*#__PURE__*/React.createElement(Overview, null), /*#__PURE__*/React.createElement(Posture, null), /*#__PURE__*/React.createElement(DomainRollup, {
-    onJump: onDomainJump
-  }), /*#__PURE__*/React.createElement(FrameworkQuilt, {
+  }), /*#__PURE__*/React.createElement(Overview, null), /*#__PURE__*/React.createElement(Posture, null), /*#__PURE__*/React.createElement(FrameworkQuilt, {
     onSelect: onFrameworkSelect,
     selected: filters.framework[0]
+  }), /*#__PURE__*/React.createElement(DomainRollup, {
+    onJump: onDomainJump
   }), /*#__PURE__*/React.createElement("div", {
     id: "findings-anchor"
   }), /*#__PURE__*/React.createElement("div", {
