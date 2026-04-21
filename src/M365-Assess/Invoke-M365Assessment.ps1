@@ -213,6 +213,10 @@ param(
     [string]$ReportTheme = 'Neon',
 
     [Parameter()]
+    [ValidateSet('Compact', 'Comfort')]
+    [string]$ReportDensity = 'Compact',
+
+    [Parameter()]
     [switch]$WhiteLabel,
 
     [Parameter()]
@@ -1278,7 +1282,8 @@ if (Test-Path -Path $reportScriptPath) {
         }
         if ($script:domainPrefix) { $reportParams['TenantName'] = $script:domainPrefix }
         elseif ($TenantId)        { $reportParams['TenantName'] = $TenantId }
-        $reportParams['ReportTheme'] = $ReportTheme
+        $reportParams['ReportTheme']   = $ReportTheme
+        $reportParams['ReportDensity'] = $ReportDensity
         if ($WhiteLabel)        { $reportParams['WhiteLabel']        = $true }
         if ($CompactReport)     { $reportParams['CompactReport']     = $true }
         if ($OpenReport)        { $reportParams['OpenReport']        = $true }
