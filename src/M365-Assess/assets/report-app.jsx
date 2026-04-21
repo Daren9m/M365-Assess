@@ -1861,6 +1861,35 @@ function Overview() {
 
 // ======================== Appendix ========================
 function Appendix() {
+  const mfaTotal = MFA_STATS.total || 1;
+  const mfaPct = n => Math.round((n / mfaTotal) * 100);
+
+  const dns = D.dns || [];
+  const dnsTotal = dns.length;
+  const spfPass  = dns.filter(r => r.SPF === 'Pass').length;
+  const dkimPass = dns.filter(r => r.DKIMStatus === 'Pass' || r.DKIM === 'Pass').length;
+  const dmarcEnf = dns.filter(r => r.DMARCPolicy === 'reject' || r.DMARCPolicy === 'quarantine').length;
+
+  const allRoles = D['admin-roles'] || [];
+  const roleCounts = allRoles.reduce((acc, r) => {
+    acc[r.RoleName] = (acc[r.RoleName] || 0) + 1;
+    return acc;
+  }, {});
+  const roleEntries = Object.entries(roleCounts).sort((a,b) => b[1] - a[1]);
+
+  const ad = D.adHybrid;
+  const phsLabel = ad
+    ? (ad.pwHashSync === true ? 'Enabled' : ad.pwHashSync === null || ad.pwHashSync === undefined ? 'Verify' : 'Disabled')
+    : null;
+  const phsColor = ad
+    ? (ad.pwHashSync === true ? 'var(--success-text)' : ad.pwHashSync === null || ad.pwHashSync === undefined ? 'var(--warn-text)' : 'var(--danger-text)')
+    : 'var(--muted)';
+
+  const labelStyle = {fontSize:12,color:'var(--muted)',textTransform:'uppercase',letterSpacing:'.08em',fontWeight:600,marginBottom:10};
+  const rowStyle   = {borderTop:'1px solid var(--border)'};
+  const cellStyle  = {padding:'6px 0', fontSize:12};
+  const monoRight  = {textAlign:'right',fontFamily:'var(--font-mono)',fontVariantNumeric:'tabular-nums'};
+
   return (
     <section className="block" id="appendix">
       <div className="section-head">
@@ -1868,49 +1897,154 @@ function Appendix() {
         <h2>Tenant appendix</h2>
         <div className="hr"/>
       </div>
-      <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:14}}>
+
+      <div className="card" style={{marginBottom:14}}>
+        <div style={labelStyle}>Tenant</div>
+        <div style={{display:'flex',flexWrap:'wrap',gap:'6px 24px',fontSize:12}}>
+          <span><span style={{color:'var(--muted)'}}>org</span> <b>{TENANT.OrgDisplayName}</b></span>
+          <span><span style={{color:'var(--muted)'}}>domain</span> <b>{TENANT.DefaultDomain}</b></span>
+          <span><span style={{color:'var(--muted)'}}>id</span> <span style={{fontFamily:'var(--font-mono)'}}>{TENANT.TenantId}</span></span>
+          {TENANT.tenantAgeYears != null && (
+            <span><span style={{color:'var(--muted)'}}>age</span> <b>{TENANT.tenantAgeYears} yrs</b></span>
+          )}
+          {TENANT.CreatedDateTime && (
+            <span><span style={{color:'var(--muted)'}}>created</span> <b>{TENANT.CreatedDateTime.slice(0,10)}</b></span>
+          )}
+        </div>
+      </div>
+
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14}}>
         <div className="card">
-          <div style={{fontSize:12,color:'var(--muted)',textTransform:'uppercase',letterSpacing:'.08em',fontWeight:600,marginBottom:10}}>Licenses</div>
+          <div style={labelStyle}>Licenses</div>
           <table style={{width:'100%',fontSize:12,borderCollapse:'collapse'}}>
             <thead><tr style={{textAlign:'left',color:'var(--muted)'}}><th style={{padding:'6px 0'}}>SKU</th><th style={{textAlign:'right'}}>Assigned</th><th style={{textAlign:'right'}}>Total</th></tr></thead>
             <tbody>
               {D.licenses.filter(l => parseInt(l.Assigned) > 0).map((l,i)=>(
-                <tr key={i} style={{borderTop:'1px solid var(--border)'}}>
-                  <td style={{padding:'6px 0'}}>{l.License}</td>
-                  <td style={{textAlign:'right',fontFamily:'var(--font-mono)',fontVariantNumeric:'tabular-nums'}}>{l.Assigned}</td>
-                  <td style={{textAlign:'right',fontFamily:'var(--font-mono)',fontVariantNumeric:'tabular-nums',color:'var(--muted)'}}>{l.Total}</td>
+                <tr key={i} style={rowStyle}>
+                  <td style={cellStyle}>{l.License}</td>
+                  <td style={{...cellStyle,...monoRight}}>{l.Assigned}</td>
+                  <td style={{...cellStyle,...monoRight,color:'var(--muted)'}}>{l.Total}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
+
         <div className="card">
-          <div style={{fontSize:12,color:'var(--muted)',textTransform:'uppercase',letterSpacing:'.08em',fontWeight:600,marginBottom:10}}>Conditional Access policies</div>
+          <div style={labelStyle}>MFA coverage ({fmt(mfaTotal)} users)</div>
+          <table style={{width:'100%',fontSize:12,borderCollapse:'collapse'}}>
+            <tbody>
+              {MFA_STATS.phishResistant > 0 && (
+                <tr style={rowStyle}>
+                  <td style={cellStyle}>Phish-resistant</td>
+                  <td style={{...cellStyle,...monoRight}}>{fmt(MFA_STATS.phishResistant)}</td>
+                  <td style={{...cellStyle,...monoRight,color:'var(--success-text)'}}>{mfaPct(MFA_STATS.phishResistant)}%</td>
+                </tr>
+              )}
+              {MFA_STATS.standard > 0 && (
+                <tr style={rowStyle}>
+                  <td style={cellStyle}>Standard MFA</td>
+                  <td style={{...cellStyle,...monoRight}}>{fmt(MFA_STATS.standard)}</td>
+                  <td style={{...cellStyle,...monoRight,color:'var(--text-soft)'}}>{mfaPct(MFA_STATS.standard)}%</td>
+                </tr>
+              )}
+              {MFA_STATS.weak > 0 && (
+                <tr style={rowStyle}>
+                  <td style={cellStyle}>Weak (SMS/voice)</td>
+                  <td style={{...cellStyle,...monoRight}}>{fmt(MFA_STATS.weak)}</td>
+                  <td style={{...cellStyle,...monoRight,color:'var(--warn-text)'}}>{mfaPct(MFA_STATS.weak)}%</td>
+                </tr>
+              )}
+              <tr style={rowStyle}>
+                <td style={cellStyle}>No MFA</td>
+                <td style={{...cellStyle,...monoRight}}>{fmt(MFA_STATS.none)}</td>
+                <td style={{...cellStyle,...monoRight,color:MFA_STATS.none>0?'var(--danger-text)':'var(--muted)'}}>{mfaPct(MFA_STATS.none)}%</td>
+              </tr>
+              {MFA_STATS.adminsWithoutMfa > 0 && (
+                <tr style={rowStyle}>
+                  <td style={{...cellStyle,color:'var(--danger-text)',fontWeight:600}}>Admins without MFA</td>
+                  <td style={{...cellStyle,...monoRight,color:'var(--danger-text)',fontWeight:600}}>{fmt(MFA_STATS.adminsWithoutMfa)}</td>
+                  <td style={cellStyle}/>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="card">
+          <div style={labelStyle}>Conditional Access policies ({D.ca.length})</div>
           <table style={{width:'100%',fontSize:12,borderCollapse:'collapse'}}>
             <tbody>
               {D.ca.map((r,i)=>(
-                <tr key={i} style={{borderTop:'1px solid var(--border)'}}>
-                  <td style={{padding:'6px 0'}}>{r.DisplayName}</td>
-                  <td style={{textAlign:'right'}}><StatusDot ok={r.State === 'enabled'} warn={r.State?.includes('Report')}/></td>
-                  <td style={{textAlign:'right',fontSize:12,color:'var(--muted)'}}>{r.State}</td>
+                <tr key={i} style={rowStyle}>
+                  <td style={cellStyle}>{r.DisplayName}</td>
+                  <td style={{textAlign:'right',paddingRight:6}}><StatusDot ok={r.State==='enabled'} warn={r.State?.includes('Report')}/></td>
+                  <td style={{...cellStyle,textAlign:'right',color:'var(--muted)'}}>{r.State}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
+
         <div className="card">
-          <div style={{fontSize:12,color:'var(--muted)',textTransform:'uppercase',letterSpacing:'.08em',fontWeight:600,marginBottom:10}}>Global administrators</div>
-          <div style={{display:'flex',flexWrap:'wrap',gap:6}}>
-            {D['admin-roles'].filter(r=>r.RoleName==='Global Administrator').map((r,i)=>(
-              <span key={i} className="fw-pill" style={{fontSize:12,padding:'4px 8px'}}>
-                {r.MemberDisplayName}
-              </span>
-            ))}
-          </div>
-          <div style={{fontSize:12,color:'var(--muted)',marginTop:8}}>
-            {D['admin-roles'].filter(r=>r.RoleName==='Global Administrator').length} Global Administrators detected (including break-glass).
-          </div>
+          <div style={labelStyle}>Privileged roles ({allRoles.length} assignments)</div>
+          <table style={{width:'100%',fontSize:12,borderCollapse:'collapse'}}>
+            <tbody>
+              {roleEntries.map(([role, count], i) => (
+                <tr key={i} style={rowStyle}>
+                  <td style={cellStyle}>{role}</td>
+                  <td style={{...cellStyle,...monoRight,color:'var(--muted)'}}>{count}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
+
+        {dnsTotal > 0 && (
+          <div className="card">
+            <div style={labelStyle}>Email authentication ({dnsTotal} domain{dnsTotal!==1?'s':''})</div>
+            <table style={{width:'100%',fontSize:12,borderCollapse:'collapse'}}>
+              <tbody>
+                <tr style={rowStyle}>
+                  <td style={cellStyle}>SPF passing</td>
+                  <td style={{...cellStyle,...monoRight,color:spfPass===dnsTotal?'var(--success-text)':spfPass>0?'var(--warn-text)':'var(--danger-text)'}}>{spfPass}/{dnsTotal}</td>
+                </tr>
+                <tr style={rowStyle}>
+                  <td style={cellStyle}>DKIM passing</td>
+                  <td style={{...cellStyle,...monoRight,color:dkimPass===dnsTotal?'var(--success-text)':dkimPass>0?'var(--warn-text)':'var(--danger-text)'}}>{dkimPass}/{dnsTotal}</td>
+                </tr>
+                <tr style={rowStyle}>
+                  <td style={cellStyle}>DMARC enforced</td>
+                  <td style={{...cellStyle,...monoRight,color:dmarcEnf===dnsTotal?'var(--success-text)':dmarcEnf>0?'var(--warn-text)':'var(--danger-text)'}}>{dmarcEnf}/{dnsTotal}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {ad && (
+          <div className="card">
+            <div style={labelStyle}>Hybrid sync</div>
+            <table style={{width:'100%',fontSize:12,borderCollapse:'collapse'}}>
+              <tbody>
+                <tr style={rowStyle}>
+                  <td style={cellStyle}>Sync type</td>
+                  <td style={{...cellStyle,textAlign:'right'}}>{ad.syncType || 'Cloud-only'}</td>
+                </tr>
+                <tr style={rowStyle}>
+                  <td style={cellStyle}>Password hash sync</td>
+                  <td style={{...cellStyle,textAlign:'right',color:phsColor,fontWeight:600}}>{phsLabel}</td>
+                </tr>
+                {ad.lastSync && (
+                  <tr style={rowStyle}>
+                    <td style={cellStyle}>Last sync</td>
+                    <td style={{...cellStyle,textAlign:'right',fontFamily:'var(--font-mono)'}}>{String(ad.lastSync).slice(0,19).replace('T',' ')}</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </section>
   );
