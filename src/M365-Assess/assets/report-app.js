@@ -16,6 +16,34 @@ const SCORE = D.score[0] || {};
 const MFA_STATS = D.mfaStats;
 const FINDINGS = D.findings;
 const DOMAIN_STATS = D.domainStats;
+const LS = key => `${key}-${TENANT.TenantId || 'anon'}`;
+const RO = window.REPORT_OVERRIDES || null;
+function finalizeReport({
+  hiddenFindings,
+  roadmapOverrides
+}) {
+  const overridesEl = document.getElementById('report-overrides');
+  if (!overridesEl) {
+    alert('This report is missing the overrides injection point. Regenerate it with the latest template.');
+    return;
+  }
+  const overrides = {
+    hiddenFindings: [...(hiddenFindings || [])],
+    roadmapOverrides: roadmapOverrides || {}
+  };
+  const clone = document.documentElement.cloneNode(true);
+  clone.querySelector('#report-overrides').textContent = `window.REPORT_OVERRIDES = ${JSON.stringify(overrides)};`;
+  clone.querySelector('#root').replaceChildren();
+  const blob = new Blob(['<!DOCTYPE html>\n' + clone.outerHTML], {
+    type: 'text/html'
+  });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = (TENANT.OrgDisplayName || 'Assessment').replace(/[^a-z0-9 ]/gi, '').trim().replace(/\s+/g, '-') + '-M365-Report.html';
+  a.click();
+  URL.revokeObjectURL(url);
+}
 
 // Pre-compute roadmap lane counts for sidebar sub-nav (mirrors Roadmap bucketing logic)
 const _RM = FINDINGS.filter(f => f.status !== 'Pass' && f.status !== 'Info');
@@ -463,9 +491,14 @@ function Topbar({
   setTheme,
   onPrint,
   onTweaks,
-  onHamburger
+  onHamburger,
+  editMode,
+  onEditToggle,
+  onFinalize,
+  onReset,
+  hiddenCount
 }) {
-  return /*#__PURE__*/React.createElement("div", {
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
     className: "topbar"
   }, /*#__PURE__*/React.createElement("button", {
     className: "hamburger-btn",
@@ -516,7 +549,22 @@ function Topbar({
     className: "icon-btn",
     title: "Tweaks",
     onClick: onTweaks
-  }, /*#__PURE__*/React.createElement(Icon.sliders, null))));
+  }, /*#__PURE__*/React.createElement(Icon.sliders, null)))), editMode && /*#__PURE__*/React.createElement("div", {
+    className: "edit-toolbar"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "edit-toolbar-badge"
+  }, "\u270E Edit Mode"), hiddenCount > 0 && /*#__PURE__*/React.createElement("span", {
+    className: "edit-toolbar-info"
+  }, hiddenCount, " finding", hiddenCount === 1 ? '' : 's', " hidden"), /*#__PURE__*/React.createElement("button", {
+    className: "edit-toolbar-reset",
+    onClick: onReset
+  }, "\u21BA Reset all"), /*#__PURE__*/React.createElement("button", {
+    className: "edit-toolbar-finalize",
+    onClick: onFinalize
+  }, "\u2193 Finalize report"), /*#__PURE__*/React.createElement("button", {
+    className: "edit-toolbar-exit",
+    onClick: onEditToggle
+  }, "\u2715 Exit edit mode")));
 }
 
 // ======================== Posture hero ========================
@@ -2002,6 +2050,30 @@ function FilterBar({
   }, "Clear ", active, " filter", active === 1 ? '' : 's')));
 }
 
+// ======================== Search highlight helper ========================
+function Highlight({
+  text,
+  query
+}) {
+  if (!query || !text) return text || null;
+  const str = String(text);
+  const q = query.toLowerCase();
+  const parts = [];
+  let lower = str.toLowerCase();
+  let last = 0,
+    idx;
+  while ((idx = lower.indexOf(q, last)) !== -1) {
+    if (idx > last) parts.push(str.slice(last, idx));
+    parts.push(/*#__PURE__*/React.createElement("mark", {
+      key: idx,
+      className: "search-hl"
+    }, str.slice(idx, idx + q.length)));
+    last = idx + q.length;
+  }
+  if (last < str.length) parts.push(str.slice(last));
+  return parts.length ? parts : text;
+}
+
 // ======================== Findings table ========================
 const ALL_COLS = [{
   id: 'status',
@@ -2037,7 +2109,12 @@ function FindingsTable({
   filters,
   search,
   focusFinding,
-  onFocusClear
+  onFocusClear,
+  editMode,
+  hiddenFindings,
+  onHide,
+  onHideBulk,
+  onRestoreAll
 }) {
   const [open, setOpen] = useState(new Set());
   const [visibleCols, setVisibleCols] = useState(DEFAULT_COLS);
@@ -2083,6 +2160,7 @@ function FindingsTable({
   const filtered = useMemo(() => {
     const s = search.toLowerCase();
     return FINDINGS.filter(f => {
+      if (!editMode && hiddenFindings?.has(f.checkId)) return false;
       if (filters.status.length && !filters.status.includes(f.status)) return false;
       if (filters.severity.length && !filters.severity.includes(f.severity)) return false;
       if (filters.framework.length && !f.frameworks.some(fw => filters.framework.includes(fw))) return false;
@@ -2098,7 +2176,7 @@ function FindingsTable({
       }
       return true;
     });
-  }, [filters, search]);
+  }, [filters, search, editMode, hiddenFindings]);
   const isFiltered = search.length > 0 || filters.status.length > 0 || filters.severity.length > 0 || filters.framework.length > 0 || filters.domain.length > 0 || (filters.profile || []).length > 0;
   const toggle = i => setOpen(o => {
     const n = new Set(o);
@@ -2134,14 +2212,23 @@ function FindingsTable({
           className: "finding-title"
         }, /*#__PURE__*/React.createElement("div", {
           className: "t"
-        }, hl(f.setting, search)), /*#__PURE__*/React.createElement("div", {
+        }, /*#__PURE__*/React.createElement(Highlight, {
+          text: f.setting,
+          query: search
+        })), /*#__PURE__*/React.createElement("div", {
           className: "sub"
-        }, hl(f.section, search)));
+        }, /*#__PURE__*/React.createElement(Highlight, {
+          text: f.section,
+          query: search
+        })));
       case 'domain':
         return /*#__PURE__*/React.createElement("div", {
           key: "domain",
           className: "finding-dom"
-        }, hl(f.domain, search));
+        }, /*#__PURE__*/React.createElement(Highlight, {
+          text: f.domain,
+          query: search
+        }));
       case 'controlId':
         {
           const activeFw = filters.framework.length === 1 ? filters.framework[0] : null;
@@ -2194,7 +2281,10 @@ function FindingsTable({
         return /*#__PURE__*/React.createElement("div", {
           key: "checkId",
           className: "check-id"
-        }, hl(f.checkId, search));
+        }, /*#__PURE__*/React.createElement(Highlight, {
+          text: f.checkId,
+          query: search
+        }));
       case 'severity':
         return /*#__PURE__*/React.createElement("div", {
           key: "severity"
@@ -2240,7 +2330,10 @@ function FindingsTable({
       color: 'var(--muted)',
       fontSize: 13
     }
-  }, " \xB7 ", FINDINGS.length, " total")), /*#__PURE__*/React.createElement("div", {
+  }, " \xB7 ", FINDINGS.length, " total")), editMode && hiddenFindings?.size > 0 && /*#__PURE__*/React.createElement("button", {
+    className: "restore-all-btn",
+    onClick: onRestoreAll
+  }, "\u21A9 Restore ", hiddenFindings.size, " hidden"), /*#__PURE__*/React.createElement("div", {
     ref: colPickerRef,
     style: {
       position: 'relative',
@@ -2304,16 +2397,24 @@ function FindingsTable({
     className: "empty"
   }, "No findings match your filters."), filtered.map((f, i) => {
     const isOpen = open.has(i);
+    const isHidden = hiddenFindings?.has(f.checkId);
     return /*#__PURE__*/React.createElement(React.Fragment, {
       key: i
     }, /*#__PURE__*/React.createElement("div", {
       id: 'finding-row-' + (f.checkId || '').replace(/\./g, '-'),
-      className: 'finding-row' + (isOpen ? ' open' : ''),
+      className: 'finding-row' + (isOpen ? ' open' : '') + (isHidden ? ' finding-hidden' : ''),
       onClick: () => toggle(i),
       style: {
         gridTemplateColumns: gridTpl
       }
-    }, cols.map(c => renderCell(c.id, f)), /*#__PURE__*/React.createElement("div", {
+    }, cols.map(c => renderCell(c.id, f)), editMode ? /*#__PURE__*/React.createElement("button", {
+      className: 'hide-finding-btn' + (isHidden ? ' restore' : ''),
+      title: isHidden ? 'Restore finding' : 'Hide from report',
+      onClick: e => {
+        e.stopPropagation();
+        onHide?.(f.checkId);
+      }
+    }, isHidden ? '↩' : '✕') : /*#__PURE__*/React.createElement("div", {
       className: "caret"
     }, /*#__PURE__*/React.createElement(Icon.chevron, null))), isOpen && /*#__PURE__*/React.createElement("div", {
       className: "finding-detail"
@@ -2394,47 +2495,37 @@ function whyItMatters(f) {
 
 // ======================== Roadmap ========================
 function Roadmap({
-  onViewFinding
+  onViewFinding,
+  editMode,
+  hiddenFindings,
+  roadmapOverrides,
+  onRoadmapChange
 }) {
-  const OVERRIDE_KEY = 'm365-roadmap-overrides';
   const [open, setOpen] = useState(null);
-  const [overrides, setOverrides] = useState(() => {
-    try {
-      return JSON.parse(localStorage.getItem(OVERRIDE_KEY) || '{}');
-    } catch {
-      return {};
-    }
-  });
-  const saveOverrides = next => {
-    setOverrides(next);
-    try {
-      localStorage.setItem(OVERRIDE_KEY, JSON.stringify(next));
-    } catch {}
-  };
   const moveTo = (checkId, lane) => {
-    saveOverrides({
-      ...overrides,
+    onRoadmapChange({
+      ...roadmapOverrides,
       [checkId]: lane
     });
     if (open === checkId) setOpen(null);
   };
   const resetCard = checkId => {
     const next = {
-      ...overrides
+      ...roadmapOverrides
     };
     delete next[checkId];
-    saveOverrides(next);
+    onRoadmapChange(next);
   };
   const resetLane = laneItems => {
     const next = {
-      ...overrides
+      ...roadmapOverrides
     };
     laneItems.forEach(t => {
       delete next[t.checkId];
     });
-    saveOverrides(next);
+    onRoadmapChange(next);
   };
-  const tasks = FINDINGS.filter(f => f.status !== 'Pass' && f.status !== 'Info').map(f => ({
+  const tasks = FINDINGS.filter(f => f.status !== 'Pass' && f.status !== 'Info' && !hiddenFindings?.has(f.checkId)).map(f => ({
     ...f
   }));
   const score = f => {
@@ -2485,7 +2576,7 @@ function Roadmap({
     if (t.severity === 'high' || t.severity === 'medium' && t.effort !== 'large') return 'soon';
     return 'later';
   };
-  const getEffectiveLane = t => overrides[t.checkId] || getNaturalLane(t);
+  const getEffectiveLane = t => roadmapOverrides[t.checkId] || getNaturalLane(t);
   const LANE_LABEL = {
     now: 'Now',
     soon: 'Next',
@@ -2495,7 +2586,7 @@ function Roadmap({
   const soon = tasks.filter(t => getEffectiveLane(t) === 'soon');
   const later = tasks.filter(t => getEffectiveLane(t) === 'later');
   const priorityReason = (t, lane) => {
-    if (overrides[t.checkId]) {
+    if (roadmapOverrides[t.checkId]) {
       const natural = LANE_LABEL[getNaturalLane(t)];
       return `Manually moved to ${LANE_LABEL[lane]}. Default lane was ${natural}. Click Reset to restore.`;
     }
@@ -2513,7 +2604,7 @@ function Roadmap({
   const renderTask = (t, lane) => {
     const key = t.checkId;
     const isOpen = open === key;
-    const isCustom = !!overrides[key];
+    const isCustom = !!roadmapOverrides[key];
     return /*#__PURE__*/React.createElement("div", {
       className: 'task' + (isOpen ? ' task-open' : '') + (isCustom ? ' task-custom' : ''),
       key: key
@@ -2639,7 +2730,7 @@ function Roadmap({
   const LaneReset = ({
     laneItems
   }) => {
-    const hasCustom = laneItems.some(t => overrides[t.checkId]);
+    const hasCustom = laneItems.some(t => roadmapOverrides[t.checkId]);
     if (!hasCustom) return null;
     return /*#__PURE__*/React.createElement("button", {
       className: "lane-reset-btn",
@@ -2671,7 +2762,7 @@ function Roadmap({
     style: {
       color: 'var(--muted)'
     }
-  }, "Click any task to expand it, or use the move buttons on each card to reprioritize. Overrides persist across page refreshes."))), /*#__PURE__*/React.createElement("div", {
+  }, "Click any task to expand it, or use the move buttons on each card to reprioritize. Use Finalize (\u270E) to bake lane changes into the report."))), /*#__PURE__*/React.createElement("div", {
     className: "roadmap"
   }, /*#__PURE__*/React.createElement("div", {
     className: "lane"
@@ -3180,6 +3271,23 @@ function App() {
   const [showTweaks, setShowTweaks] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
   const [focusFinding, setFocusFinding] = useState(null);
+  const [editMode, setEditMode] = useState(false);
+  const [hiddenFindings, setHiddenFindings] = useState(() => new Set(RO?.hiddenFindings || []));
+  const [roadmapOverrides, setRoadmapOverrides] = useState(() => RO?.roadmapOverrides || {});
+  const toggleHideFinding = id => setHiddenFindings(prev => {
+    const s = new Set(prev);
+    s.has(id) ? s.delete(id) : s.add(id);
+    return s;
+  });
+  const restoreAllFindings = () => setHiddenFindings(new Set());
+  const handleFinalize = () => finalizeReport({
+    hiddenFindings: [...hiddenFindings],
+    roadmapOverrides
+  });
+  const handleResetAll = () => {
+    setHiddenFindings(new Set());
+    setRoadmapOverrides({});
+  };
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
     document.documentElement.dataset.mode = mode;
@@ -3318,7 +3426,12 @@ function App() {
     setTheme: setTheme,
     onPrint: () => window.print(),
     onTweaks: () => setShowTweaks(s => !s),
-    onHamburger: () => setNavOpen(o => !o)
+    onHamburger: () => setNavOpen(o => !o),
+    editMode: editMode,
+    onEditToggle: () => setEditMode(e => !e),
+    onFinalize: handleFinalize,
+    onReset: handleResetAll,
+    hiddenCount: hiddenFindings.size
   }), /*#__PURE__*/React.createElement(Overview, null), /*#__PURE__*/React.createElement(Posture, null), /*#__PURE__*/React.createElement(DomainRollup, {
     onJump: onDomainJump
   }), /*#__PURE__*/React.createElement(FrameworkQuilt, {
@@ -3341,9 +3454,17 @@ function App() {
     filters: filters,
     search: search,
     focusFinding: focusFinding,
-    onFocusClear: () => setFocusFinding(null)
+    onFocusClear: () => setFocusFinding(null),
+    editMode: editMode,
+    hiddenFindings: hiddenFindings,
+    onHide: toggleHideFinding,
+    onRestoreAll: restoreAllFindings
   }), /*#__PURE__*/React.createElement(Roadmap, {
-    onViewFinding: onViewFinding
+    onViewFinding: onViewFinding,
+    editMode: editMode,
+    hiddenFindings: hiddenFindings,
+    roadmapOverrides: roadmapOverrides,
+    onRoadmapChange: setRoadmapOverrides
   }), /*#__PURE__*/React.createElement(Appendix, null), !D.whiteLabel && /*#__PURE__*/React.createElement("div", {
     style: {
       textAlign: 'center',
@@ -3351,7 +3472,11 @@ function App() {
       fontSize: 12,
       color: 'var(--muted)',
       fontFamily: 'var(--font-mono)',
-      letterSpacing: '.06em'
+      letterSpacing: '.06em',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 16
     }
   }, /*#__PURE__*/React.createElement("a", {
     href: "https://github.com/Galvnyz/M365-Assess",
@@ -3371,7 +3496,11 @@ function App() {
       textDecoration: 'underline',
       textUnderlineOffset: 3
     }
-  }, "GALVNYZ"))), showTweaks && /*#__PURE__*/React.createElement(TweaksPanel, {
+  }, "GALVNYZ"), /*#__PURE__*/React.createElement("button", {
+    className: 'edit-mode-toggle' + (editMode ? ' active' : ''),
+    onClick: () => setEditMode(e => !e),
+    title: "Toggle edit mode"
+  }, "\u270E"))), showTweaks && /*#__PURE__*/React.createElement(TweaksPanel, {
     onClose: () => setShowTweaks(false),
     theme: theme,
     setTheme: setTheme,
@@ -3381,15 +3510,5 @@ function App() {
     setDensity: setDensity
   }));
 }
-
-// ---- Edit-mode protocol (Tweaks toolbar) ----
-window.addEventListener('message', e => {
-  if (e.data?.type === '__activate_edit_mode') {
-    // No-op: the in-page Tweaks button already provides the UI
-  }
-});
-window.parent?.postMessage({
-  type: '__edit_mode_available'
-}, '*');
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(/*#__PURE__*/React.createElement(App, null));
