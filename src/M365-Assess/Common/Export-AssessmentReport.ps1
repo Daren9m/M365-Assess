@@ -55,6 +55,10 @@ param(
     [string]$ReportTheme = 'Neon',
 
     [Parameter()]
+    [ValidateSet('Compact', 'Comfort')]
+    [string]$ReportDensity = 'Compact',
+
+    [Parameter()]
     [switch]$WhiteLabel,
 
     [Parameter()]
@@ -180,10 +184,11 @@ $themeDefaults = @{
 }
 $htmlTheme = $themeDefaults[$ReportTheme]
 $html = Get-ReportTemplate `
-    -ReportDataJson $reportJson `
-    -ReportTitle    $reportTitle `
-    -DefaultTheme   $htmlTheme.Theme `
-    -DefaultMode    $htmlTheme.Mode
+    -ReportDataJson  $reportJson `
+    -ReportTitle     $reportTitle `
+    -DefaultTheme    $htmlTheme.Theme `
+    -DefaultMode     $htmlTheme.Mode `
+    -DefaultDensity  ($ReportDensity.ToLower())
 
 Set-Content -Path $OutputPath -Value $html -Encoding UTF8
 Write-Output "HTML report generated: $OutputPath"

@@ -81,6 +81,11 @@ Describe 'Get-ReportTemplate — function contract' {
         # Must NOT contain the old hardcoded array literal
         $script:content | Should -Not -Match "v=\['neon','console','saas','high-contrast'\]"
     }
+
+    It 'declares DefaultDensity parameter with compact/comfort ValidateSet' {
+        $script:content | Should -Match '\[ValidateSet\(''compact'',\s*''comfort''\)\]'
+        $script:content | Should -Match '\[string\]\$DefaultDensity'
+    }
 }
 
 Describe 'Get-ReportTemplate — output validation' {
@@ -151,6 +156,17 @@ Describe 'Get-ReportTemplate — output validation' {
     It 'uses default title when ReportTitle omitted' {
         $result = Get-ReportTemplate -ReportDataJson 'window.REPORT_DATA = {};'
         $result | Should -Match 'M365 Security Assessment'
+    }
+
+    It 'default output uses data-density compact' {
+        $result = Get-ReportTemplate -ReportDataJson 'window.REPORT_DATA = {};'
+        $result | Should -Match 'data-density="compact"'
+    }
+
+    It 'output uses comfort density when DefaultDensity is comfort' {
+        $result = Get-ReportTemplate -ReportDataJson 'window.REPORT_DATA = {};' -DefaultDensity comfort
+        $result | Should -Match 'data-density="comfort"'
+        $result | Should -Not -Match "d='compact'"
     }
 
     It 'anti-FOUC JS contains every theme from the DefaultTheme ValidateSet' {

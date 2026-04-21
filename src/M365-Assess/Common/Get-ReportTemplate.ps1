@@ -30,7 +30,11 @@ function Get-ReportTemplate {
 
         [Parameter()]
         [ValidateSet('dark', 'light')]
-        [string]$DefaultMode = 'dark'
+        [string]$DefaultMode = 'dark',
+
+        [Parameter()]
+        [ValidateSet('compact', 'comfort')]
+        [string]$DefaultDensity = 'compact'
     )
 
     $assetsDir = Join-Path -Path $PSScriptRoot -ChildPath '../assets'
@@ -56,7 +60,7 @@ function Get-ReportTemplate {
                 "var d=localStorage.getItem('m365-density');" +
                 "if(v.indexOf(t)<0)t='$DefaultTheme';" +
                 "if(m!=='dark'&&m!=='light')m='$DefaultMode';" +
-                "if(d!=='compact'&&d!=='comfort')d='compact';" +
+                "if(d!=='compact'&&d!=='comfort')d='$DefaultDensity';" +
                 "e.dataset.theme=t;e.dataset.mode=m;e.dataset.density=d;" +
                 "}catch(err){}})();"
 
@@ -64,7 +68,7 @@ function Get-ReportTemplate {
     $sb = [System.Text.StringBuilder]::new(2097152) # 2 MB initial capacity
 
     $null = $sb.AppendLine('<!DOCTYPE html>')
-    $null = $sb.AppendLine("<html data-theme=`"$DefaultTheme`" data-mode=`"$DefaultMode`" data-density=`"compact`">")
+    $null = $sb.AppendLine("<html data-theme=`"$DefaultTheme`" data-mode=`"$DefaultMode`" data-density=`"$DefaultDensity`">")
     $null = $sb.AppendLine('<head>')
     $null = $sb.AppendLine('<meta charset="UTF-8">')
     $null = $sb.AppendLine('<meta name="viewport" content="width=device-width,initial-scale=1.0">')
