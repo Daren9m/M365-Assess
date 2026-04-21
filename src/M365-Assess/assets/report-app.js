@@ -175,21 +175,48 @@ const Icon = {
   moon: () => /*#__PURE__*/React.createElement("svg", {
     viewBox: "0 0 16 16",
     fill: "currentColor"
-  }, /*#__PURE__*/React.createElement("path", {
-    d: "M13 9.4A6 6 0 1 1 6.6 3 5 5 0 0 0 13 9.4z"
+  }, /*#__PURE__*/React.createElement("defs", null, /*#__PURE__*/React.createElement("mask", {
+    id: "mm"
+  }, /*#__PURE__*/React.createElement("rect", {
+    width: "16",
+    height: "16",
+    fill: "white"
+  }), /*#__PURE__*/React.createElement("circle", {
+    cx: "10",
+    cy: "5",
+    r: "4.5",
+    fill: "black"
+  }))), /*#__PURE__*/React.createElement("circle", {
+    cx: "7.5",
+    cy: "8",
+    r: "5.5",
+    mask: "url(#mm)"
+  }), /*#__PURE__*/React.createElement("circle", {
+    cx: "12.5",
+    cy: "3.5",
+    r: "1",
+    opacity: ".5"
+  }), /*#__PURE__*/React.createElement("circle", {
+    cx: "14",
+    cy: "7",
+    r: ".6",
+    opacity: ".35"
   })),
   sun: () => /*#__PURE__*/React.createElement("svg", {
     viewBox: "0 0 16 16",
-    fill: "none",
-    stroke: "currentColor",
-    strokeWidth: "1.5"
+    fill: "currentColor"
   }, /*#__PURE__*/React.createElement("circle", {
     cx: "8",
     cy: "8",
-    r: "3"
-  }), /*#__PURE__*/React.createElement("path", {
-    d: "M8 1v2M8 13v2M1 8h2M13 8h2M3 3l1.4 1.4M11.6 11.6L13 13M13 3l-1.4 1.4M4.4 11.6L3 13"
-  })),
+    r: "3.2"
+  }), /*#__PURE__*/React.createElement("g", {
+    stroke: "currentColor",
+    strokeWidth: "1.4",
+    strokeLinecap: "round",
+    fill: "none"
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M8 1.5v1.8M8 12.7v1.8M1.5 8h1.8M12.7 8h1.8M3.6 3.6l1.3 1.3M11.1 11.1l1.3 1.3M12.4 3.6l-1.3 1.3M4.9 11.1l-1.3 1.3"
+  }))),
   print: () => /*#__PURE__*/React.createElement("svg", {
     viewBox: "0 0 16 16",
     fill: "none",

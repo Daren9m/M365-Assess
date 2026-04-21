@@ -98,8 +98,8 @@ const DOMAIN_ORDER = [
 // --------------------- SVG icons ---------------------
 const Icon = {
   search: () => (<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>),
-  moon: () => (<svg viewBox="0 0 16 16" fill="currentColor"><path d="M13 9.4A6 6 0 1 1 6.6 3 5 5 0 0 0 13 9.4z"/></svg>),
-  sun: () => (<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="8" cy="8" r="3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3 3l1.4 1.4M11.6 11.6L13 13M13 3l-1.4 1.4M4.4 11.6L3 13"/></svg>),
+  moon: () => (<svg viewBox="0 0 16 16" fill="currentColor"><defs><mask id="mm"><rect width="16" height="16" fill="white"/><circle cx="10" cy="5" r="4.5" fill="black"/></mask></defs><circle cx="7.5" cy="8" r="5.5" mask="url(#mm)"/><circle cx="12.5" cy="3.5" r="1" opacity=".5"/><circle cx="14" cy="7" r=".6" opacity=".35"/></svg>),
+  sun: () => (<svg viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="8" r="3.2"/><g stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" fill="none"><path d="M8 1.5v1.8M8 12.7v1.8M1.5 8h1.8M12.7 8h1.8M3.6 3.6l1.3 1.3M11.1 11.1l1.3 1.3M12.4 3.6l-1.3 1.3M4.9 11.1l-1.3 1.3"/></g></svg>),
   print: () => (<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 5V2h8v3"/><path d="M4 13H2V7a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v6h-2"/><rect x="4" y="10" width="8" height="4"/></svg>),
   xlsx: () => (<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2.5" y="2.5" width="11" height="11" rx="1.5"/><path d="M5 6l2.5 4M7.5 6L5 10M9.5 6v4M11 9h-1.5"/></svg>),
   sliders: () => (<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 5h10M3 11h10"/><circle cx="6" cy="5" r="1.5" fill="currentColor" stroke="none"/><circle cx="10" cy="11" r="1.5" fill="currentColor" stroke="none"/></svg>),
