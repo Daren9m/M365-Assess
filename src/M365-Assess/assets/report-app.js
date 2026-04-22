@@ -3458,7 +3458,7 @@ function Appendix() {
       textAlign: 'right',
       fontFamily: 'var(--font-mono)'
     }
-  }, String(ad.lastSync).slice(0, 19).replace('T', ' '))))))));
+  }, String(ad.lastSync).slice(0, 19).replace('T', ' ')))))))));
 }
 function StatusDot({
   ok,
