@@ -3384,7 +3384,7 @@ function Appendix() {
       ...monoRight,
       color: 'var(--muted)'
     }
-  }, count))))), dnsTotal > 0 && /*#__PURE__*/React.createElement("div", {
+  }, count)))))), dnsTotal > 0 && /*#__PURE__*/React.createElement("div", {
     className: "card"
   }, /*#__PURE__*/React.createElement("div", {
     style: labelStyle
@@ -3458,7 +3458,7 @@ function Appendix() {
       textAlign: 'right',
       fontFamily: 'var(--font-mono)'
     }
-  }, String(ad.lastSync).slice(0, 19).replace('T', ' ')))))))));
+  }, String(ad.lastSync).slice(0, 19).replace('T', ' '))))))));
 }
 function StatusDot({
   ok,
