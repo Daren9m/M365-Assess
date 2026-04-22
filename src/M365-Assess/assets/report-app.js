@@ -333,11 +333,13 @@ function Sidebar({
   const [roadmapOpen, setRoadmapOpen] = useState(false);
   const [domainNavOpen, setDomainNavOpen] = useState(false);
   function toggleRoadmap(e) {
-    e.preventDefault(); e.stopPropagation();
+    e.preventDefault();
+    e.stopPropagation();
     setRoadmapOpen(o => !o);
   }
   function toggleDomainNav(e) {
-    e.preventDefault(); e.stopPropagation();
+    e.preventDefault();
+    e.stopPropagation();
     setDomainNavOpen(o => !o);
   }
   const DOM_ORDER = ['Entra ID', 'Conditional Access', 'Enterprise Apps', 'Exchange Online', 'Intune', 'Defender', 'Purview / Compliance', 'SharePoint & OneDrive', 'Teams', 'Forms', 'Power BI', 'Active Directory', 'SOC 2', 'Value Opportunity'];
@@ -463,7 +465,7 @@ function Sidebar({
   }, /*#__PURE__*/React.createElement("span", null, it.label), it.id === 'roadmap' ? /*#__PURE__*/React.createElement("span", {
     className: "nav-expand-icon",
     onClick: toggleRoadmap
-  }, (roadmapOpen || active === 'roadmap') ? '\u2212' : '+') : it.count !== undefined && /*#__PURE__*/React.createElement("span", {
+  }, roadmapOpen || active === 'roadmap' ? '\u2212' : '+') : it.count !== undefined && /*#__PURE__*/React.createElement("span", {
     className: "count"
   }, it.count)), it.id === 'roadmap' && (roadmapOpen || active === 'roadmap') && /*#__PURE__*/React.createElement("div", {
     className: "nav-subitems"
@@ -2551,13 +2553,22 @@ function FindingsTable({
       className: "block-title"
     }, "Recommended value"), /*#__PURE__*/React.createElement("div", {
       className: "value-box recommended"
-    }, f.recommended || '—')), f.learnMore && /*#__PURE__*/React.createElement("div", {
+    }, f.recommended || '—')), f.remediation && /*#__PURE__*/React.createElement("div", {
+      className: "finding-remediation"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "block-title"
+    }, "Remediation"), /*#__PURE__*/React.createElement("div", {
+      className: "remediation-text"
+    }, f.remediation)), f.references && f.references.length > 0 && /*#__PURE__*/React.createElement("div", {
       className: "finding-learn-more"
-    }, /*#__PURE__*/React.createElement("a", {
-      href: f.learnMore,
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "block-title"
+    }, "Learn more"), f.references.map((r, i) => /*#__PURE__*/React.createElement("a", {
+      key: i,
+      href: r.url,
       target: "_blank",
       rel: "noreferrer noopener"
-    }, "Learn more on Microsoft Docs \u2197")), f.evidence && /*#__PURE__*/React.createElement("details", {
+    }, "\uD83D\uDCD6 ", r.title, " \u2197"))), f.evidence && /*#__PURE__*/React.createElement("details", {
       className: "finding-evidence"
     }, /*#__PURE__*/React.createElement("summary", null, "Evidence"), /*#__PURE__*/React.createElement("pre", null, JSON.stringify(JSON.parse(f.evidence), null, 2)))));
   })));
@@ -2673,7 +2684,7 @@ function Roadmap({
       items.forEach(t => {
         const fw = FW_PREF_RM.find(k => t.fwMeta?.[k]?.controlId);
         const ref = fw ? `${fw}: ${t.fwMeta[fw].controlId}` : '';
-        rows.push([label, t.setting, t.checkId, t.severity, t.effort ?? 'medium', t.category, t.section, t.currentValue, t.recommendedValue, t.remediation, t.learnMore ?? '', ref].map(esc).join(','));
+        rows.push([label, t.setting, t.checkId, t.severity, t.effort ?? 'medium', t.category, t.section, t.currentValue, t.recommendedValue, t.remediation, t.references && t.references.length > 0 ? t.references[0].url : '', ref].map(esc).join(','));
       });
     });
     return rows.join('\r\n');
@@ -2830,7 +2841,27 @@ function Roadmap({
       className: "task-field-label"
     }, "Business rationale"), /*#__PURE__*/React.createElement("div", {
       className: "task-field-value"
-    }, t.rationale)), /*#__PURE__*/React.createElement("div", {
+    }, t.rationale)), t.references && t.references.length > 0 && /*#__PURE__*/React.createElement("div", {
+      className: "task-field"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "task-field-label"
+    }, "Learn more"), /*#__PURE__*/React.createElement("div", {
+      className: "task-field-value",
+      style: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '4px'
+      }
+    }, t.references.map((r, i) => /*#__PURE__*/React.createElement("a", {
+      key: i,
+      href: r.url,
+      target: "_blank",
+      rel: "noreferrer noopener",
+      style: {
+        color: 'var(--accent-text)',
+        textDecoration: 'none'
+      }
+    }, "\uD83D\uDCD6 ", r.title, " \u2197")))), /*#__PURE__*/React.createElement("div", {
       className: "task-meta-row"
     }, /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("b", null, "Section:"), " ", t.section), /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("b", null, "Severity:"), " ", SEV_LABEL[t.severity]), t.effort && /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("b", null, "Effort:"), " ", t.effort), /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("b", null, "Frameworks:"), " ", t.frameworks.join(', ') || '—')), /*#__PURE__*/React.createElement("div", {
       className: "task-actions"
@@ -2840,11 +2871,7 @@ function Roadmap({
         e.preventDefault();
         onViewFinding?.(t.checkId);
       }
-    }, "View in findings table \u2192"), t.learnMore && /*#__PURE__*/React.createElement("a", {
-      href: t.learnMore,
-      target: "_blank",
-      rel: "noreferrer noopener"
-    }, "Learn more on Microsoft Docs \u2197"))));
+    }, "View in findings table \u2192"))));
   };
   const LaneReset = ({
     laneItems
@@ -3226,11 +3253,13 @@ function Appendix() {
   }, /*#__PURE__*/React.createElement("td", {
     style: cellStyle
   }, l.License), /*#__PURE__*/React.createElement("td", {
-    style: { ...cellStyle,
+    style: {
+      ...cellStyle,
       ...monoRight
     }
   }, l.Assigned), /*#__PURE__*/React.createElement("td", {
-    style: { ...cellStyle,
+    style: {
+      ...cellStyle,
       ...monoRight,
       color: 'var(--muted)'
     }
@@ -3249,11 +3278,13 @@ function Appendix() {
   }, /*#__PURE__*/React.createElement("td", {
     style: cellStyle
   }, "Phish-resistant"), /*#__PURE__*/React.createElement("td", {
-    style: { ...cellStyle,
+    style: {
+      ...cellStyle,
       ...monoRight
     }
   }, fmt(MFA_STATS.phishResistant)), /*#__PURE__*/React.createElement("td", {
-    style: { ...cellStyle,
+    style: {
+      ...cellStyle,
       ...monoRight,
       color: 'var(--success-text)'
     }
@@ -3262,11 +3293,13 @@ function Appendix() {
   }, /*#__PURE__*/React.createElement("td", {
     style: cellStyle
   }, "Standard MFA"), /*#__PURE__*/React.createElement("td", {
-    style: { ...cellStyle,
+    style: {
+      ...cellStyle,
       ...monoRight
     }
   }, fmt(MFA_STATS.standard)), /*#__PURE__*/React.createElement("td", {
-    style: { ...cellStyle,
+    style: {
+      ...cellStyle,
       ...monoRight,
       color: 'var(--text-soft)'
     }
@@ -3275,11 +3308,13 @@ function Appendix() {
   }, /*#__PURE__*/React.createElement("td", {
     style: cellStyle
   }, "Weak (SMS/voice)"), /*#__PURE__*/React.createElement("td", {
-    style: { ...cellStyle,
+    style: {
+      ...cellStyle,
       ...monoRight
     }
   }, fmt(MFA_STATS.weak)), /*#__PURE__*/React.createElement("td", {
-    style: { ...cellStyle,
+    style: {
+      ...cellStyle,
       ...monoRight,
       color: 'var(--warn-text)'
     }
@@ -3288,23 +3323,27 @@ function Appendix() {
   }, /*#__PURE__*/React.createElement("td", {
     style: cellStyle
   }, "No MFA"), /*#__PURE__*/React.createElement("td", {
-    style: { ...cellStyle,
+    style: {
+      ...cellStyle,
       ...monoRight
     }
   }, fmt(MFA_STATS.none)), /*#__PURE__*/React.createElement("td", {
-    style: { ...cellStyle,
+    style: {
+      ...cellStyle,
       ...monoRight,
       color: MFA_STATS.none > 0 ? 'var(--danger-text)' : 'var(--muted)'
     }
   }, mfaPct(MFA_STATS.none), "%")), MFA_STATS.adminsWithoutMfa > 0 && /*#__PURE__*/React.createElement("tr", {
     style: rowStyle
   }, /*#__PURE__*/React.createElement("td", {
-    style: { ...cellStyle,
+    style: {
+      ...cellStyle,
       color: 'var(--danger-text)',
       fontWeight: 600
     }
   }, "Admins without MFA"), /*#__PURE__*/React.createElement("td", {
-    style: { ...cellStyle,
+    style: {
+      ...cellStyle,
       ...monoRight,
       color: 'var(--danger-text)',
       fontWeight: 600
@@ -3335,7 +3374,8 @@ function Appendix() {
     ok: r.State === 'enabled',
     warn: r.State?.includes('Report')
   })), /*#__PURE__*/React.createElement("td", {
-    style: { ...cellStyle,
+    style: {
+      ...cellStyle,
       textAlign: 'right',
       color: 'var(--muted)'
     }
@@ -3355,11 +3395,12 @@ function Appendix() {
   }, /*#__PURE__*/React.createElement("td", {
     style: cellStyle
   }, role), /*#__PURE__*/React.createElement("td", {
-    style: { ...cellStyle,
+    style: {
+      ...cellStyle,
       ...monoRight,
       color: 'var(--muted)'
     }
-  }, count))))), dnsTotal > 0 && /*#__PURE__*/React.createElement("div", {
+  }, count)))))), dnsTotal > 0 && /*#__PURE__*/React.createElement("div", {
     className: "card"
   }, /*#__PURE__*/React.createElement("div", {
     style: labelStyle
@@ -3374,7 +3415,8 @@ function Appendix() {
   }, /*#__PURE__*/React.createElement("td", {
     style: cellStyle
   }, "SPF passing"), /*#__PURE__*/React.createElement("td", {
-    style: { ...cellStyle,
+    style: {
+      ...cellStyle,
       ...monoRight,
       color: spfPass === dnsTotal ? 'var(--success-text)' : spfPass > 0 ? 'var(--warn-text)' : 'var(--danger-text)'
     }
@@ -3383,7 +3425,8 @@ function Appendix() {
   }, /*#__PURE__*/React.createElement("td", {
     style: cellStyle
   }, "DKIM passing"), /*#__PURE__*/React.createElement("td", {
-    style: { ...cellStyle,
+    style: {
+      ...cellStyle,
       ...monoRight,
       color: dkimPass === dnsTotal ? 'var(--success-text)' : dkimPass > 0 ? 'var(--warn-text)' : 'var(--danger-text)'
     }
@@ -3392,7 +3435,8 @@ function Appendix() {
   }, /*#__PURE__*/React.createElement("td", {
     style: cellStyle
   }, "DMARC enforced"), /*#__PURE__*/React.createElement("td", {
-    style: { ...cellStyle,
+    style: {
+      ...cellStyle,
       ...monoRight,
       color: dmarcEnf === dnsTotal ? 'var(--success-text)' : dmarcEnf > 0 ? 'var(--warn-text)' : 'var(--danger-text)'
     }
@@ -3411,7 +3455,8 @@ function Appendix() {
   }, /*#__PURE__*/React.createElement("td", {
     style: cellStyle
   }, "Sync type"), /*#__PURE__*/React.createElement("td", {
-    style: { ...cellStyle,
+    style: {
+      ...cellStyle,
       textAlign: 'right'
     }
   }, ad.syncType || 'Cloud-only')), /*#__PURE__*/React.createElement("tr", {
@@ -3419,7 +3464,8 @@ function Appendix() {
   }, /*#__PURE__*/React.createElement("td", {
     style: cellStyle
   }, "Password hash sync"), /*#__PURE__*/React.createElement("td", {
-    style: { ...cellStyle,
+    style: {
+      ...cellStyle,
       textAlign: 'right',
       color: phsColor,
       fontWeight: 600
@@ -3429,7 +3475,8 @@ function Appendix() {
   }, /*#__PURE__*/React.createElement("td", {
     style: cellStyle
   }, "Last sync"), /*#__PURE__*/React.createElement("td", {
-    style: { ...cellStyle,
+    style: {
+      ...cellStyle,
       textAlign: 'right',
       fontFamily: 'var(--font-mono)'
     }

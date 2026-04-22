@@ -1,0 +1,50 @@
+# Dependabot configuration for M365-Assess
+# Docs: https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+#
+# Scope: GitHub Actions workflow pins + root npm devDependencies (Babel build
+# tooling for the React HTML report). PSGallery modules in M365-Assess.psd1
+# are not covered — Dependabot has no PowerShell ecosystem.
+
+version: 2
+updates:
+  # GitHub Actions used by ci.yml, release.yml, sync-checkid.yml
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "America/New_York"
+    labels:
+      - "dependencies"
+      - "chore"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    groups:
+      actions-minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
+
+  # Babel build tooling for the React report (devDependencies only)
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "America/New_York"
+    labels:
+      - "dependencies"
+      - "chore"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    groups:
+      babel-minor-and-patch:
+        patterns:
+          - "@babel/*"
+        update-types:
+          - "minor"
+          - "patch"
