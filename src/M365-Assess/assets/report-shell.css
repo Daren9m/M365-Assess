@@ -1470,23 +1470,23 @@ mark.search-hl {
 
 /* =========================================================
    TEXT SCALE — user-selectable text sizing via topbar control.
-   normal = baseline (default sizes below),
-   large  = +15%, xlarge = +30%. Applied to finding-row title,
-   finding-detail body text, and remediation/value content.
+   Defines a --text-scale CSS variable (default 1) that
+   cascades from :root. The baseline rules for finding-row
+   title, finding-detail body text, and remediation/value
+   content multiply their base px against this variable via
+   calc(). Overriding the variable on [data-text-scale=...]
+   on the root element propagates through inheritance.
    ========================================================= */
-[data-text-scale="large"]  .finding-title .t       { font-size: 15px; }
-[data-text-scale="large"]  .finding-title .sub     { font-size: 13px; }
-[data-text-scale="large"]  .finding-detail .why-text       { font-size: 14.5px; }
-[data-text-scale="large"]  .finding-detail .remediation-text { font-size: 15px; }
-[data-text-scale="large"]  .finding-detail .value-box       { font-size: 13.5px; }
-[data-text-scale="large"]  .finding-detail .block-title     { font-size: 13px; }
+:root                         { --text-scale: 1; }
+[data-text-scale="large"]     { --text-scale: 1.2; }
+[data-text-scale="xlarge"]    { --text-scale: 1.4; }
 
-[data-text-scale="xlarge"] .finding-title .t       { font-size: 17px; }
-[data-text-scale="xlarge"] .finding-title .sub     { font-size: 14px; }
-[data-text-scale="xlarge"] .finding-detail .why-text       { font-size: 16px; }
-[data-text-scale="xlarge"] .finding-detail .remediation-text { font-size: 16px; }
-[data-text-scale="xlarge"] .finding-detail .value-box       { font-size: 15px; }
-[data-text-scale="xlarge"] .finding-detail .block-title     { font-size: 14px; }
+.finding-title .t                 { font-size: calc(13px   * var(--text-scale, 1)) !important; }
+.finding-title .sub               { font-size: calc(12px   * var(--text-scale, 1)) !important; }
+.finding-detail .block-title      { font-size: calc(12px   * var(--text-scale, 1)) !important; }
+.finding-detail .value-box        { font-size: calc(12px   * var(--text-scale, 1)) !important; }
+.finding-detail .why-text         { font-size: calc(12.5px * var(--text-scale, 1)) !important; }
+.finding-detail .remediation-text { font-size: calc(13px   * var(--text-scale, 1)) !important; }
 
 .text-scale-btn.scale-large span  { color: var(--accent-text, var(--accent)); }
 .text-scale-btn.scale-xlarge span { color: var(--accent-text, var(--accent)); font-size: 15px !important; }
