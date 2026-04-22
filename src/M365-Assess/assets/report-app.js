@@ -332,6 +332,7 @@ function Sidebar({
 }) {
   const [roadmapOpen, setRoadmapOpen] = useState(false);
   const [domainNavOpen, setDomainNavOpen] = useState(false);
+  const [domainsCollapsed, setDomainsCollapsed] = useState(true);
   function toggleRoadmap(e) {
     e.preventDefault();
     e.stopPropagation();
@@ -429,11 +430,14 @@ function Sidebar({
     className: "nav-subitem",
     onClick: closeIfMobile
   }, "Email auth")))), /*#__PURE__*/React.createElement("div", {
-    className: "nav-label",
+    className: "nav-label nav-label-collapsible",
     style: {
       marginTop: 14
-    }
-  }, "Domains"), domains.map(d => {
+    },
+    onClick: () => setDomainsCollapsed(c => !c)
+  }, /*#__PURE__*/React.createElement("span", null, "Domains"), /*#__PURE__*/React.createElement("span", {
+    className: "nav-label-chev"
+  }, domainsCollapsed ? '+' : '−')), !domainsCollapsed && domains.map(d => {
     const fails = domainCounts.fail[d] || 0;
     const total = domainCounts.total[d] || 0;
     return /*#__PURE__*/React.createElement("a", {
@@ -449,7 +453,7 @@ function Sidebar({
       className: 'count' + (fails ? ' pill-fail' : '')
     }, fails || total));
   }), /*#__PURE__*/React.createElement("div", {
-    className: "nav-label",
+    className: "nav-label nav-label-emphasis",
     style: {
       marginTop: 14
     }
@@ -1590,6 +1594,13 @@ function FrameworkQuilt({
       document.removeEventListener('mousedown', onOut);
     };
   }, [pickerOpen]);
+  useEffect(() => {
+    const expand = () => {
+      if (!expandedFw && visibleFws.length > 0) setExpandedFw(visibleFws[0]);
+    };
+    window.addEventListener('beforeprint', expand);
+    return () => window.removeEventListener('beforeprint', expand);
+  }, [expandedFw, visibleFws]);
   const toggleFw = fw => setVisibleFws(v => v.includes(fw) ? v.length > 1 ? v.filter(x => x !== fw) : v : [...v, fw]);
   const byFw = useMemo(() => {
     const out = {};
@@ -1989,12 +2000,15 @@ function FilterBar({
     });
   };
   const active = filters.status.length + filters.severity.length + filters.framework.length + filters.domain.length + (filters.profile || []).length;
+  const isActive = search.length > 0 || active > 0;
   const statusChips = [['Fail', 'fail'], ['Warning', 'warn'], ['Review', 'review'], ['Pass', 'pass'], ['Info', 'info']];
   const sevChips = [['critical', 'crit', 'Critical'], ['high', 'high', 'High'], ['medium', 'med', 'Medium'], ['low', 'low', 'Low']];
   const DOM_ORDER = ['Entra ID', 'Conditional Access', 'Enterprise Apps', 'Exchange Online', 'Intune', 'Defender', 'Purview / Compliance', 'SharePoint & OneDrive', 'Teams', 'Forms', 'Power BI', 'Active Directory', 'SOC 2', 'Value Opportunity'];
   const domainList = DOM_ORDER.filter(d => counts.domain[d]).concat(Object.keys(counts.domain).filter(d => !DOM_ORDER.includes(d)).sort());
   return /*#__PURE__*/React.createElement("div", {
-    className: "filter-bar"
+    className: 'filter-bar' + (isActive ? ' filter-bar-active' : '')
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "fb-row fb-row-search"
   }, /*#__PURE__*/React.createElement("div", {
     className: "fb-search"
   }, /*#__PURE__*/React.createElement("svg", {
@@ -2018,9 +2032,9 @@ function FilterBar({
     className: "fb-clear-x",
     onClick: () => setSearch(''),
     "aria-label": "Clear"
-  }, "\xD7")), /*#__PURE__*/React.createElement("div", {
-    className: "filter-divider"
-  }), /*#__PURE__*/React.createElement("div", {
+  }, "\xD7"))), /*#__PURE__*/React.createElement("div", {
+    className: "fb-row fb-row-chips"
+  }, /*#__PURE__*/React.createElement("div", {
     className: "filter-group"
   }, /*#__PURE__*/React.createElement("span", {
     className: "filter-group-label"
@@ -2046,9 +2060,9 @@ function FilterBar({
     className: "dot"
   }), label, /*#__PURE__*/React.createElement("span", {
     className: "ct"
-  }, counts.severity[v] || 0)))), /*#__PURE__*/React.createElement("div", {
-    className: "filter-divider"
-  }), /*#__PURE__*/React.createElement("div", {
+  }, counts.severity[v] || 0))))), /*#__PURE__*/React.createElement("div", {
+    className: "fb-row fb-row-dropdowns"
+  }, /*#__PURE__*/React.createElement("div", {
     className: "filter-group",
     ref: fwRef
   }, /*#__PURE__*/React.createElement("span", {
@@ -2119,7 +2133,7 @@ function FilterBar({
     onChange: () => update('domain', d)
   }), /*#__PURE__*/React.createElement("span", null, d), /*#__PURE__*/React.createElement("span", {
     className: "ct"
-  }, counts.domain[d] || 0))))), (() => {
+  }, counts.domain[d] || 0)))))), (() => {
     const singleFw = filters.framework.length === 1 ? filters.framework[0] : null;
     if (!singleFw || !singleFw.startsWith('cmmc')) return null;
     const profileCounts = {};
@@ -2135,9 +2149,9 @@ function FilterBar({
       L2: 'level2',
       L3: 'level3'
     };
-    return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
-      className: "filter-divider"
-    }), /*#__PURE__*/React.createElement("div", {
+    return /*#__PURE__*/React.createElement("div", {
+      className: "fb-row fb-row-level"
+    }, /*#__PURE__*/React.createElement("div", {
       className: "filter-group"
     }, /*#__PURE__*/React.createElement("span", {
       className: "filter-group-label"
@@ -2148,9 +2162,9 @@ function FilterBar({
     }, lvl, /*#__PURE__*/React.createElement("span", {
       className: "ct"
     }, profileCounts[lvl] || 0)))));
-  })(), active > 0 && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
-    className: "filter-divider"
-  }), /*#__PURE__*/React.createElement("button", {
+  })(), active > 0 && /*#__PURE__*/React.createElement("div", {
+    className: "fb-row fb-row-clear"
+  }, /*#__PURE__*/React.createElement("button", {
     className: "filter-clear",
     onClick: () => setFilters({
       status: [],
@@ -2452,11 +2466,19 @@ function FindingsTable({
   }, " \xB7 ", FINDINGS.length, " total")), editMode && hiddenFindings?.size > 0 && /*#__PURE__*/React.createElement("button", {
     className: "restore-all-btn",
     onClick: onRestoreAll
-  }, "\u21A9 Restore ", hiddenFindings.size, " hidden"), /*#__PURE__*/React.createElement("div", {
+  }, "\u21A9 Restore ", hiddenFindings.size, " hidden"), /*#__PURE__*/React.createElement("button", {
+    className: "chip chip-more",
+    style: {
+      marginLeft: 12,
+      flexShrink: 0
+    },
+    onClick: () => setOpen(open.size === filtered.length && filtered.length > 0 ? new Set() : new Set(filtered.map((_, i) => i))),
+    title: open.size === filtered.length && filtered.length > 0 ? 'Collapse all findings' : 'Expand all findings'
+  }, open.size === filtered.length && filtered.length > 0 ? '− Collapse all' : '+ Expand all'), /*#__PURE__*/React.createElement("div", {
     ref: colPickerRef,
     style: {
       position: 'relative',
-      marginLeft: 12,
+      marginLeft: 8,
       flexShrink: 0
     }
   }, /*#__PURE__*/React.createElement("button", {

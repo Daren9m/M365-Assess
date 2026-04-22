@@ -120,6 +120,7 @@ const fmt = n => Number(n).toLocaleString();
 function Sidebar({ active, counts, domainCounts, activeDomain, onDomainJump, onOverviewClick, navOpen, onClose }) {
   const [roadmapOpen, setRoadmapOpen] = useState(false);
   const [domainNavOpen, setDomainNavOpen] = useState(false);
+  const [domainsCollapsed, setDomainsCollapsed] = useState(true);
   function toggleRoadmap(e) {
     e.preventDefault(); e.stopPropagation();
     setRoadmapOpen(o => !o);
@@ -189,8 +190,12 @@ function Sidebar({ active, counts, domainCounts, activeDomain, onDomainJump, onO
               )}
             </React.Fragment>
           ))}
-          <div className="nav-label" style={{marginTop:14}}>Domains</div>
-          {domains.map(d => {
+          <div className="nav-label nav-label-collapsible" style={{marginTop:14}}
+               onClick={() => setDomainsCollapsed(c => !c)}>
+            <span>Domains</span>
+            <span className="nav-label-chev">{domainsCollapsed ? '+' : '−'}</span>
+          </div>
+          {!domainsCollapsed && domains.map(d => {
             const fails = domainCounts.fail[d] || 0;
             const total = domainCounts.total[d] || 0;
             return (
@@ -202,7 +207,7 @@ function Sidebar({ active, counts, domainCounts, activeDomain, onDomainJump, onO
               </a>
             );
           })}
-          <div className="nav-label" style={{marginTop:14}}>Details</div>
+          <div className="nav-label nav-label-emphasis" style={{marginTop:14}}>Details</div>
           {details.map(it => (
             <React.Fragment key={it.id}>
               <a href={`#${it.id}`}
@@ -890,6 +895,12 @@ function FrameworkQuilt({ onSelect, selected }) {
     };
   }, [pickerOpen]);
 
+  useEffect(() => {
+    const expand = () => { if (!expandedFw && visibleFws.length > 0) setExpandedFw(visibleFws[0]); };
+    window.addEventListener('beforeprint', expand);
+    return () => window.removeEventListener('beforeprint', expand);
+  }, [expandedFw, visibleFws]);
+
   const toggleFw = fw =>
     setVisibleFws(v => v.includes(fw) ? (v.length > 1 ? v.filter(x => x !== fw) : v) : [...v, fw]);
 
@@ -1130,6 +1141,7 @@ function FilterBar({ filters, setFilters, counts, total, search, setSearch }) {
     });
   };
   const active = filters.status.length + filters.severity.length + filters.framework.length + filters.domain.length + (filters.profile||[]).length;
+  const isActive = search.length > 0 || active > 0;
 
   const statusChips = [
     ['Fail','fail'], ['Warning','warn'], ['Review','review'], ['Pass','pass'], ['Info','info']
@@ -1142,13 +1154,15 @@ function FilterBar({ filters, setFilters, counts, total, search, setSearch }) {
   );
 
   return (
-    <div className="filter-bar">
-      <div className="fb-search">
-        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
-        <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search findings, check IDs, categories…"/>
-        {search && <button className="fb-clear-x" onClick={()=>setSearch('')} aria-label="Clear">×</button>}
+    <div className={'filter-bar' + (isActive ? ' filter-bar-active' : '')}>
+      <div className="fb-row fb-row-search">
+        <div className="fb-search">
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
+          <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search findings, check IDs, categories…"/>
+          {search && <button className="fb-clear-x" onClick={()=>setSearch('')} aria-label="Clear">×</button>}
+        </div>
       </div>
-      <div className="filter-divider"/>
+      <div className="fb-row fb-row-chips">
       <div className="filter-group">
         <span className="filter-group-label">Status</span>
         {statusChips.map(([v,cls])=>(
@@ -1166,7 +1180,8 @@ function FilterBar({ filters, setFilters, counts, total, search, setSearch }) {
           </button>
         ))}
       </div>
-      <div className="filter-divider"/>
+      </div>
+      <div className="fb-row fb-row-dropdowns">
       <div className="filter-group" ref={fwRef}>
         <span className="filter-group-label">Framework</span>
         <button className={'chip chip-more'+(filters.framework.length?' selected':'')} onClick={()=>setFwOpen(o=>!o)}>
@@ -1204,6 +1219,7 @@ function FilterBar({ filters, setFilters, counts, total, search, setSearch }) {
           </div>
         )}
       </div>
+      </div>
       {(() => {
         const singleFw = filters.framework.length === 1 ? filters.framework[0] : null;
         if (!singleFw || !singleFw.startsWith('cmmc')) return null;
@@ -1217,8 +1233,7 @@ function FilterBar({ filters, setFilters, counts, total, search, setSearch }) {
         if (!levels.length) return null;
         const lvlCss = { L1: 'level', L2: 'level2', L3: 'level3' };
         return (
-          <>
-            <div className="filter-divider"/>
+          <div className="fb-row fb-row-level">
             <div className="filter-group">
               <span className="filter-group-label">Level</span>
               {levels.map(lvl => (
@@ -1227,16 +1242,15 @@ function FilterBar({ filters, setFilters, counts, total, search, setSearch }) {
                 </button>
               ))}
             </div>
-          </>
+          </div>
         );
       })()}
       {active > 0 && (
-        <>
-          <div className="filter-divider"/>
+        <div className="fb-row fb-row-clear">
           <button className="filter-clear" onClick={()=>setFilters({status:[],severity:[],framework:[],domain:[],profile:[]})}>
             Clear {active} filter{active===1?'':'s'}
           </button>
-        </>
+        </div>
       )}
     </div>
   );
@@ -1437,7 +1451,12 @@ function FindingsTable({ filters, search, focusFinding, onFocusClear, editMode, 
             ↩ Restore {hiddenFindings.size} hidden
           </button>
         )}
-        <div ref={colPickerRef} style={{position:'relative', marginLeft:12, flexShrink:0}}>
+        <button className="chip chip-more" style={{marginLeft:12,flexShrink:0}}
+                onClick={() => setOpen(open.size === filtered.length && filtered.length > 0 ? new Set() : new Set(filtered.map((_,i) => i)))}
+                title={open.size === filtered.length && filtered.length > 0 ? 'Collapse all findings' : 'Expand all findings'}>
+          {open.size === filtered.length && filtered.length > 0 ? '− Collapse all' : '+ Expand all'}
+        </button>
+        <div ref={colPickerRef} style={{position:'relative', marginLeft:8, flexShrink:0}}>
           <button className={'chip chip-more' + (visibleCols.length !== DEFAULT_COLS.length ? ' selected' : '')}
                   onClick={() => setColPickerOpen(o => !o)} title="Choose columns">
             <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" style={{marginRight:4}}><path d="M3 5h10M3 11h10"/><circle cx="6" cy="5" r="1.5" fill="currentColor" stroke="none"/><circle cx="10" cy="11" r="1.5" fill="currentColor" stroke="none"/></svg>
