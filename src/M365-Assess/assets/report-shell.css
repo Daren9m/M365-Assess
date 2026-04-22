@@ -1470,21 +1470,23 @@ mark.search-hl {
 
 /* =========================================================
    TEXT SCALE — user-selectable text sizing via topbar control.
-   normal = baseline, large = +12.5%, xlarge = +25%. Applied by
-   scaling the finding row / detail typography without touching
-   the chrome (nav, chips, headers).
+   normal = baseline (default sizes below),
+   large  = +15%, xlarge = +30%. Applied to finding-row title,
+   finding-detail body text, and remediation/value content.
    ========================================================= */
-[data-text-scale="large"] .finding-row .f-title,
-[data-text-scale="large"] .finding-detail { font-size: 15px; }
-[data-text-scale="large"] .finding-detail .fd-rec,
-[data-text-scale="large"] .finding-detail .fd-cur,
-[data-text-scale="large"] .finding-detail .fd-remed { font-size: 14px; }
+[data-text-scale="large"]  .finding-title .t       { font-size: 15px; }
+[data-text-scale="large"]  .finding-title .sub     { font-size: 13px; }
+[data-text-scale="large"]  .finding-detail .why-text       { font-size: 14.5px; }
+[data-text-scale="large"]  .finding-detail .remediation-text { font-size: 15px; }
+[data-text-scale="large"]  .finding-detail .value-box       { font-size: 13.5px; }
+[data-text-scale="large"]  .finding-detail .block-title     { font-size: 13px; }
 
-[data-text-scale="xlarge"] .finding-row .f-title,
-[data-text-scale="xlarge"] .finding-detail { font-size: 16px; }
-[data-text-scale="xlarge"] .finding-detail .fd-rec,
-[data-text-scale="xlarge"] .finding-detail .fd-cur,
-[data-text-scale="xlarge"] .finding-detail .fd-remed { font-size: 15px; }
+[data-text-scale="xlarge"] .finding-title .t       { font-size: 17px; }
+[data-text-scale="xlarge"] .finding-title .sub     { font-size: 14px; }
+[data-text-scale="xlarge"] .finding-detail .why-text       { font-size: 16px; }
+[data-text-scale="xlarge"] .finding-detail .remediation-text { font-size: 16px; }
+[data-text-scale="xlarge"] .finding-detail .value-box       { font-size: 15px; }
+[data-text-scale="xlarge"] .finding-detail .block-title     { font-size: 14px; }
 
 .text-scale-btn.scale-large span  { color: var(--accent-text, var(--accent)); }
 .text-scale-btn.scale-xlarge span { color: var(--accent-text, var(--accent)); font-size: 15px !important; }
