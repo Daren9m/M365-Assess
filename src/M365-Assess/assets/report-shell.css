@@ -219,6 +219,7 @@ a:hover { text-decoration: underline; }
 .icon-btn-group {
   display: flex; align-items: center; gap: 8px;
   flex-shrink: 0;
+  margin-left: auto;
 }
 
 /* Palette switcher */
@@ -1521,6 +1522,10 @@ mark.search-hl {
 .dns-stat-val span { font-size: 13px; color: var(--muted); font-weight: 400; }
 .dns-stat-bar { height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
 .dns-stat-bar span { display: block; height: 100%; border-radius: 2px; transition: width .4s; }
+.dns-stat-bar-segments { display: flex; gap: 2px; background: transparent; overflow: visible; }
+.dns-stat-bar-segments .seg { flex: 1 1 0; height: 4px; border-radius: 2px; }
+.dns-stat-bar-segments .seg-pass { background: var(--success); }
+.dns-stat-bar-segments .seg-fail { background: var(--danger); }
 .dns-policy-chips { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 8px; }
 .dns-policy-chip { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 10px; font-family: var(--font-mono); letter-spacing: .04em; }
 .dns-policy-chip.pass { background: var(--success-soft, color-mix(in srgb, var(--success) 15%, transparent)); color: var(--success-text, var(--success)); }

@@ -997,13 +997,13 @@ function DnsAuthPanel() {
   }, s.label), /*#__PURE__*/React.createElement("div", {
     className: "dns-stat-val"
   }, s.pass, /*#__PURE__*/React.createElement("span", null, "/", s.total)), /*#__PURE__*/React.createElement("div", {
-    className: "dns-stat-bar"
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      width: pct(s.pass, s.total) + '%',
-      background: s.pass === s.total ? 'var(--success)' : 'var(--danger)'
-    }
-  })))), /*#__PURE__*/React.createElement("div", {
+    className: "dns-stat-bar dns-stat-bar-segments"
+  }, Array.from({
+    length: s.total
+  }).map((_, i) => /*#__PURE__*/React.createElement("span", {
+    key: i,
+    className: i < s.pass ? 'seg seg-pass' : 'seg seg-fail'
+  }))))), /*#__PURE__*/React.createElement("div", {
     className: "dns-stat-card"
   }, /*#__PURE__*/React.createElement("div", {
     className: "dns-stat-label"

@@ -522,7 +522,11 @@ function DnsAuthPanel() {
           <div key={s.label} className="dns-stat-card">
             <div className="dns-stat-label">{s.label}</div>
             <div className="dns-stat-val">{s.pass}<span>/{s.total}</span></div>
-            <div className="dns-stat-bar"><span style={{width: pct(s.pass, s.total)+'%', background: s.pass===s.total ? 'var(--success)' : 'var(--danger)'}}/></div>
+            <div className="dns-stat-bar dns-stat-bar-segments">
+              {Array.from({length: s.total}).map((_, i) => (
+                <span key={i} className={i < s.pass ? 'seg seg-pass' : 'seg seg-fail'}/>
+              ))}
+            </div>
           </div>
         ))}
         <div className="dns-stat-card">
