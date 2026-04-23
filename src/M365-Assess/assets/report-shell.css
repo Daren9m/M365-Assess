@@ -1470,14 +1470,15 @@ mark.search-hl {
 
 /* =========================================================
    TEXT SCALE — user-selectable text sizing via topbar control.
-   Uses CSS `zoom` on <body> to scale everything at once:
-   text, padding, borders, images, chrome. Equivalent to
-   in-app browser zoom scoped to the report document.
+   Uses CSS `zoom` on .main (not body) so the sidebar grid
+   column doesn't scale and push content off-screen. Scales
+   the topbar (search / chips / icons), edit-mode banner, and
+   all main content (KPIs, findings, appendix, roadmap).
    Supported in all modern browsers (Firefox 126+).
    ========================================================= */
-body { zoom: 1; }
-[data-text-scale="large"]  body { zoom: 1.15; }
-[data-text-scale="xlarge"] body { zoom: 1.3;  }
+.main { zoom: 1; }
+[data-text-scale="large"]  .main { zoom: 1.15; }
+[data-text-scale="xlarge"] .main { zoom: 1.3;  }
 
 .text-scale-btn.scale-large span  { color: var(--accent-text, var(--accent)); }
 .text-scale-btn.scale-xlarge span { color: var(--accent-text, var(--accent)); font-size: 15px !important; }
