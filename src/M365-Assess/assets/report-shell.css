@@ -1481,12 +1481,36 @@ mark.search-hl {
 [data-text-scale="large"]     { --text-scale: 1.2; }
 [data-text-scale="xlarge"]    { --text-scale: 1.4; }
 
+/* Findings table + expanded detail */
 .finding-title .t                 { font-size: calc(13px   * var(--text-scale, 1)) !important; }
 .finding-title .sub               { font-size: calc(12px   * var(--text-scale, 1)) !important; }
 .finding-detail .block-title      { font-size: calc(12px   * var(--text-scale, 1)) !important; }
 .finding-detail .value-box        { font-size: calc(12px   * var(--text-scale, 1)) !important; }
 .finding-detail .why-text         { font-size: calc(12.5px * var(--text-scale, 1)) !important; }
 .finding-detail .remediation-text { font-size: calc(13px   * var(--text-scale, 1)) !important; }
+
+/* Section headings + eyebrows */
+.main .section-head h2            { font-size: calc(17px   * var(--text-scale, 1)) !important; }
+.main .section-head .eyebrow      { font-size: calc(11px   * var(--text-scale, 1)) !important; }
+.main .panel-sublabel             { font-size: calc(12px   * var(--text-scale, 1)) !important; }
+
+/* Overview KPI cards */
+.main .kpi .kpi-label             { font-size: calc(12px   * var(--text-scale, 1)) !important; }
+.main .kpi .kpi-value             { font-size: calc(26px   * var(--text-scale, 1)) !important; }
+.main .kpi .kpi-suffix            { font-size: calc(13px   * var(--text-scale, 1)) !important; }
+.main .kpi .kpi-hint              { font-size: calc(12px   * var(--text-scale, 1)) !important; }
+
+/* Domain cards (Security posture by domain) */
+.main .domain-card .dc-name       { font-size: calc(14px   * var(--text-scale, 1)) !important; }
+.main .domain-card .dc-score      { font-size: calc(18px   * var(--text-scale, 1)) !important; }
+.main .domain-card .dc-meta       { font-size: calc(12px   * var(--text-scale, 1)) !important; }
+
+/* Framework quilt cells */
+.main .quilt-cell .fw-name        { font-size: calc(12px   * var(--text-scale, 1)) !important; }
+.main .quilt-cell .fw-long        { font-size: calc(12px   * var(--text-scale, 1)) !important; }
+
+/* Appendix cards */
+.main section#appendix .card table { font-size: calc(12px  * var(--text-scale, 1)) !important; }
 
 .text-scale-btn.scale-large span  { color: var(--accent-text, var(--accent)); }
 .text-scale-btn.scale-xlarge span { color: var(--accent-text, var(--accent)); font-size: 15px !important; }
