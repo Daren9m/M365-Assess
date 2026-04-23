@@ -984,6 +984,126 @@ function Sparkline({
     fontFamily: "var(--font-mono)"
   }, label)));
 }
+
+// ======================== TrendChart (assessment-to-assessment #642) ========================
+function TrendChart() {
+  const trend = D.trendData;
+  if (!trend || trend.length < 2) return null;
+
+  // One line per status track (Pass / Warn / Fail) — most informative triple for a quick read.
+  // Review / Info / Skipped omitted to keep the chart legible; users who want detail can open
+  // Compare-M365Baseline for a pairwise drill-down.
+  const tracks = [{
+    key: 'pass',
+    label: 'Pass',
+    color: 'var(--success)'
+  }, {
+    key: 'warn',
+    label: 'Warn',
+    color: 'var(--warn)'
+  }, {
+    key: 'fail',
+    label: 'Fail',
+    color: 'var(--danger)'
+  }];
+  const W = 880,
+    H = 160,
+    padL = 40,
+    padR = 12,
+    padT = 14,
+    padB = 28;
+  const innerW = W - padL - padR,
+    innerH = H - padT - padB;
+  const maxVal = Math.max(...trend.flatMap(s => tracks.map(t => s[t.key] || 0)), 10);
+  // Round up to nearest "nice" value for y-axis (multiples of 10, 25, 50, 100)
+  const niceMax = maxVal <= 20 ? Math.ceil(maxVal / 5) * 5 : maxVal <= 50 ? Math.ceil(maxVal / 10) * 10 : maxVal <= 200 ? Math.ceil(maxVal / 25) * 25 : Math.ceil(maxVal / 50) * 50;
+  const sx = i => padL + i / (trend.length - 1) * innerW;
+  const sy = v => padT + (1 - v / niceMax) * innerH;
+  const first = new Date(trend[0].savedAt);
+  const last = new Date(trend[trend.length - 1].savedAt);
+  const daysSpan = Math.round((last - first) / (1000 * 60 * 60 * 24));
+
+  // Y-axis gridlines (3 intermediate + 0 + max)
+  const yTicks = [0, 0.25, 0.5, 0.75, 1].map(t => niceMax * t);
+  return /*#__PURE__*/React.createElement("section", {
+    className: "block",
+    id: "trend"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "section-head"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "eyebrow"
+  }, "01b \xB7 Trend"), /*#__PURE__*/React.createElement("h2", null, "Posture trend"), /*#__PURE__*/React.createElement("span", {
+    className: "trend-subtitle"
+  }, trend.length, " snapshots \xB7 ", daysSpan, " day", daysSpan === 1 ? '' : 's', " span"), /*#__PURE__*/React.createElement("div", {
+    className: "hr"
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "trend-chart-wrap"
+  }, /*#__PURE__*/React.createElement("svg", {
+    viewBox: `0 0 ${W} ${H}`,
+    width: "100%",
+    preserveAspectRatio: "xMidYMid meet",
+    className: "trend-chart"
+  }, yTicks.map((v, i) => /*#__PURE__*/React.createElement("g", {
+    key: i
+  }, /*#__PURE__*/React.createElement("line", {
+    x1: padL,
+    x2: W - padR,
+    y1: sy(v),
+    y2: sy(v),
+    stroke: "var(--border)",
+    strokeDasharray: i === 0 ? '' : '2 3',
+    opacity: i === 0 ? 0.9 : 0.4
+  }), /*#__PURE__*/React.createElement("text", {
+    x: padL - 6,
+    y: sy(v) + 3,
+    textAnchor: "end",
+    fontSize: "10",
+    fill: "var(--muted)",
+    fontFamily: "var(--font-mono)"
+  }, v))), trend.map((s, i) => {
+    const tickLabel = s.label || new Date(s.savedAt).toLocaleDateString();
+    const rotate = trend.length > 5;
+    return /*#__PURE__*/React.createElement("text", {
+      key: i,
+      x: sx(i),
+      y: H - padB + 16,
+      textAnchor: rotate ? 'end' : 'middle',
+      transform: rotate ? `rotate(-30 ${sx(i)} ${H - padB + 16})` : '',
+      fontSize: "10",
+      fill: "var(--muted)",
+      fontFamily: "var(--font-mono)"
+    }, tickLabel.length > 14 ? tickLabel.slice(0, 13) + '…' : tickLabel);
+  }), tracks.map(t => {
+    const pts = trend.map((s, i) => `${i ? 'L' : 'M'}${sx(i).toFixed(1)},${sy(s[t.key] || 0).toFixed(1)}`).join(' ');
+    return /*#__PURE__*/React.createElement("path", {
+      key: t.key,
+      d: pts,
+      fill: "none",
+      stroke: t.color,
+      strokeWidth: "2",
+      strokeLinejoin: "round",
+      strokeLinecap: "round"
+    });
+  }), trend.map((s, i) => tracks.map(t => /*#__PURE__*/React.createElement("circle", {
+    key: `${i}-${t.key}`,
+    cx: sx(i),
+    cy: sy(s[t.key] || 0),
+    r: "3.2",
+    fill: "var(--surface)",
+    stroke: t.color,
+    strokeWidth: "1.8"
+  }, /*#__PURE__*/React.createElement("title", null, `${s.label || new Date(s.savedAt).toLocaleDateString()} · ${t.label}: ${s[t.key] || 0} of ${s.total}`))))), /*#__PURE__*/React.createElement("div", {
+    className: "trend-legend"
+  }, tracks.map(t => /*#__PURE__*/React.createElement("span", {
+    key: t.key,
+    className: "trend-legend-item"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "trend-legend-swatch",
+    style: {
+      background: t.color
+    }
+  }), /*#__PURE__*/React.createElement("span", null, t.label))))));
+}
 function MFABreakdown() {
   const s = MFA_STATS;
   // Exclude mailboxes/service for "identity floor"
@@ -3954,7 +4074,7 @@ function App() {
     onFinalize: handleFinalize,
     onReset: handleResetAll,
     hiddenCount: hiddenFindings.size
-  }), /*#__PURE__*/React.createElement(Overview, null), /*#__PURE__*/React.createElement(Posture, null), /*#__PURE__*/React.createElement(FrameworkQuilt, {
+  }), /*#__PURE__*/React.createElement(Overview, null), /*#__PURE__*/React.createElement(Posture, null), /*#__PURE__*/React.createElement(TrendChart, null), /*#__PURE__*/React.createElement(FrameworkQuilt, {
     onSelect: onFrameworkSelect,
     selected: filters.framework[0]
   }), /*#__PURE__*/React.createElement(DomainRollup, {
