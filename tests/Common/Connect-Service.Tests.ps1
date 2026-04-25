@@ -47,6 +47,16 @@ Describe 'Connect-Service' {
 
     Context 'client-secret warning (#790)' {
         BeforeAll {
+            # CI runners may not have Microsoft.Graph.Authentication or MicrosoftPowerBIMgmt
+            # installed -- Pester's Mock requires the command to exist before it can shim it.
+            # Stub the connect cmdlets globally if missing so Mock has something to replace.
+            if (-not (Get-Command -Name Connect-MgGraph -ErrorAction SilentlyContinue)) {
+                function global:Connect-MgGraph { param() }
+            }
+            if (-not (Get-Command -Name Connect-PowerBIServiceAccount -ErrorAction SilentlyContinue)) {
+                function global:Connect-PowerBIServiceAccount { param() }
+            }
+
             # Modules appear installed
             Mock Get-Module { @{ Name = 'Microsoft.Graph.Authentication' } }
             # No-op the actual connections so we don't reach out to a tenant
@@ -56,6 +66,12 @@ Describe 'Connect-Service' {
             Mock Get-Command {
                 [pscustomobject]@{ Parameters = @{ NoWelcome = $true } }
             } -ParameterFilter { $Name -eq 'Connect-MgGraph' }
+        }
+
+        AfterAll {
+            # Tear down any global stubs we created so they don't leak into other tests
+            Remove-Item -Path 'function:global:Connect-MgGraph' -ErrorAction SilentlyContinue
+            Remove-Item -Path 'function:global:Connect-PowerBIServiceAccount' -ErrorAction SilentlyContinue
         }
 
         It 'Graph client-secret path emits a warning recommending certificate auth' {
