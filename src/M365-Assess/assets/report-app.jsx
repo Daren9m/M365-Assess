@@ -1924,9 +1924,20 @@ function Roadmap({ onViewFinding, editMode, hiddenFindings, roadmapOverrides, on
   };
 
   const getNaturalLane = t => {
-    if (t.severity === 'critical' || (t.severity === 'high' && t.effort === 'small')) return 'now';
-    if (t.severity === 'high' || (t.severity === 'medium' && t.effort !== 'large')) return 'soon';
-    return 'later';
+    // Rebalance (#709). Previous rule put every medium-severity Warning and Review
+    // into Next regardless of status, ballooning Next to >100 items on realistic tenants
+    // (observed: Now 18 / Next 126 / Later 3 on dz9m). New rule treats Warnings and
+    // Reviews as informational prompts by default, so they land in Later unless their
+    // severity is critical. Only Fail-status findings earn a spot in Now / Next.
+    if (t.status !== 'Fail') {
+      return t.severity === 'critical' ? 'now' : 'later';
+    }
+    // Fail status — prioritise by severity + effort
+    if (t.severity === 'critical') return 'now';
+    if (t.severity === 'high' && t.effort === 'small') return 'now';   // high-value quick win
+    if (t.severity === 'high') return 'soon';
+    if (t.severity === 'medium' && t.effort !== 'large') return 'soon';
+    return 'later';  // medium+large-effort Fails, all low severity
   };
 
   const getEffectiveLane = t => roadmapOverrides[t.checkId] || getNaturalLane(t);
