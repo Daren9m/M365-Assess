@@ -4,6 +4,28 @@ M365 Assess supports multiple authentication methods for connecting to Microsoft
 
 > **Recommended for unattended assessments:** certificate-based authentication. Client secret authentication is supported only where the underlying Microsoft module supports it (Microsoft Graph, Power BI). Exchange Online and Purview reject client-secret auth by design — use `-CertificateThumbprint` for non-interactive runs against those services.
 
+## Cmdlet categories — read before connecting
+
+M365 Assess exports two distinct kinds of cmdlets. **They behave fundamentally differently against your tenant** — read this section before choosing what to run.
+
+### Assessment cmdlets — read-only
+
+These cmdlets only call `Get-*` Graph endpoints and read-only EXO/Purview operations. They never mutate tenant configuration, never create or modify objects, never grant permissions. CI gates this guarantee per `scripts/Test-CollectorReadOnly.ps1`.
+
+- `Invoke-M365Assessment` — main entry point; runs collectors, generates reports
+- `Compare-M365Baseline` — drift comparison against a saved baseline
+- `Get-M365CASecurityConfig`, `Get-M365EntraSecurityConfig`, `Get-M365ExoSecurityConfig`, …  — individual collector wrappers
+- `Get-M365ConnectionProfile` — read a saved connection profile
+
+### Setup cmdlets — tenant-mutating
+
+These cmdlets modify your tenant or local configuration. They use `[CmdletBinding(SupportsShouldProcess, ConfirmImpact='High')]` and prompt for confirmation by default. Pass `-Force` to bypass the prompt in scripted scenarios where confirmation is consented out of band.
+
+- `Grant-M365AssessConsent` — creates app registration, assigns API permissions, grants admin consent, adds directory-role and Exchange-RBAC group memberships. **Run once per tenant by a Global / Application Administrator.** All subsequent assessment runs use the resulting service principal in read-only mode.
+- `New-M365ConnectionProfile`, `Set-M365ConnectionProfile`, `Remove-M365ConnectionProfile` — manage local connection profiles (writes / mutates `.m365assess.json` in user app-data, no tenant changes)
+
+The two categories are visibly separated in the manifest's `FunctionsToExport` and discoverable via `Get-Command -Module M365-Assess`. If you're ever unsure: assessment cmdlets start with `Invoke-`, `Compare-`, or `Get-`; setup cmdlets start with `Grant-`, `New-`, `Set-`, or `Remove-`.
+
 ## Interactive (Default)
 
 A browser window opens for each service (Graph, Exchange Online, etc.). Best for one-time or ad-hoc assessments.

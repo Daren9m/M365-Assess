@@ -78,6 +78,45 @@ Describe 'Grant-M365AssessConsent' {
         $param = $cmd.Parameters['ProfileName']
         $param | Should -Not -BeNullOrEmpty
     }
+
+    Context 'high-impact ShouldProcess gate (E2 #791)' {
+        It 'should declare SupportsShouldProcess on CmdletBinding' {
+            $cmd = Get-Command -Name 'Grant-M365AssessConsent'
+            $cmd.CmdletBinding | Should -BeTrue
+            # SupportsShouldProcess surfaces a -WhatIf and -Confirm parameter
+            $cmd.Parameters.ContainsKey('WhatIf')  | Should -BeTrue
+            $cmd.Parameters.ContainsKey('Confirm') | Should -BeTrue
+        }
+
+        It 'should declare ConfirmImpact = High on CmdletBinding' {
+            $cmd = Get-Command -Name 'Grant-M365AssessConsent'
+            $attr = $cmd.ScriptBlock.Ast.Body.ParamBlock.Attributes |
+                Where-Object { $_.TypeName.Name -eq 'CmdletBinding' }
+            $attr | Should -Not -BeNullOrEmpty
+            $confirmImpact = $attr.NamedArguments | Where-Object { $_.ArgumentName -eq 'ConfirmImpact' }
+            $confirmImpact | Should -Not -BeNullOrEmpty
+            $confirmImpact.Argument.Value | Should -Be 'High'
+        }
+
+        It 'should expose a -Force switch to bypass the confirmation prompt' {
+            $cmd = Get-Command -Name 'Grant-M365AssessConsent'
+            $param = $cmd.Parameters['Force']
+            $param | Should -Not -BeNullOrEmpty
+            $param.SwitchParameter | Should -BeTrue
+        }
+
+        It 'should not run any Graph mutation when -WhatIf is supplied' {
+            # Track whether mutations were attempted; mocks would normally hit these
+            $script:mutationAttempts = 0
+            Mock New-MgApplication { $script:mutationAttempts++; [PSCustomObject]@{ AppId = 'x'; Id = 'y' } }
+            Mock New-MgServicePrincipal { $script:mutationAttempts++; [PSCustomObject]@{ Id = 'sp' } }
+
+            { Grant-M365AssessConsent -TenantId 'contoso.onmicrosoft.com' -CreateNew -AdminUpn 'admin@contoso.onmicrosoft.com' -WhatIf -ErrorAction Stop } |
+                Should -Not -Throw
+
+            $script:mutationAttempts | Should -Be 0
+        }
+    }
 }
 
 Describe 'PermissionDefinitions.ps1 - Data Tables' {

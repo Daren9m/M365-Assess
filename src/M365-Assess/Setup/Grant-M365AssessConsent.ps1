@@ -4,9 +4,18 @@
 function Grant-M365AssessConsent {
     <#
     .SYNOPSIS
-        Creates and configures an Entra ID app registration with all permissions
-        required by M365-Assess.
+        SETUP CMDLET (tenant-mutating). Creates and configures an Entra ID app
+        registration with all permissions required by M365-Assess.
     .DESCRIPTION
+        WARNING -- This is a SETUP cmdlet, not an assessment cmdlet. Unlike
+        Invoke-M365Assessment (and the Get-M365* read-only collectors), this
+        function MUTATES tenant configuration: it creates app registrations,
+        assigns API permissions, grants admin consent, and adds directory-role
+        / Exchange-RBAC group memberships. ConfirmImpact is High; the cmdlet
+        prompts for confirmation by default. Use -Force to bypass the prompt
+        in scripted scenarios where confirmation is provably consented out of
+        band.
+
         Provisions a read-only service principal for Invoke-M365Assessment with:
         - 24 Microsoft Graph API application permissions (all .Read.All)
         - 3 Office 365 Exchange Online API permissions (ManageAsApp, Organization.Read.All, MailboxSettings.Read)
@@ -74,6 +83,11 @@ function Grant-M365AssessConsent {
         Skip the Exchange Online role group assignment step.
     .PARAMETER SkipComplianceRoles
         Skip the Purview/Compliance Entra directory role assignment step.
+    .PARAMETER Force
+        Bypass the high-impact ShouldProcess confirmation prompt. Without -Force,
+        the cmdlet prompts before any tenant-mutating action (ConfirmImpact='High').
+        Use only in scripted scenarios where confirmation is consented out of band
+        (CI/CD, deployment scripts that gate on operator approval upstream).
     .EXAMPLE
         Grant-M365AssessConsent -TenantId 'contoso.onmicrosoft.com' -AdminUpn 'admin@contoso.onmicrosoft.com' -CreateNew
 
@@ -95,7 +109,7 @@ function Grant-M365AssessConsent {
             Install-Module Microsoft.Graph.Identity.Governance -Scope CurrentUser
             Install-Module ExchangeOnlineManagement          -Scope CurrentUser
     #>
-    [CmdletBinding(SupportsShouldProcess, DefaultParameterSetName = 'CreateNew')]
+    [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High', DefaultParameterSetName = 'CreateNew')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'CreateNew',
         Justification = 'Used implicitly via ParameterSetName')]
     [OutputType([PSCustomObject])]
@@ -132,11 +146,31 @@ function Grant-M365AssessConsent {
         [switch]$SkipComplianceRoles,
 
         [Parameter()]
+        [switch]$Force,
+
+        [Parameter()]
         [string]$ProfileName
     )
 
     $ErrorActionPreference = 'Stop'
     Set-StrictMode -Version Latest
+
+    # E2 #791: high-impact ShouldProcess gate. The cmdlet mutates tenant config
+    # (app registration, API permissions, admin consent, role memberships).
+    # ConfirmImpact='High' triggers a confirmation prompt at default
+    # $ConfirmPreference; -Force bypasses for scripted use.
+    if (-not $Force) {
+        $shouldProcessTarget = "tenant '$TenantId'"
+        $shouldProcessAction = if ($PSCmdlet.ParameterSetName -eq 'CreateNew') {
+            "Create app registration '$AppDisplayName' and grant M365-Assess permissions"
+        } else {
+            "Configure existing app registration (ClientId '$ClientId') with M365-Assess permissions"
+        }
+        if (-not $PSCmdlet.ShouldProcess($shouldProcessTarget, $shouldProcessAction)) {
+            Write-Host "  Cancelled by user. No tenant changes were made." -ForegroundColor Yellow
+            return
+        }
+    }
 
     # ==================================================================
     # INTERNAL HELPERS (private to function scope)
