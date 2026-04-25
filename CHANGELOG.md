@@ -4,6 +4,9 @@ All notable changes to M365 Assess are documented here. This project uses [Conve
 
 ## [Unreleased]
 
+### Changed
+- Remediation roadmap default lane distribution rebalanced: Warnings and Reviews now land in Later by default unless their severity is critical; only Fail-status findings earn a spot in Now / Next. Previous rule put every medium-severity Warning/Review into Next regardless of status, producing ~100+ items in Next on realistic tenants. Observed effect on reference tenant (dz9m, 147 tasks): Now 18 / Next 52 (was 126) / Later 77 (was 3) (#709)
+
 ### Added
 - Framework cards in the Framework Quilt now carry a rotating chevron affordance in their top-right corner (down when collapsed, up when the detail panel is open) plus keyboard accessibility (`role="button"`, `aria-expanded`, Enter/Space to toggle, `:focus-visible` outline) and a more visible hover state. Signals the card as interactive so first-time readers see it as an expandable element (#743)
 - FilterBar Level row now appears for CIS M365 as well as CMMC, with L1 / L2 / E3 / E5 only chips (CMMC unchanged; still L1/L2/L3). Chips write to the same `filters.profile` field used by the Framework Quilt panel chips, so selecting a level in either place lights up the other — single source of truth (#740)
