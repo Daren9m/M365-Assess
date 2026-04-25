@@ -90,6 +90,7 @@ jobs:
           $config.Run.Path = @(
             './tests/Smoke/Script-Validation.Tests.ps1'
             './tests/Smoke/PSGallery-Readiness.Tests.ps1'
+            './tests/Smoke/Collector-ReadOnly.Tests.ps1'
             './tests/Consistency'
             './tests/Common/Export-AssessmentReport.Tests.ps1'
             './tests/Common/Import-ControlRegistry.Tests.ps1'
