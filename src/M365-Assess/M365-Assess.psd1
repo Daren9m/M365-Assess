@@ -219,6 +219,8 @@
         'assets\m365-assess-bg.png'
         'assets\m365-assess-logo-white.png'
         'assets\m365-assess-logo.png'
+        'assets\m365-assess-logo-dark.png'
+        'assets\m365-assess-logo-light.png'
         'assets\sku-friendly-names.csv'
         'assets\report-app.js'
         'assets\react.production.min.js'

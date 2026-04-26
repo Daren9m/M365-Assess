@@ -3,9 +3,9 @@
 <div align="center">
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="src/M365-Assess/assets/m365-assess-logo-white.png" />
-  <source media="(prefers-color-scheme: light)" srcset="src/M365-Assess/assets/m365-assess-logo.png" />
-  <img src="src/M365-Assess/assets/m365-assess-logo.png" alt="M365 Assess" width="500" />
+  <source media="(prefers-color-scheme: dark)" srcset="src/M365-Assess/assets/m365-assess-logo-dark.png" />
+  <source media="(prefers-color-scheme: light)" srcset="src/M365-Assess/assets/m365-assess-logo-light.png" />
+  <img src="src/M365-Assess/assets/m365-assess-logo-light.png" alt="M365 Assess" width="500" />
 </picture>
 
 ### Comprehensive M365 Security Assessment Tool

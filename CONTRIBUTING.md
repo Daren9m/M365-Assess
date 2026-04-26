@@ -42,6 +42,8 @@ To use your own branding in the HTML report, replace the images in `src/M365-Ass
 |------|---------|-----------------|
 | `m365-assess-logo.png` | Report cover page logo | 400 x 120 px |
 | `m365-assess-logo-white.png` | Light-on-dark variant | 400 x 120 px |
+| `m365-assess-logo-light.png` | README hero (light theme) | 1024 x 1024 px |
+| `m365-assess-logo-dark.png` | README hero (dark theme) | 1024 x 1024 px |
 | `m365-assess-bg.png` | Cover page background | 1200 x 800 px |
 
 ## Testing
