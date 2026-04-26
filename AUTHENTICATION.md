@@ -163,6 +163,9 @@ This is useful when:
 
 ## Cloud Environments
 
+> Per-section support varies by sovereign cloud (mostly affecting Defender + Intune in DoD). See [`docs/SOVEREIGN-CLOUDS.md`](docs/SOVEREIGN-CLOUDS.md) for the full Tested/Expected/Partial/Unsupported matrix.
+
+
 Use `-M365Environment` for government or sovereign cloud tenants:
 
 ```powershell
