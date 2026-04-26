@@ -299,6 +299,9 @@ On Windows, files extracted from a ZIP are tagged with an NTFS Zone.Identifier t
 
 ## Output Structure
 
+> **Handling sensitive output:** assessment files contain UPNs, mailbox metadata, admin role assignments, and policy bodies — treat them as confidential. See [`docs/DATA-HANDLING.md`](docs/DATA-HANDLING.md) for the deep dive on what's collected, secure sharing patterns, retention recommendations, and GDPR/HIPAA/CMMC alignment notes.
+
+
 ```
 M365-Assessment/
   Assessment_YYYYMMDD_HHMMSS_<tenant>/

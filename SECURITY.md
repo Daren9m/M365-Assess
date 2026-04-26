@@ -27,5 +27,5 @@ You should receive a response within 72 hours. We will work with you to understa
 - **Read-only operations**: All collectors use read-only cmdlets and Graph API scopes. No write permissions are requested or used.
 - **No credential storage**: The tool never stores credentials, tokens, or secrets to disk. Authentication is delegated to Microsoft's identity libraries (MSAL).
 - **Minimal permissions**: Each collector documents exactly which API permissions it requires. Certificate-based auth scopes are limited to the minimum needed.
-- **PII in output**: Assessment output files contain tenant data (usernames, domains, policy names). Treat output folders as confidential and share only through secure channels.
+- **PII in output**: Assessment output files contain tenant data (usernames, domains, policy names). Treat output folders as confidential and share only through secure channels. See [`docs/DATA-HANDLING.md`](docs/DATA-HANDLING.md) for what's collected per section, secure sharing patterns, retention recommendations, and GDPR/HIPAA/CMMC alignment notes.
 - **Sample reports**: The included sample report in `docs/sample-report/` has all tenant PII replaced with fictional Contoso data.
