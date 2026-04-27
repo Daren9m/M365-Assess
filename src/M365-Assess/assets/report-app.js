@@ -2646,7 +2646,8 @@ function FilterBar({
   counts,
   total,
   search,
-  setSearch
+  setSearch,
+  inFindings
 }) {
   const [domainOpen, setDomainOpen] = useState(false);
   const [fwOpen, setFwOpen] = useState(false);
@@ -2693,7 +2694,8 @@ function FilterBar({
     });
   };
   const active = filters.status.length + filters.severity.length + filters.framework.length + filters.domain.length + (filters.profile || []).length;
-  const isActive = search.length > 0 || active > 0;
+  const hasActiveFilters = search.length > 0 || active > 0;
+  const isActive = hasActiveFilters && inFindings;
 
   // [data-value, css-class, optional-display-label]
   const statusChips = [['Fail', 'fail'], ['Warning', 'warn'], ['Review', 'review'], ['Pass', 'pass'], ['Info', 'info'], ['Skipped', 'skipped'], ['Unknown', 'unknown'], ['NotApplicable', 'notapplicable', 'Not Applicable'], ['NotLicensed', 'notlicensed', 'Not Licensed']];
@@ -4745,7 +4747,8 @@ function App() {
     counts: counts,
     total: FINDINGS.length,
     search: search,
-    setSearch: setSearch
+    setSearch: setSearch,
+    inFindings: active === 'findings'
   }), /*#__PURE__*/React.createElement(FindingsTable, {
     filters: filters,
     search: search,
