@@ -1651,7 +1651,7 @@ function FrameworkQuilt({ onSelect, selected, onProfileSelect, activeProfiles })
 }
 
 // ======================== Filter bar ========================
-function FilterBar({ filters, setFilters, counts, total, search, setSearch }) {
+function FilterBar({ filters, setFilters, counts, total, search, setSearch, inFindings }) {
   const [domainOpen, setDomainOpen] = useState(false);
   const [fwOpen, setFwOpen] = useState(false);
   const domainRef = useRef(null);
@@ -1689,7 +1689,8 @@ function FilterBar({ filters, setFilters, counts, total, search, setSearch }) {
     });
   };
   const active = filters.status.length + filters.severity.length + filters.framework.length + filters.domain.length + (filters.profile||[]).length;
-  const isActive = search.length > 0 || active > 0;
+  const hasActiveFilters = search.length > 0 || active > 0;
+  const isActive = hasActiveFilters && inFindings;
 
   // [data-value, css-class, optional-display-label]
   const statusChips = [
@@ -3020,7 +3021,7 @@ function App() {
         <DomainRollup onJump={onDomainJump}/>
         <div id="findings-anchor"/>
         <div style={{marginTop:20}}/>
-        <FilterBar filters={filters} setFilters={setFilters} counts={counts} total={FINDINGS.length} search={search} setSearch={setSearch}/>
+        <FilterBar filters={filters} setFilters={setFilters} counts={counts} total={FINDINGS.length} search={search} setSearch={setSearch} inFindings={active === 'findings'}/>
         <FindingsTable filters={filters} search={search} focusFinding={focusFinding} onFocusClear={() => setFocusFinding(null)}
           onMatchesChange={setSearchMatches}
           editMode={editMode} hiddenFindings={hiddenFindings} onHide={toggleHideFinding} onRestoreAll={restoreAllFindings}/>
