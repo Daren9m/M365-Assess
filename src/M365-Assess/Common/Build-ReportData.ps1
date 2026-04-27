@@ -268,7 +268,18 @@ function Build-ReportDataJson {
     $caRows        = & $get 'ca'
     $adminRoleRows = & $get 'admin-roles'
 
-    $frameworkList = @($FrameworkDefs | ForEach-Object { @{ id = $_['frameworkId']; full = $_['label']; desc = $_['description']; url = $_['homepageUrl'] } })
+    # Issue #751: surface the framework's native taxonomy (groupBy + groupLabel +
+    # groups map) so the React FrameworkQuilt can render per-framework
+    # section/family rows. Import-FrameworkDefinitions promotes these to
+    # top-level on the framework hashtable, including aliasing legacy field
+    # names (sections / controls / families / etc.) to 'groups'.
+    $frameworkList = @($FrameworkDefs | ForEach-Object {
+        $entry = @{ id = $_['frameworkId']; full = $_['label']; desc = $_['description']; url = $_['homepageUrl'] }
+        if ($_.ContainsKey('groupBy')    -and $_['groupBy'])    { $entry['groupBy']    = $_['groupBy'] }
+        if ($_.ContainsKey('groupLabel') -and $_['groupLabel']) { $entry['groupLabel'] = $_['groupLabel'] }
+        if ($_.ContainsKey('groups')     -and $_['groups'])     { $entry['groups']     = $_['groups'] }
+        $entry
+    })
 
     # ------------------------------------------------------------------
     # Mailbox summary — pivot Metric/Count rows into a single object
