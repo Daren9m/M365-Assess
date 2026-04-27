@@ -2234,6 +2234,11 @@ function FrameworkQuilt({
     }));
     return out;
   }, []);
+
+  // Issue #751: hoisted before fwFamilyBreakdown so the memo's dependency
+  // array can reference expandedMeta without hitting a TDZ ReferenceError
+  // (which unmounted the entire report on the prior commit on this branch).
+  const expandedMeta = expandedFw ? FRAMEWORKS.find(f => f.id === expandedFw) : null;
   const fwDomainBreakdown = useMemo(() => {
     if (!expandedFw) return {};
     const tokens = activeProfiles || [];
@@ -2334,7 +2339,8 @@ function FrameworkQuilt({
   const displayFws = FRAMEWORKS.filter(f => visibleFws.includes(f.id));
   const pickerLabel = visibleFws.length === 1 ? FRAMEWORKS.find(f => f.id === visibleFws[0])?.full || visibleFws[0] : `${visibleFws.length} frameworks`;
   const handleCardClick = fwId => setExpandedFw(e => e === fwId ? null : fwId);
-  const expandedMeta = expandedFw ? FRAMEWORKS.find(f => f.id === expandedFw) : null;
+
+  // expandedMeta is hoisted earlier (above fwFamilyBreakdown) — see comment there.
   const expandedData = expandedFw ? byFw[expandedFw] : null;
 
   // Count of findings within the expanded framework that match the active level-chip
