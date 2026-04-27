@@ -2132,6 +2132,63 @@ const matchProfileToken = (profilesArr, token) => {
   return profilesArr.some(p => p.includes(token));
 };
 
+// Issue #751: per-framework family taxonomy used by the framework panel's
+// "Coverage by family" breakdown. v1 covers CIS M365 (sections 1-9) and
+// CMMC (11 standard families). Other frameworks fall back to the prior
+// "Coverage by domain" view. Migration to registry-driven mapping is
+// deferred -- hardcoded here for shipping speed per the issue's recommendation.
+const FRAMEWORK_FAMILIES = {
+  'cis-m365-v6': {
+    label: 'section',
+    // Extract the leading section number from a controlId like '5.2.2.5'
+    extract: cid => {
+      const m = String(cid).match(/^(\d+)/);
+      return m ? m[1] : null;
+    },
+    // Sort numerically by section number
+    compare: (a, b) => parseInt(a, 10) - parseInt(b, 10),
+    names: {
+      '1': 'Account / Authentication',
+      '2': 'Application Permissions',
+      '3': 'Data Management',
+      '4': 'Email Security',
+      '5': 'Auditing',
+      '6': 'Storage / OneDrive',
+      '7': 'SharePoint / Mobile',
+      '8': 'Microsoft Teams',
+      '9': 'Microsoft Defender'
+    }
+  },
+  'cmmc': {
+    label: 'family',
+    // Extract the family code from a controlId like 'AC.L2-3.1.1' or 'IA.L1-B.1.V'
+    extract: cid => {
+      const m = String(cid).match(/^([A-Z]{2})\./);
+      return m ? m[1] : null;
+    },
+    // Alphabetical sort by family code
+    compare: (a, b) => a.localeCompare(b),
+    names: {
+      'AC': 'Access Control',
+      'AT': 'Awareness & Training',
+      'AU': 'Audit & Accountability',
+      'CA': 'Security Assessment',
+      'CM': 'Configuration Management',
+      'CP': 'Contingency Planning',
+      'IA': 'Identification & Authentication',
+      'IR': 'Incident Response',
+      'MA': 'Maintenance',
+      'MP': 'Media Protection',
+      'PE': 'Physical Protection',
+      'PS': 'Personnel Security',
+      'RA': 'Risk Assessment',
+      'SC': 'System & Communications Protection',
+      'SI': 'System & Information Integrity',
+      'SR': 'Supply Chain Risk Management'
+    }
+  }
+};
+
 // ======================== Framework quilt ========================
 function FrameworkQuilt({
   onSelect,
@@ -2220,6 +2277,49 @@ function FrameworkQuilt({
       out[f.domain].total++;
       const k = STATUS_COLORS[f.status];
       if (k) out[f.domain][k]++;
+    });
+    return out;
+  }, [expandedFw, activeProfiles]);
+
+  // Issue #751: family/section breakdown for frameworks with their own native
+  // taxonomy (CIS, CMMC). Each finding is counted ONCE per family it touches
+  // (a CMMC finding mapped to AC + IA + MA increments all three families'
+  // totals, but only once per family even if it has multiple AC.L2-* controlIds).
+  const fwFamilyBreakdown = useMemo(() => {
+    if (!expandedFw) return null;
+    const fam = FRAMEWORK_FAMILIES[expandedFw];
+    if (!fam) return null;
+    const tokens = activeProfiles || [];
+    const out = {};
+    FINDINGS.forEach(f => {
+      if (!f.frameworks.includes(expandedFw)) return;
+      if (tokens.length > 0) {
+        const profs = [].concat(f.fwMeta?.[expandedFw]?.profiles || []);
+        if (!tokens.some(t => matchProfileToken(profs, t))) return;
+      }
+      const cidRaw = f.fwMeta?.[expandedFw]?.controlId;
+      if (!cidRaw) return;
+      // controlId can be a single value or semi/comma-separated list
+      const cids = String(cidRaw).split(/[;,]/).map(s => s.trim()).filter(Boolean);
+      const families = new Set();
+      cids.forEach(cid => {
+        const code = fam.extract(cid);
+        if (code) families.add(code);
+      });
+      if (families.size === 0) families.add('OTHER');
+      families.forEach(code => {
+        if (!out[code]) out[code] = {
+          pass: 0,
+          warn: 0,
+          fail: 0,
+          review: 0,
+          info: 0,
+          total: 0
+        };
+        out[code].total++;
+        const k = STATUS_COLORS[f.status];
+        if (k) out[code][k]++;
+      });
     });
     return out;
   }, [expandedFw, activeProfiles]);
@@ -2568,60 +2668,74 @@ function FrameworkQuilt({
     style: {
       flex: expandedData.info
     }
-  })), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 12,
-      fontWeight: 700,
-      textTransform: 'uppercase',
-      letterSpacing: '.1em',
-      color: 'var(--muted)',
-      marginBottom: 8
-    }
-  }, "Coverage by domain"), /*#__PURE__*/React.createElement("div", {
-    className: "fw-detail-domains"
-  }, Object.entries(fwDomainBreakdown).sort((a, b) => b[1].fail - a[1].fail || b[1].total - a[1].total).map(([domain, s]) => /*#__PURE__*/React.createElement("div", {
-    key: domain,
-    className: "fw-domain-row"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "fw-domain-name"
-  }, domain), /*#__PURE__*/React.createElement("div", {
-    className: "fw-domain-bar"
-  }, s.pass > 0 && /*#__PURE__*/React.createElement("div", {
-    className: "fw-seg pass",
-    style: {
-      flex: s.pass
-    }
-  }), s.warn > 0 && /*#__PURE__*/React.createElement("div", {
-    className: "fw-seg warn",
-    style: {
-      flex: s.warn
-    }
-  }), s.fail > 0 && /*#__PURE__*/React.createElement("div", {
-    className: "fw-seg fail",
-    style: {
-      flex: s.fail
-    }
-  }), s.review > 0 && /*#__PURE__*/React.createElement("div", {
-    className: "fw-seg review",
-    style: {
-      flex: s.review
-    }
-  }), s.info > 0 && /*#__PURE__*/React.createElement("div", {
-    className: "fw-seg info",
-    style: {
-      flex: s.info
-    }
-  })), /*#__PURE__*/React.createElement("div", {
-    className: "fw-domain-stat"
-  }, s.fail > 0 ? /*#__PURE__*/React.createElement("span", {
-    style: {
-      color: 'var(--danger-text)'
-    }
-  }, s.fail, " gap", s.fail !== 1 ? 's' : '') : /*#__PURE__*/React.createElement("span", {
-    style: {
-      color: 'var(--success-text)'
-    }
-  }, s.pass, " pass"))))), /*#__PURE__*/React.createElement("div", {
+  })), (() => {
+    // Issue #751: prefer the framework's own family/section taxonomy when
+    // available (CIS, CMMC); fall back to M365-Assess domain breakdown.
+    const famDef = FRAMEWORK_FAMILIES[expandedFw];
+    const useFamily = famDef && fwFamilyBreakdown && Object.keys(fwFamilyBreakdown).length > 0;
+    const headerLabel = useFamily ? `Coverage by ${famDef.label}` : 'Coverage by domain';
+    const rows = useFamily ? Object.entries(fwFamilyBreakdown).sort((a, b) => famDef.compare(a[0], b[0])) : Object.entries(fwDomainBreakdown).sort((a, b) => b[1].fail - a[1].fail || b[1].total - a[1].total);
+    const labelFor = key => {
+      if (!useFamily) return key;
+      if (key === 'OTHER') return 'Other';
+      const name = famDef.names[key];
+      return name ? `${key} · ${name}` : key;
+    };
+    return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 12,
+        fontWeight: 700,
+        textTransform: 'uppercase',
+        letterSpacing: '.1em',
+        color: 'var(--muted)',
+        marginBottom: 8
+      }
+    }, headerLabel), /*#__PURE__*/React.createElement("div", {
+      className: "fw-detail-domains"
+    }, rows.map(([key, s]) => /*#__PURE__*/React.createElement("div", {
+      key: key,
+      className: "fw-domain-row"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "fw-domain-name"
+    }, labelFor(key)), /*#__PURE__*/React.createElement("div", {
+      className: "fw-domain-bar"
+    }, s.pass > 0 && /*#__PURE__*/React.createElement("div", {
+      className: "fw-seg pass",
+      style: {
+        flex: s.pass
+      }
+    }), s.warn > 0 && /*#__PURE__*/React.createElement("div", {
+      className: "fw-seg warn",
+      style: {
+        flex: s.warn
+      }
+    }), s.fail > 0 && /*#__PURE__*/React.createElement("div", {
+      className: "fw-seg fail",
+      style: {
+        flex: s.fail
+      }
+    }), s.review > 0 && /*#__PURE__*/React.createElement("div", {
+      className: "fw-seg review",
+      style: {
+        flex: s.review
+      }
+    }), s.info > 0 && /*#__PURE__*/React.createElement("div", {
+      className: "fw-seg info",
+      style: {
+        flex: s.info
+      }
+    })), /*#__PURE__*/React.createElement("div", {
+      className: "fw-domain-stat"
+    }, s.fail > 0 ? /*#__PURE__*/React.createElement("span", {
+      style: {
+        color: 'var(--danger-text)'
+      }
+    }, s.fail, " gap", s.fail !== 1 ? 's' : '') : /*#__PURE__*/React.createElement("span", {
+      style: {
+        color: 'var(--success-text)'
+      }
+    }, s.pass, " pass"))))));
+  })(), /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: 14,
       paddingTop: 12,
