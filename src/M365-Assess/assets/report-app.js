@@ -3458,18 +3458,32 @@ function FindingsTable({
     }, f.intentDesign && /*#__PURE__*/React.createElement("div", {
       className: "intent-callout"
     }, /*#__PURE__*/React.createElement("strong", null, "Intentional by design."), f.intentRationale && /*#__PURE__*/React.createElement("span", null, " ", f.intentRationale)), /*#__PURE__*/React.createElement("div", {
-      className: "why"
+      className: "finding-status-bar"
+    }, /*#__PURE__*/React.createElement(FindingStatusBadge, {
+      status: f.status
+    }), /*#__PURE__*/React.createElement("div", {
+      className: "finding-status-meta"
+    }, f.severity && /*#__PURE__*/React.createElement("span", {
+      className: 'sev-pill sev-' + f.severity
+    }, f.severity), f.domain && /*#__PURE__*/React.createElement("span", {
+      className: "finding-status-domain"
+    }, f.domain))), /*#__PURE__*/React.createElement("div", {
+      className: "why why-prominent"
     }, /*#__PURE__*/React.createElement("div", {
       className: "why-label"
     }, "Why it matters"), /*#__PURE__*/React.createElement("div", {
       className: "why-text"
-    }, whyItMatters(f))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    }, whyItMatters(f))), /*#__PURE__*/React.createElement("div", {
+      className: "finding-current-pair"
+    }, /*#__PURE__*/React.createElement("div", {
       className: "block-title"
-    }, "Current value"), /*#__PURE__*/React.createElement("div", {
-      className: "value-box current"
-    }, f.current || '—')), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    }, currentLabelFor(f.status)), /*#__PURE__*/React.createElement("div", {
+      className: 'value-box current finding-current-' + statusTier(f.status)
+    }, f.current || '—')), /*#__PURE__*/React.createElement("div", {
+      className: "finding-recommended-pair"
+    }, /*#__PURE__*/React.createElement("div", {
       className: "block-title"
-    }, "Recommended value"), /*#__PURE__*/React.createElement("div", {
+    }, "Recommended"), /*#__PURE__*/React.createElement("div", {
       className: "value-box recommended"
     }, f.recommended || '—')), f.remediation && /*#__PURE__*/React.createElement("div", {
       className: "finding-remediation"
@@ -3477,7 +3491,27 @@ function FindingsTable({
       className: "block-title"
     }, "Remediation"), /*#__PURE__*/React.createElement("div", {
       className: "remediation-text"
-    }, f.remediation)), f.references && f.references.length > 0 && /*#__PURE__*/React.createElement("div", {
+    }, f.remediation)), f.frameworks && f.frameworks.length > 0 && /*#__PURE__*/React.createElement("div", {
+      className: "finding-frameworks"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "block-title"
+    }, "Mapped to frameworks"), /*#__PURE__*/React.createElement("div", {
+      className: "finding-fw-chips"
+    }, f.frameworks.map(fwId => {
+      const fwMeta = f.fwMeta?.[fwId];
+      const fwDef = FRAMEWORKS.find(x => x.id === fwId);
+      const label = fwDef ? fwDef.full : fwId;
+      const cid = fwMeta?.controlId;
+      return /*#__PURE__*/React.createElement("span", {
+        key: fwId,
+        className: "finding-fw-chip",
+        title: label
+      }, /*#__PURE__*/React.createElement("span", {
+        className: "finding-fw-name"
+      }, label), cid && /*#__PURE__*/React.createElement("span", {
+        className: "finding-fw-cid"
+      }, cid));
+    }))), f.references && f.references.length > 0 && /*#__PURE__*/React.createElement("div", {
       className: "finding-learn-more"
     }, /*#__PURE__*/React.createElement("div", {
       className: "block-title"
@@ -3584,6 +3618,43 @@ function renderRemediation(text) {
   }, /*#__PURE__*/React.createElement("span", {
     className: "remediation-label"
   }, "Portal"), /*#__PURE__*/React.createElement("p", null, b.text))));
+}
+
+// Issue #674: tier helpers for the redesigned finding-detail panel.
+function statusTier(status) {
+  if (status === 'Pass') return 'pass';
+  if (status === 'Fail') return 'fail';
+  if (status === 'Warning') return 'warn';
+  if (status === 'Review') return 'review';
+  if (status === 'Info') return 'info';
+  return 'neutral';
+}
+function currentLabelFor(status) {
+  if (status === 'Pass') return 'Current value (passing)';
+  if (status === 'Fail') return 'Current value (failing)';
+  if (status === 'Warning') return 'Current value (warning)';
+  return 'Current value';
+}
+function FindingStatusBadge({
+  status
+}) {
+  const tier = statusTier(status);
+  // Plain-language treatments per status. Fail and Warning get the strongest
+  // visual signal; Pass affirms the success.
+  const labels = {
+    Pass: 'PASS',
+    Fail: 'FAIL',
+    Warning: 'WARNING',
+    Review: 'REVIEW',
+    Info: 'INFO',
+    Skipped: 'SKIPPED',
+    Unknown: 'UNKNOWN',
+    NotApplicable: 'N/A',
+    NotLicensed: 'NOT LICENSED'
+  };
+  return /*#__PURE__*/React.createElement("span", {
+    className: 'finding-status-badge tier-' + tier
+  }, labels[status] || (status || '').toUpperCase());
 }
 function whyItMatters(f) {
   const id = f.checkId;

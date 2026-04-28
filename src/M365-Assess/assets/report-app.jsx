@@ -2237,22 +2237,55 @@ function FindingsTable({ filters, search, focusFinding, onFocusClear, onMatchesC
                       {f.intentRationale && <span> {f.intentRationale}</span>}
                     </div>
                   )}
-                  <div className="why">
+                  {/* Issue #674: status header — boosts pass/fail visual signal that
+                      was previously muted in the row header. Spans full width. */}
+                  <div className="finding-status-bar">
+                    <FindingStatusBadge status={f.status}/>
+                    <div className="finding-status-meta">
+                      {f.severity && <span className={'sev-pill sev-' + f.severity}>{f.severity}</span>}
+                      {f.domain && <span className="finding-status-domain">{f.domain}</span>}
+                    </div>
+                  </div>
+                  {/* Why It Matters — promoted to a prominent callout */}
+                  <div className="why why-prominent">
                     <div className="why-label">Why it matters</div>
                     <div className="why-text">{whyItMatters(f)}</div>
                   </div>
-                  <div>
-                    <div className="block-title">Current value</div>
-                    <div className="value-box current">{f.current || '—'}</div>
+                  {/* Paired Current / Recommended cards with outlined contrast */}
+                  <div className="finding-current-pair">
+                    <div className="block-title">{currentLabelFor(f.status)}</div>
+                    <div className={'value-box current finding-current-' + statusTier(f.status)}>{f.current || '—'}</div>
                   </div>
-                  <div>
-                    <div className="block-title">Recommended value</div>
+                  <div className="finding-recommended-pair">
+                    <div className="block-title">Recommended</div>
                     <div className="value-box recommended">{f.recommended || '—'}</div>
                   </div>
                   {f.remediation && (
                     <div className="finding-remediation">
                       <div className="block-title">Remediation</div>
                       <div className="remediation-text">{f.remediation}</div>
+                    </div>
+                  )}
+                  {/* Frameworks — show every framework this finding is mapped to,
+                      with its native controlId chip. Helps consultants answer
+                      "which framework requirement does this satisfy?" */}
+                  {f.frameworks && f.frameworks.length > 0 && (
+                    <div className="finding-frameworks">
+                      <div className="block-title">Mapped to frameworks</div>
+                      <div className="finding-fw-chips">
+                        {f.frameworks.map(fwId => {
+                          const fwMeta = f.fwMeta?.[fwId];
+                          const fwDef = FRAMEWORKS.find(x => x.id === fwId);
+                          const label = fwDef ? fwDef.full : fwId;
+                          const cid = fwMeta?.controlId;
+                          return (
+                            <span key={fwId} className="finding-fw-chip" title={label}>
+                              <span className="finding-fw-name">{label}</span>
+                              {cid && <span className="finding-fw-cid">{cid}</span>}
+                            </span>
+                          );
+                        })}
+                      </div>
                     </div>
                   )}
                   {f.references && f.references.length > 0 && (
@@ -2362,6 +2395,39 @@ function renderRemediation(text) {
           </div>
       )}
     </div>
+  );
+}
+
+// Issue #674: tier helpers for the redesigned finding-detail panel.
+function statusTier(status) {
+  if (status === 'Pass') return 'pass';
+  if (status === 'Fail') return 'fail';
+  if (status === 'Warning') return 'warn';
+  if (status === 'Review') return 'review';
+  if (status === 'Info') return 'info';
+  return 'neutral';
+}
+
+function currentLabelFor(status) {
+  if (status === 'Pass') return 'Current value (passing)';
+  if (status === 'Fail') return 'Current value (failing)';
+  if (status === 'Warning') return 'Current value (warning)';
+  return 'Current value';
+}
+
+function FindingStatusBadge({ status }) {
+  const tier = statusTier(status);
+  // Plain-language treatments per status. Fail and Warning get the strongest
+  // visual signal; Pass affirms the success.
+  const labels = {
+    Pass: 'PASS', Fail: 'FAIL', Warning: 'WARNING', Review: 'REVIEW',
+    Info: 'INFO', Skipped: 'SKIPPED', Unknown: 'UNKNOWN',
+    NotApplicable: 'N/A', NotLicensed: 'NOT LICENSED',
+  };
+  return (
+    <span className={'finding-status-badge tier-' + tier}>
+      {labels[status] || (status || '').toUpperCase()}
+    </span>
   );
 }
 
