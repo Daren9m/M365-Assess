@@ -4794,8 +4794,11 @@ function Appendix() {
   const licenses = D.licenses || [];
   const dns = D.dns || [];
   const dnsTotal = dns.length;
-  const spfPass = dns.filter(r => r.SPF === 'Pass').length;
-  const dkimPass = dns.filter(r => r.DKIMStatus === 'Pass' || r.DKIM === 'Pass').length;
+  // Issue #860: predicates aligned with DnsAuthPanel (line 986). The previous
+  // === 'Pass' checks always counted 0 because the data fields contain raw
+  // SPF records and 'OK' for DKIMStatus, never the literal 'Pass'.
+  const spfPass = dns.filter(r => r.SPF && !r.SPF.includes('Not')).length;
+  const dkimPass = dns.filter(r => r.DKIMStatus === 'OK').length;
   const dmarcEnf = dns.filter(r => r.DMARCPolicy === 'reject' || r.DMARCPolicy === 'quarantine').length;
   const allRoles = D['admin-roles'] || [];
   const roleCounts = allRoles.reduce((acc, r) => {
